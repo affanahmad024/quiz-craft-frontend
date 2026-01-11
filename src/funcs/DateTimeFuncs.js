@@ -154,3 +154,10 @@ export const getEndOfDay = (date) => {
   if (!date) return null;
   return dayjs(date).endOf('day').toDate();
 };
+
+/**
+ * Alias for getRelativeTime (for compatibility)
+ * @param {string|Date} date - Date
+ * @returns {string} - Relative time
+ */
+export const formatDistanceToNow = getRelativeTime;

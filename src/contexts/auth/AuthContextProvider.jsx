@@ -224,4 +224,5 @@ const useAuth = () => {
   return context;
 };
 
-export { AuthContextProvider, useAuth };
+export { useAuth };
+export default AuthContextProvider;

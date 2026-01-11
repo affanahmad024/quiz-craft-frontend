@@ -81,7 +81,7 @@ export const fetchWithAbort = async ({
   } catch (error) {
     // Handle abort error (don't show toast)
     if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
-      console.log('Request aborted');
+      // Request aborted by user
       return { success: false, aborted: true };
     }
 
