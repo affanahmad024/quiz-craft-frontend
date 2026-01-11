@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import PropTypes from 'prop-types';
-import { getLocalStorage, setLocalStorage } from '../../utils/LocalStorageUtils';
+import { getFromLS, saveToLS } from '../../funcs/LSFuncs';
 
 const ThemeModeContext = createContext();
 
@@ -16,11 +16,11 @@ const ThemeModeContext = createContext();
  */
 function ThemeModeProvider({ children }) {
   const [mode, setMode] = useState(() => {
-    return getLocalStorage('themeMode') || 'light';
+    return getFromLS('themeMode') || 'light';
   });
 
   useEffect(() => {
-    setLocalStorage('themeMode', mode);
+    saveToLS('themeMode', mode);
   }, [mode]);
 
   const toggleMode = () => {
