@@ -1,11 +1,14 @@
 // Root App Component
 // Following Phoenix pattern
 
+import { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Box, Typography, Button, Container } from '@mui/material';
 import PropTypes from 'prop-types';
 import { ROUTES } from './constants/RouteConstants';
 import PageNotFound from './components/screens/PageNotFound';
+import LoadingScreen from './components/screens/LoadingScreen';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { authRoutes } from './routes/AuthRoutes';
 import { quizRoutes } from './routes/QuizRoutes';
 import { attemptRoutes } from './routes/AttemptRoutes';
@@ -18,42 +21,46 @@ import DashboardScreen from './screens/DashboardScreen';
 
 function App() {
   return (
-    <Routes>
-      {/* Home Route - Redirect to Dashboard or Login */}
-      <Route path={ROUTES.HOME} element={<HomePage />} />
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingScreen message="Loading application..." />}>
+        <Routes>
+          {/* Home Route - Redirect to Dashboard or Login */}
+          <Route path={ROUTES.HOME} element={<HomePage />} />
 
-      {/* Auth Routes */}
-      {authRoutes}
+          {/* Auth Routes */}
+          {authRoutes}
 
-      {/* Quiz Routes */}
-      {quizRoutes}
+          {/* Quiz Routes */}
+          {quizRoutes}
 
-      {/* Attempt Routes */}
-      {attemptRoutes}
+          {/* Attempt Routes */}
+          {attemptRoutes}
 
-      {/* Discovery Routes */}
-      {discoveryRoutes}
+          {/* Discovery Routes */}
+          {discoveryRoutes}
 
-      {/* Profile Routes */}
-      {profileRoutes}
+          {/* Profile Routes */}
+          {profileRoutes}
 
-      {/* Admin Routes */}
-      {adminRoutes}
+          {/* Admin Routes */}
+          {adminRoutes}
 
-      {/* Dashboard Route */}
-      <Route
-        element={
-          <RequireAuth>
-            <BasicLayout />
-          </RequireAuth>
-        }
-      >
-        <Route path={ROUTES.DASHBOARD} element={<DashboardScreen />} />
-      </Route>
+          {/* Dashboard Route */}
+          <Route
+            element={
+              <RequireAuth>
+                <BasicLayout />
+              </RequireAuth>
+            }
+          >
+            <Route path={ROUTES.DASHBOARD} element={<DashboardScreen />} />
+          </Route>
 
-      {/* 404 Route */}
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+          {/* 404 Route */}
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
