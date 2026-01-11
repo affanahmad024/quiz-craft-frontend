@@ -10,6 +10,7 @@ import { authRoutes } from './routes/AuthRoutes';
 import { quizRoutes } from './routes/QuizRoutes';
 import { attemptRoutes } from './routes/AttemptRoutes';
 import { discoveryRoutes } from './routes/DiscoveryRoutes';
+import { profileRoutes } from './routes/ProfileRoutes';
 import RequireAuth from './guards/RequireAuth';
 import BasicLayout from './layouts/BasicLayout';
 import DashboardScreen from './screens/DashboardScreen';
@@ -31,6 +32,9 @@ function App() {
 
       {/* Discovery Routes */}
       {discoveryRoutes}
+
+      {/* Profile Routes */}
+      {profileRoutes}
 
       {/* Dashboard Route */}
       <Route
