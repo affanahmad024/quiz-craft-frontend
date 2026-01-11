@@ -9,6 +9,7 @@ import PageNotFound from './components/screens/PageNotFound';
 import { authRoutes } from './routes/AuthRoutes';
 import { quizRoutes } from './routes/QuizRoutes';
 import { attemptRoutes } from './routes/AttemptRoutes';
+import { discoveryRoutes } from './routes/DiscoveryRoutes';
 import RequireAuth from './guards/RequireAuth';
 import BasicLayout from './layouts/BasicLayout';
 import DashboardScreen from './screens/DashboardScreen';
@@ -27,6 +28,9 @@ function App() {
 
       {/* Attempt Routes */}
       {attemptRoutes}
+
+      {/* Discovery Routes */}
+      {discoveryRoutes}
 
       {/* Dashboard Route */}
       <Route
