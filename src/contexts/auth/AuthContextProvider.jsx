@@ -36,8 +36,8 @@ function AuthContextProvider({ children }) {
     try {
       const response = await loginUser(fetchData, abortContRef, { credentials });
 
-      if (response.success && response.data) {
-        const { user: userData, access_token, refresh_token } = response.data;
+      if (response.data && response.data.success && response.data.data) {
+        const { user: userData, access_token, refresh_token } = response.data.data;
 
         // Save tokens and user data
         setUser(userData);
@@ -98,8 +98,8 @@ function AuthContextProvider({ children }) {
         refreshToken: currentRefreshToken,
       });
 
-      if (response.success && response.data) {
-        const { access_token, user: userData } = response.data;
+      if (response.data && response.data.success && response.data.data) {
+        const { access_token, user: userData } = response.data.data;
 
         setAccessToken(access_token);
         setUser(userData);

@@ -57,6 +57,7 @@ const useNetReq = () => {
         timeout,
         signal,
         responseType,
+        withCredentials: true, // Enable credentials for CORS
       };
 
       const response = await axios(config);

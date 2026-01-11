@@ -13,7 +13,7 @@ import {
   DarkMode as DarkModeIcon,
   Devices as DevicesIcon,
 } from '@mui/icons-material';
-// import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ROUTES } from '../constants/RouteConstants';
 import { useAuth } from '../contexts/auth/AuthContextProvider';
 import { useThemeMode } from '../contexts/theme/ThemeModeContext';
