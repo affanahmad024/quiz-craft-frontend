@@ -11,6 +11,7 @@ import { quizRoutes } from './routes/QuizRoutes';
 import { attemptRoutes } from './routes/AttemptRoutes';
 import { discoveryRoutes } from './routes/DiscoveryRoutes';
 import { profileRoutes } from './routes/ProfileRoutes';
+import { adminRoutes } from './routes/AdminRoutes';
 import RequireAuth from './guards/RequireAuth';
 import BasicLayout from './layouts/BasicLayout';
 import DashboardScreen from './screens/DashboardScreen';
@@ -35,6 +36,9 @@ function App() {
 
       {/* Profile Routes */}
       {profileRoutes}
+
+      {/* Admin Routes */}
+      {adminRoutes}
 
       {/* Dashboard Route */}
       <Route
