@@ -1,17 +1,35 @@
 // Root App Component
 // Following Phoenix pattern
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Box, Typography, Button, Container } from '@mui/material';
 import PropTypes from 'prop-types';
 import { ROUTES } from './constants/RouteConstants';
 import PageNotFound from './components/screens/PageNotFound';
+import { authRoutes } from './routes/AuthRoutes';
+import RequireAuth from './guards/RequireAuth';
+import BasicLayout from './layouts/BasicLayout';
+import DashboardScreen from './screens/DashboardScreen';
 
 function App() {
   return (
     <Routes>
-      {/* Temporary Home Route for Phase 1 Testing */}
+      {/* Home Route - Redirect to Dashboard or Login */}
       <Route path={ROUTES.HOME} element={<HomePage />} />
+
+      {/* Auth Routes */}
+      {authRoutes}
+
+      {/* Dashboard Route */}
+      <Route
+        element={
+          <RequireAuth>
+            <BasicLayout />
+          </RequireAuth>
+        }
+      >
+        <Route path={ROUTES.DASHBOARD} element={<DashboardScreen />} />
+      </Route>
 
       {/* 404 Route */}
       <Route path="*" element={<PageNotFound />} />
