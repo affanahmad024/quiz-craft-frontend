@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { ROUTES } from './constants/RouteConstants';
 import PageNotFound from './components/screens/PageNotFound';
 import { authRoutes } from './routes/AuthRoutes';
+import { quizRoutes } from './routes/QuizRoutes';
 import RequireAuth from './guards/RequireAuth';
 import BasicLayout from './layouts/BasicLayout';
 import DashboardScreen from './screens/DashboardScreen';
@@ -19,6 +20,9 @@ function App() {
 
       {/* Auth Routes */}
       {authRoutes}
+
+      {/* Quiz Routes */}
+      {quizRoutes}
 
       {/* Dashboard Route */}
       <Route

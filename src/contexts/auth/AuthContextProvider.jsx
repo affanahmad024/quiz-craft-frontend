@@ -86,7 +86,7 @@ function AuthContextProvider({ children }) {
    * Refresh access token using refresh token
    * @returns {Promise<boolean>} - Success status
    */
-  const refreshToken = async () => {
+  const handleRefreshToken = async () => {
     try {
       const currentRefreshToken = getFromLS(LS_CONSTS.LS_REFRESH_TOKEN);
 
@@ -155,7 +155,7 @@ function AuthContextProvider({ children }) {
         // Check if access token is expired
         if (isTokenExpired(token)) {
           // Try to refresh
-          const refreshed = await refreshToken();
+          const refreshed = await handleRefreshToken();
           if (!refreshed) {
             // Refresh failed, logout
             await logout();
@@ -182,7 +182,7 @@ function AuthContextProvider({ children }) {
 
     const checkTokenExpiration = setInterval(() => {
       if (isTokenExpired(accessToken)) {
-        refreshToken();
+        handleRefreshToken();
       }
     }, 5 * 60 * 1000); // Check every 5 minutes
 
