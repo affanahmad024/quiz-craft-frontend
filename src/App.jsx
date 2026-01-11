@@ -8,6 +8,7 @@ import { ROUTES } from './constants/RouteConstants';
 import PageNotFound from './components/screens/PageNotFound';
 import { authRoutes } from './routes/AuthRoutes';
 import { quizRoutes } from './routes/QuizRoutes';
+import { attemptRoutes } from './routes/AttemptRoutes';
 import RequireAuth from './guards/RequireAuth';
 import BasicLayout from './layouts/BasicLayout';
 import DashboardScreen from './screens/DashboardScreen';
@@ -23,6 +24,9 @@ function App() {
 
       {/* Quiz Routes */}
       {quizRoutes}
+
+      {/* Attempt Routes */}
+      {attemptRoutes}
 
       {/* Dashboard Route */}
       <Route
