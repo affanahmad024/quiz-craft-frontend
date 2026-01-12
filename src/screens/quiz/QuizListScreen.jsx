@@ -2,7 +2,7 @@
 // Displays all user's quizzes with filters and actions
 // Following Phoenix pattern
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -29,7 +29,9 @@ function QuizListScreen() {
   const navigate = useNavigate();
   const { quizzes, isLoading, listMyQuizzes, deleteQuiz } = useQuiz();
 
-  const [filteredQuizzes, setFilteredQuizzes] = useState([]);
+  console.log('QuizListScreen - quizzes:', quizzes);
+  console.log('QuizListScreen - isLoading:', isLoading);
+
   const [filters, setFilters] = useState({
     search: '',
     difficulty: '',
@@ -42,8 +44,10 @@ function QuizListScreen() {
 
   // Fetch quizzes on mount
   useEffect(() => {
+    console.log('useEffect running - calling listMyQuizzes');
     const fetchQuizzes = async () => {
       const response = await listMyQuizzes();
+      console.log('listMyQuizzes response in screen:', response);
       if (!response.success) {
         toast.error(response.error || 'Failed to load quizzes');
       }
@@ -51,8 +55,14 @@ function QuizListScreen() {
     fetchQuizzes();
   }, [listMyQuizzes]);
 
-  // Apply filters whenever quizzes or filters change
-  useEffect(() => {
+  // Apply filters whenever quizzes or filters change - using useMemo instead of useEffect
+  const filteredQuizzes = useMemo(() => {
+    // Ensure quizzes is an array before spreading
+    if (!Array.isArray(quizzes)) {
+      console.error('quizzes is not an array:', quizzes);
+      return [];
+    }
+
     let result = [...quizzes];
 
     // Search filter
@@ -103,7 +113,7 @@ function QuizListScreen() {
         break;
     }
 
-    setFilteredQuizzes(result);
+    return result;
   }, [quizzes, filters]);
 
   // Handle search

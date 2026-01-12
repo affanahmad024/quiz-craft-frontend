@@ -26,10 +26,9 @@ export const fetchWithAbort = async ({
   authRequired = true,
 }) => {
   try {
-    // Abort previous request if exists
-    if (abortContRef.current) {
-      abortContRef.current.abort();
-    }
+    // Don't abort previous request - let multiple requests complete naturally
+    // This is important for React StrictMode which causes double-mounting
+    // The abort controller is only used for manual cancellation by the caller
     abortContRef.current = new AbortController();
 
     // Build URL

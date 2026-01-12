@@ -1,7 +1,7 @@
 // Network Request Hook
 // Following Phoenix pattern - Axios wrapper with authentication
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { getFromLS } from '../funcs/LSFuncs';
 import { LS_CONSTS } from '../constants/LSConstants';
@@ -19,7 +19,7 @@ const useNetReq = () => {
    * @param {object} config - Request configuration
    * @returns {Promise<object>} - Response data or error
    */
-  const fetchData = async ({
+  const fetchData = useCallback(async ({
     url,
     method = 'GET',
     body = null,
@@ -87,7 +87,7 @@ const useNetReq = () => {
       setError(errorResponse.error);
       return errorResponse;
     }
-  };
+  }, [baseURL]);
 
   return { loading, error, fetchData };
 };

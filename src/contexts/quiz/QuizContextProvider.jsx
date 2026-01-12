@@ -2,7 +2,7 @@
 // Global state management for quizzes
 // Following Phoenix pattern
 
-import { createContext, useContext, useState, useRef } from 'react';
+import { createContext, useContext, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import useNetReq from '../../hooks/NetworkRequest';
 import {
@@ -36,7 +36,25 @@ const QuizCtx = createContext();
  */
 function QuizContextProvider({ children }) {
   const { fetchData } = useNetReq();
-  const abortContRef = useRef(null);
+
+  // Separate abort controller refs for different operations to prevent interference
+  const createQuizAbortRef = useRef(null);
+  const getQuizAbortRef = useRef(null);
+  const listMyQuizzesAbortRef = useRef(null);
+  const listPublicQuizzesAbortRef = useRef(null);
+  const updateQuizAbortRef = useRef(null);
+  const deleteQuizAbortRef = useRef(null);
+  const publishQuizAbortRef = useRef(null);
+  const unpublishQuizAbortRef = useRef(null);
+  const duplicateQuizAbortRef = useRef(null);
+  const shareQuizAbortRef = useRef(null);
+  const searchQuizzesAbortRef = useRef(null);
+  const addQuestionAbortRef = useRef(null);
+  const updateQuestionAbortRef = useRef(null);
+  const deleteQuestionAbortRef = useRef(null);
+  const addAnswerAbortRef = useRef(null);
+  const updateAnswerAbortRef = useRef(null);
+  const deleteAnswerAbortRef = useRef(null);
 
   const [currentQuiz, setCurrentQuiz] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
@@ -48,7 +66,7 @@ function QuizContextProvider({ children }) {
    */
   const handleCreateQuiz = async (quizData) => {
     setIsLoading(true);
-    const response = await createQuiz(fetchData, abortContRef, { quizData });
+    const response = await createQuiz(fetchData, createQuizAbortRef, { quizData });
     setIsLoading(false);
 
     if (response.success) {
@@ -66,8 +84,8 @@ function QuizContextProvider({ children }) {
   const handleGetQuiz = async (quizId, full = false) => {
     setIsLoading(true);
     const response = full
-      ? await getQuizFull(fetchData, abortContRef, { quizId })
-      : await getQuiz(fetchData, abortContRef, { quizId });
+      ? await getQuizFull(fetchData, getQuizAbortRef, { quizId })
+      : await getQuiz(fetchData, getQuizAbortRef, { quizId });
     setIsLoading(false);
 
     if (response.success) {
@@ -80,28 +98,37 @@ function QuizContextProvider({ children }) {
   /**
    * Fetch user's quizzes
    */
-  const handleListMyQuizzes = async (page = 1, limit = 20) => {
+  const handleListMyQuizzes = useCallback(async (page = 1, limit = 20) => {
     setIsLoading(true);
-    const response = await listMyQuizzes(fetchData, abortContRef, { page, limit });
+    const response = await listMyQuizzes(fetchData, listMyQuizzesAbortRef, { page, limit });
     setIsLoading(false);
 
-    if (response.success) {
-      setQuizzes(response.data.quizzes);
+    console.log('listMyQuizzes response:', response);
+    console.log('response.data:', response.data);
+    console.log('response.data?.data?.quizzes:', response.data?.data?.quizzes);
+
+    if (response.success && response.data?.data?.quizzes) {
+      console.log('Setting quizzes to:', response.data.data.quizzes);
+      setQuizzes(response.data.data.quizzes);
+    } else if (!response.success && !response.aborted) {
+      // Only reset to empty array if request failed (not if aborted)
+      console.log('Request failed, setting empty array');
+      setQuizzes([]);
     }
 
     return response;
-  };
+  }, [fetchData]);
 
   /**
    * Fetch public quizzes
    */
   const handleListPublicQuizzes = async (page = 1, limit = 20) => {
     setIsLoading(true);
-    const response = await listPublicQuizzes(fetchData, abortContRef, { page, limit });
+    const response = await listPublicQuizzes(fetchData, listPublicQuizzesAbortRef, { page, limit });
     setIsLoading(false);
 
-    if (response.success) {
-      setPublicQuizzes(response.data.quizzes);
+    if (response.success && response.data?.data?.quizzes) {
+      setPublicQuizzes(response.data.data.quizzes);
     }
 
     return response;
@@ -112,7 +139,7 @@ function QuizContextProvider({ children }) {
    */
   const handleUpdateQuiz = async (quizId, updates) => {
     setIsLoading(true);
-    const response = await updateQuiz(fetchData, abortContRef, { quizId, updates });
+    const response = await updateQuiz(fetchData, updateQuizAbortRef, { quizId, updates });
     setIsLoading(false);
 
     if (response.success) {
@@ -131,7 +158,7 @@ function QuizContextProvider({ children }) {
    */
   const handleDeleteQuiz = async (quizId) => {
     setIsLoading(true);
-    const response = await deleteQuiz(fetchData, abortContRef, { quizId });
+    const response = await deleteQuiz(fetchData, deleteQuizAbortRef, { quizId });
     setIsLoading(false);
 
     if (response.success) {
@@ -150,7 +177,7 @@ function QuizContextProvider({ children }) {
    */
   const handlePublishQuiz = async (quizId) => {
     setIsLoading(true);
-    const response = await publishQuiz(fetchData, abortContRef, { quizId });
+    const response = await publishQuiz(fetchData, publishQuizAbortRef, { quizId });
     setIsLoading(false);
 
     if (response.success) {
@@ -168,7 +195,7 @@ function QuizContextProvider({ children }) {
    */
   const handleUnpublishQuiz = async (quizId) => {
     setIsLoading(true);
-    const response = await unpublishQuiz(fetchData, abortContRef, { quizId });
+    const response = await unpublishQuiz(fetchData, unpublishQuizAbortRef, { quizId });
     setIsLoading(false);
 
     if (response.success) {
@@ -186,7 +213,7 @@ function QuizContextProvider({ children }) {
    */
   const handleDuplicateQuiz = async (quizId) => {
     setIsLoading(true);
-    const response = await duplicateQuiz(fetchData, abortContRef, { quizId });
+    const response = await duplicateQuiz(fetchData, duplicateQuizAbortRef, { quizId });
     setIsLoading(false);
 
     if (response.success) {
@@ -201,7 +228,7 @@ function QuizContextProvider({ children }) {
    */
   const handleShareQuiz = async (quizId) => {
     setIsLoading(true);
-    const response = await shareQuiz(fetchData, abortContRef, { quizId });
+    const response = await shareQuiz(fetchData, shareQuizAbortRef, { quizId });
     setIsLoading(false);
 
     return response;
@@ -212,7 +239,7 @@ function QuizContextProvider({ children }) {
    */
   const handleSearchQuizzes = async (query, page = 1, limit = 20) => {
     setIsLoading(true);
-    const response = await searchQuizzes(fetchData, abortContRef, { query, page, limit });
+    const response = await searchQuizzes(fetchData, searchQuizzesAbortRef, { query, page, limit });
     setIsLoading(false);
 
     return response;
@@ -223,7 +250,7 @@ function QuizContextProvider({ children }) {
    */
   const handleAddQuestion = async (quizId, questionData) => {
     setIsLoading(true);
-    const response = await addQuestion(fetchData, abortContRef, { quizId, questionData });
+    const response = await addQuestion(fetchData, addQuestionAbortRef, { quizId, questionData });
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
@@ -242,7 +269,7 @@ function QuizContextProvider({ children }) {
    */
   const handleUpdateQuestion = async (questionId, updates) => {
     setIsLoading(true);
-    const response = await updateQuestion(fetchData, abortContRef, { questionId, updates });
+    const response = await updateQuestion(fetchData, updateQuestionAbortRef, { questionId, updates });
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
@@ -263,7 +290,7 @@ function QuizContextProvider({ children }) {
    */
   const handleDeleteQuestion = async (questionId) => {
     setIsLoading(true);
-    const response = await deleteQuestion(fetchData, abortContRef, { questionId });
+    const response = await deleteQuestion(fetchData, deleteQuestionAbortRef, { questionId });
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
@@ -282,7 +309,7 @@ function QuizContextProvider({ children }) {
    */
   const handleAddAnswer = async (questionId, answerData) => {
     setIsLoading(true);
-    const response = await addAnswer(fetchData, abortContRef, { questionId, answerData });
+    const response = await addAnswer(fetchData, addAnswerAbortRef, { questionId, answerData });
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
@@ -305,7 +332,7 @@ function QuizContextProvider({ children }) {
    */
   const handleUpdateAnswer = async (answerId, updates) => {
     setIsLoading(true);
-    const response = await updateAnswer(fetchData, abortContRef, { answerId, updates });
+    const response = await updateAnswer(fetchData, updateAnswerAbortRef, { answerId, updates });
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
@@ -327,7 +354,7 @@ function QuizContextProvider({ children }) {
    */
   const handleDeleteAnswer = async (answerId) => {
     setIsLoading(true);
-    const response = await deleteAnswer(fetchData, abortContRef, { answerId });
+    const response = await deleteAnswer(fetchData, deleteAnswerAbortRef, { answerId });
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
