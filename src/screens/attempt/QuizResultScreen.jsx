@@ -47,7 +47,8 @@ function QuizResultScreen() {
     };
 
     fetchResults();
-  }, [id, getAttemptResults, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Handle back to attempts
   const handleBackToAttempts = () => {

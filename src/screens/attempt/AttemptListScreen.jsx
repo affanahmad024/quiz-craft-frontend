@@ -39,7 +39,8 @@ function AttemptListScreen() {
     };
 
     fetchAttempts();
-  }, [listMyAttempts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Apply status filter
   useEffect(() => {

@@ -15,7 +15,11 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
-import { Add as AddIcon, Quiz as QuizIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Quiz as QuizIcon,
+  Assessment as AssessmentIcon,
+} from '@mui/icons-material';
 import { useQuiz } from '../../contexts/quiz/QuizContextProvider';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
 import QuizCard from '../../components/quiz/QuizCard';
@@ -169,6 +173,11 @@ function QuizListScreen() {
     navigate(ROUTES.QUIZ_CREATE);
   };
 
+  // Handle view attempts
+  const handleViewAttempts = () => {
+    navigate(ROUTES.ATTEMPT_LIST);
+  };
+
   if (isLoading && quizzes.length === 0) {
     return <LoadingScreen message="Loading your quizzes..." />;
   }
@@ -212,22 +221,43 @@ function QuizListScreen() {
             </Typography>
           </Box>
 
-          <QuizCraftButton
-            variant="contained"
-            size="large"
-            startIcon={<AddIcon />}
-            onClick={handleCreateQuiz}
-            sx={{
-              bgcolor: 'white',
-              color: '#6C5CE7',
-              fontWeight: 600,
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-              },
-            }}
-          >
-            Create New Quiz
-          </QuizCraftButton>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <QuizCraftButton
+              variant="outlined"
+              size="large"
+              startIcon={<AssessmentIcon />}
+              onClick={handleViewAttempts}
+              sx={{
+                bgcolor: 'white',
+                color: '#6C5CE7',
+                borderColor: 'white',
+                fontWeight: 600,
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: 'white',
+                },
+              }}
+            >
+              My Attempts
+            </QuizCraftButton>
+
+            <QuizCraftButton
+              variant="contained"
+              size="large"
+              startIcon={<AddIcon />}
+              onClick={handleCreateQuiz}
+              sx={{
+                bgcolor: 'white',
+                color: '#6C5CE7',
+                fontWeight: 600,
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                },
+              }}
+            >
+              Create New Quiz
+            </QuizCraftButton>
+          </Box>
         </Box>
 
         {/* Filters */}
