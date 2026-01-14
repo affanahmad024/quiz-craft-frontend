@@ -96,7 +96,7 @@ function EditQuizScreen() {
   // Fetch quiz on mount
   useEffect(() => {
     const fetchQuiz = async () => {
-      const response = await getQuiz(parseInt(id), true);
+      const response = await getQuiz(id, true);
       if (!response.success) {
         toast.error(response.error || 'Failed to load quiz');
         navigate(ROUTES.QUIZ_LIST);
@@ -215,7 +215,7 @@ function EditQuizScreen() {
         : [],
     };
 
-    const response = await updateQuiz(parseInt(id), updates);
+    const response = await updateQuiz(id, updates);
 
     if (response.success) {
       toast.success('Quiz updated successfully');
@@ -440,7 +440,7 @@ function EditQuizScreen() {
     if (editingQuestion) {
       response = await updateQuestion(editingQuestion.id, questionData);
     } else {
-      response = await addQuestion(parseInt(id), questionData);
+      response = await addQuestion(id, questionData);
     }
 
     if (response.success) {

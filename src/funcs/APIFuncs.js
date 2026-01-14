@@ -3,10 +3,11 @@
 
 /**
  * Replace URL parameters with actual values
- * Example: replaceUrlParams('quizzes/<id>/questions', { id: '123' })
+ * Supports both :param and <param> syntax for flexibility
+ * Example: replaceUrlParams('quizzes/:id/questions', { id: '123' })
  * Result: 'quizzes/123/questions'
  *
- * @param {string} url - URL with placeholders
+ * @param {string} url - URL with placeholders (:param or <param>)
  * @param {object} params - Parameters to replace
  * @returns {string} - URL with replaced parameters
  */
@@ -14,9 +15,19 @@ export const replaceUrlParams = (url, params) => {
   let replacedUrl = url;
 
   Object.keys(params).forEach((key) => {
-    const placeholder = `<${key}>`;
+    // Support both :param (standard) and <param> (legacy) syntax
+    const colonPlaceholder = `:${key}`;
+    const anglePlaceholder = `<${key}>`;
+
+    // Replace :param syntax (e.g., :id, :qid, :aid)
     replacedUrl = replacedUrl.replace(
-      placeholder,
+      colonPlaceholder,
+      encodeURIComponent(params[key])
+    );
+
+    // Replace <param> syntax for backward compatibility
+    replacedUrl = replacedUrl.replace(
+      anglePlaceholder,
       encodeURIComponent(params[key])
     );
   });

@@ -55,7 +55,7 @@ function TakeQuizScreen() {
     const initializeAttempt = async () => {
       if (!attemptId) {
         // Start new attempt
-        const response = await startAttempt(parseInt(id));
+        const response = await startAttempt(id);
         if (response.success) {
           toast.success('Quiz started!');
         } else {
@@ -79,7 +79,7 @@ function TakeQuizScreen() {
   useEffect(() => {
     const fetchQuiz = async () => {
       if (id) {
-        const response = await getQuiz(parseInt(id), true);
+        const response = await getQuiz(id, true);
         if (!response.success) {
           toast.error(response.error || 'Failed to load quiz');
         }

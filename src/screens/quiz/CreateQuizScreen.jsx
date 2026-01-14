@@ -154,7 +154,14 @@ function CreateQuizScreen() {
     if (response.success) {
       toast.success('Quiz created successfully! Now add questions.');
       // Navigate to edit screen to add questions
-      navigate(buildRoute(ROUTES.QUIZ_EDIT, { id: response.data.id }));
+      // Handle both response.data.id and response.data.data.id formats
+      const quizId = response.data?.id || response.data?.data?.id;
+      if (quizId) {
+        navigate(buildRoute(ROUTES.QUIZ_EDIT, { id: quizId }));
+      } else {
+        console.error('Quiz ID not found in response:', response);
+        toast.error('Quiz created but unable to navigate to edit page');
+      }
     } else {
       toast.error(response.error || 'Failed to create quiz');
     }

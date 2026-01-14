@@ -54,7 +54,7 @@ function QuizDetailScreen() {
   // Fetch quiz on mount
   useEffect(() => {
     const fetchQuiz = async () => {
-      const response = await getQuiz(parseInt(id), true);
+      const response = await getQuiz(id, true);
       if (!response.success) {
         toast.error(response.error || 'Failed to load quiz');
         navigate(ROUTES.QUIZ_LIST);
@@ -83,7 +83,7 @@ function QuizDetailScreen() {
 
   // Confirm delete
   const confirmDelete = async () => {
-    const response = await deleteQuiz(parseInt(id));
+    const response = await deleteQuiz(id);
 
     if (response.success) {
       toast.success('Quiz deleted successfully');
@@ -107,8 +107,8 @@ function QuizDetailScreen() {
   // Confirm publish/unpublish
   const confirmTogglePublish = async () => {
     const response = currentQuiz.is_published
-      ? await unpublishQuiz(parseInt(id))
-      : await publishQuiz(parseInt(id));
+      ? await unpublishQuiz(id)
+      : await publishQuiz(id);
 
     if (response.success) {
       toast.success(
