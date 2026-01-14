@@ -39,7 +39,9 @@ function AttemptContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentAttempt(response.data);
+      // Handle nested data structure: response.data.data contains the actual attempt
+      const attempt = response.data?.data || response.data;
+      setCurrentAttempt(attempt);
       setUserAnswers({});
     }
 
@@ -55,7 +57,9 @@ function AttemptContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentAttempt(response.data);
+      // Handle nested data structure: response.data.data contains the actual attempt
+      const attempt = response.data?.data || response.data;
+      setCurrentAttempt(attempt);
     }
 
     return response;
@@ -73,14 +77,16 @@ function AttemptContextProvider({ children }) {
     });
 
     if (response.success) {
+      // Handle nested data structure: response.data.data contains the actual answer result
+      const answerResult = response.data?.data || response.data;
       // Update local answer state
       setUserAnswers((prev) => ({
         ...prev,
         [questionId]: {
           answerId,
           answerText,
-          isCorrect: response.data.is_correct,
-          pointsEarned: response.data.points_earned,
+          isCorrect: answerResult.is_correct,
+          pointsEarned: answerResult.points_earned,
         },
       }));
     }
@@ -97,7 +103,9 @@ function AttemptContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentAttempt(response.data);
+      // Handle nested data structure: response.data.data contains the actual attempt
+      const attempt = response.data?.data || response.data;
+      setCurrentAttempt(attempt);
     }
 
     return response;
@@ -112,7 +120,9 @@ function AttemptContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentResults(response.data);
+      // Handle nested data structure: response.data.data contains the actual results
+      const results = response.data?.data || response.data;
+      setCurrentResults(results);
     }
 
     return response;
@@ -132,7 +142,9 @@ function AttemptContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setAttempts(response.data.attempts);
+      // Handle nested data structure: response.data.data.attempts contains the actual attempts
+      const attempts = response.data?.data?.attempts || response.data?.attempts || [];
+      setAttempts(attempts);
     }
 
     return response;

@@ -61,7 +61,8 @@ function QuizDetailScreen() {
       }
     };
     fetchQuiz();
-  }, [id, getQuiz, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Check if user is creator
   const isCreator = currentQuiz && user && currentQuiz.creator_id === user.id;

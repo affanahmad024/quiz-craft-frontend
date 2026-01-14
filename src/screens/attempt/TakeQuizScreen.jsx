@@ -73,7 +73,8 @@ function TakeQuizScreen() {
     };
 
     initializeAttempt();
-  }, [id, attemptId, startAttempt, getAttempt, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, attemptId]);
 
   // Fetch full quiz details
   useEffect(() => {
@@ -87,7 +88,8 @@ function TakeQuizScreen() {
     };
 
     fetchQuiz();
-  }, [id, getQuiz]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Load saved answers from userAnswers
   useEffect(() => {

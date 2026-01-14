@@ -53,7 +53,8 @@ function QuizListScreen() {
       }
     };
     fetchQuizzes();
-  }, [listMyQuizzes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Apply filters whenever quizzes or filters change - using useMemo instead of useEffect
   const filteredQuizzes = useMemo(() => {

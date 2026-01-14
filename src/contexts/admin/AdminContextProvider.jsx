@@ -145,7 +145,9 @@ function AdminContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setPlatformStats(response.data);
+      // Handle nested data structure: response.data.data contains the actual stats
+      const stats = response.data?.data || response.data;
+      setPlatformStats(stats);
     }
 
     return response;

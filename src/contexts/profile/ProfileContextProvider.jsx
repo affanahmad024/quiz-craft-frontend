@@ -35,7 +35,7 @@ function ProfileContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setProfile(response.data);
+      setProfile(response.data?.data || response.data);
     }
 
     return response;
@@ -50,7 +50,7 @@ function ProfileContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setProfile(response.data);
+      setProfile(response.data?.data || response.data);
     }
 
     return response;
@@ -76,7 +76,7 @@ function ProfileContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setStatistics(response.data);
+      setStatistics(response.data?.data || response.data);
     }
 
     return response;

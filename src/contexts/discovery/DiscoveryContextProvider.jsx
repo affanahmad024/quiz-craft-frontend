@@ -45,12 +45,12 @@ function DiscoveryContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setSearchResults(response.data.quizzes);
+      setSearchResults(response.data?.data || response.data.quizzes);
       setSearchMeta({
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: response.data.total_pages,
+        total: response.data?.data || response.data.total,
+        page: response.data?.data || response.data.page,
+        limit: response.data?.data || response.data.limit,
+        totalPages: response.data?.data || response.data.total_pages,
       });
     }
 
@@ -66,7 +66,7 @@ function DiscoveryContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCategories(response.data.categories);
+      setCategories(response.data?.data || response.data.categories);
     }
 
     return response;
@@ -81,7 +81,7 @@ function DiscoveryContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setTags(response.data.tags);
+      setTags(response.data?.data || response.data.tags);
     }
 
     return response;
@@ -107,7 +107,7 @@ function DiscoveryContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setQuizStats(response.data);
+      setQuizStats(response.data?.data || response.data);
     }
 
     return response;
@@ -122,7 +122,7 @@ function DiscoveryContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setQuizStats(response.data);
+      setQuizStats(response.data?.data || response.data);
     }
 
     return response;

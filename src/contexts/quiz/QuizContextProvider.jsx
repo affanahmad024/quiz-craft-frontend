@@ -70,9 +70,11 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentQuiz(response.data);
+      // Handle nested data structure: response.data.data contains the actual quiz
+      const quiz = response.data?.data || response.data;
+      setCurrentQuiz(quiz);
       // Add to quizzes list
-      setQuizzes((prev) => [response.data, ...prev]);
+      setQuizzes((prev) => [quiz, ...prev]);
     }
 
     return response;
@@ -89,7 +91,8 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentQuiz(response.data);
+      // Handle nested data structure: response.data.data contains the actual quiz
+      setCurrentQuiz(response.data?.data || response.data);
     }
 
     return response;
@@ -143,10 +146,12 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentQuiz(response.data);
+      // Handle nested data structure: response.data.data contains the actual quiz
+      const quiz = response.data?.data || response.data;
+      setCurrentQuiz(quiz);
       // Update in list
       setQuizzes((prev) =>
-        prev.map((q) => (q.id === quizId ? response.data : q))
+        prev.map((q) => (q.id === quizId ? quiz : q))
       );
     }
 
@@ -181,9 +186,11 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentQuiz(response.data);
+      // Handle nested data structure: response.data.data contains the actual quiz
+      const quiz = response.data?.data || response.data;
+      setCurrentQuiz(quiz);
       setQuizzes((prev) =>
-        prev.map((q) => (q.id === quizId ? response.data : q))
+        prev.map((q) => (q.id === quizId ? quiz : q))
       );
     }
 
@@ -199,9 +206,11 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setCurrentQuiz(response.data);
+      // Handle nested data structure: response.data.data contains the actual quiz
+      const quiz = response.data?.data || response.data;
+      setCurrentQuiz(quiz);
       setQuizzes((prev) =>
-        prev.map((q) => (q.id === quizId ? response.data : q))
+        prev.map((q) => (q.id === quizId ? quiz : q))
       );
     }
 
@@ -217,7 +226,9 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setQuizzes((prev) => [response.data, ...prev]);
+      // Handle nested data structure: response.data.data contains the actual quiz
+      const quiz = response.data?.data || response.data;
+      setQuizzes((prev) => [quiz, ...prev]);
     }
 
     return response;
@@ -254,10 +265,12 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
+      // Handle nested data structure: response.data.data contains the actual question
+      const question = response.data?.data || response.data;
       // Add question to current quiz
       setCurrentQuiz((prev) => ({
         ...prev,
-        questions: [...(prev.questions || []), response.data],
+        questions: [...(prev.questions || []), question],
       }));
     }
 
@@ -273,11 +286,13 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
+      // Handle nested data structure: response.data.data contains the actual question
+      const question = response.data?.data || response.data;
       // Update question in current quiz
       setCurrentQuiz((prev) => ({
         ...prev,
         questions: prev.questions.map((q) =>
-          q.id === questionId ? response.data : q
+          q.id === questionId ? question : q
         ),
       }));
     }
@@ -313,12 +328,14 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
+      // Handle nested data structure: response.data.data contains the actual answer
+      const answer = response.data?.data || response.data;
       // Add answer to question
       setCurrentQuiz((prev) => ({
         ...prev,
         questions: prev.questions.map((q) =>
           q.id === questionId
-            ? { ...q, answers: [...(q.answers || []), response.data] }
+            ? { ...q, answers: [...(q.answers || []), answer] }
             : q
         ),
       }));
@@ -336,12 +353,14 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success && currentQuiz) {
+      // Handle nested data structure: response.data.data contains the actual answer
+      const answer = response.data?.data || response.data;
       // Update answer in question
       setCurrentQuiz((prev) => ({
         ...prev,
         questions: prev.questions.map((q) => ({
           ...q,
-          answers: q.answers?.map((a) => (a.id === answerId ? response.data : a)),
+          answers: q.answers?.map((a) => (a.id === answerId ? answer : a)),
         })),
       }));
     }

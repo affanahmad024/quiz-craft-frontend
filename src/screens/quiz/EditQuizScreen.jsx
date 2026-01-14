@@ -19,6 +19,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   Stack,
   IconButton,
@@ -103,7 +104,8 @@ function EditQuizScreen() {
       }
     };
     fetchQuiz();
-  }, [id, getQuiz, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Populate form when quiz loads
   useEffect(() => {
