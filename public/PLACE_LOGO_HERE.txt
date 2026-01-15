@@ -1,0 +1,20 @@
+📋 LOGO PLACEMENT INSTRUCTIONS
+
+Place your QuizCraft logo file here:
+  📁 public/logo.png
+
+The logo should be:
+  ✓ PNG format with transparent background
+  ✓ Square or wide format (recommended: 512x512px or 200x60px)
+  ✓ High quality for crisp display
+
+The logo will be used in:
+  • Browser tab (favicon)
+  • Header navigation (top-left)
+  • Footer branding
+  • Auth pages (login, signup, etc.)
+
+Current references:
+  - /logo.png (public folder)
+
+If the logo file is missing, the app will show "QuizCraft" text as fallback.

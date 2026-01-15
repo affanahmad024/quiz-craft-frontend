@@ -7,8 +7,6 @@ import {
   Box,
   Container,
   Typography,
-  Card,
-  CardContent,
   IconButton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -20,6 +18,8 @@ import { useAuth } from '../../contexts/auth/AuthContextProvider';
 import useNetReq from '../../hooks/NetworkRequest';
 import { changePassword } from '../../services/auth/AuthServices';
 import toast from 'react-hot-toast';
+import { PageTransition, FadeInView } from '../../components/animations';
+import SetBrowserTabTitle from '../../layout/SetBrowserTabTitle';
 
 function ChangePasswordScreen() {
   const navigate = useNavigate();
@@ -105,120 +105,139 @@ function ChangePasswordScreen() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
-        py: 8,
-      }}
-    >
-      <Container maxWidth="sm">
-        <Box sx={{ mb: 2 }}>
-          <IconButton
-            onClick={handleBack}
-            sx={{
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              },
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-        </Box>
+    <PageTransition>
+      <SetBrowserTabTitle title="Change Password" />
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
+          py: 8,
+        }}
+      >
+        <Container maxWidth="sm">
+          <Box sx={{ mb: 2 }}>
+            <IconButton
+              onClick={handleBack}
+              sx={{
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+          </Box>
 
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              color: 'white',
-              fontWeight: 700,
-              mb: 1,
-            }}
-          >
-            Change Password
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'rgba(255, 255, 255, 0.9)',
-            }}
-          >
-            Update your account password
-          </Typography>
-        </Box>
-
-        <Card>
-          <CardContent sx={{ p: 4 }}>
-            <form onSubmit={handleSubmit}>
-              <QuizCraftTextInput
-                label="Current Password"
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                error={Boolean(errors.currentPassword)}
-                helperText={errors.currentPassword}
-                fullWidth
-                autoFocus
-                sx={{ mb: 2 }}
-              />
-
-              <QuizCraftTextInput
-                label="New Password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                error={Boolean(errors.newPassword)}
-                helperText={errors.newPassword}
-                fullWidth
-                sx={{ mb: 2 }}
-              />
-
-              <QuizCraftTextInput
-                label="Confirm New Password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                error={Boolean(errors.confirmPassword)}
-                helperText={errors.confirmPassword}
-                fullWidth
-                sx={{ mb: 3 }}
-              />
-
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="caption" color="text.secondary">
-                  Password must contain:
+          <FadeInView>
+            <Box
+              sx={{
+                backgroundColor: 'white',
+                borderRadius: 4,
+                p: 6,
+                maxWidth: 500,
+                mx: 'auto',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              {/* Logo */}
+              <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <img
+                  src="/logo.png"
+                  alt="QuizCraft Logo"
+                  style={{ height: '60px', marginBottom: '24px' }}
+                />
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    color: '#0D5C3F',
+                  }}
+                >
+                  Change Password
                 </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  - At least 8 characters
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  - One uppercase letter
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  - One lowercase letter
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  - One number
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Update your account password
                 </Typography>
               </Box>
 
-              <QuizCraftButton
-                type="submit"
-                variant="contained"
-                fullWidth
-                size="large"
-                loading={isLoading}
-              >
-                Change Password
-              </QuizCraftButton>
-            </form>
-          </CardContent>
-        </Card>
-      </Container>
-    </Box>
+              <form onSubmit={handleSubmit}>
+                <QuizCraftTextInput
+                  label="Current Password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  error={Boolean(errors.currentPassword)}
+                  helperText={errors.currentPassword}
+                  fullWidth
+                  autoFocus
+                  sx={{ mb: 2 }}
+                />
+
+                <QuizCraftTextInput
+                  label="New Password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  error={Boolean(errors.newPassword)}
+                  helperText={errors.newPassword}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+
+                <QuizCraftTextInput
+                  label="Confirm New Password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={Boolean(errors.confirmPassword)}
+                  helperText={errors.confirmPassword}
+                  fullWidth
+                  sx={{ mb: 3 }}
+                />
+
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Password must contain:
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    - At least 8 characters
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    - One uppercase letter
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    - One lowercase letter
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    - One number
+                  </Typography>
+                </Box>
+
+                <QuizCraftButton
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  loading={isLoading}
+                >
+                  Change Password
+                </QuizCraftButton>
+              </form>
+            </Box>
+          </FadeInView>
+        </Container>
+      </Box>
+    </PageTransition>
   );
 }
 
