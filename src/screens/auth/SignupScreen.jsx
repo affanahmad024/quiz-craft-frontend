@@ -1,6 +1,6 @@
 // Signup Screen
 // QuizCraft themed with green gradient and animations
-// Following Phoenix pattern
+// Following ERPICA template design pattern
 
 import { useState, useRef } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -11,7 +11,6 @@ import {
   Typography,
   Link,
   Alert,
-  Divider,
 } from '@mui/material';
 import { Email, Lock, Person, Phone } from '@mui/icons-material';
 import { ROUTES } from '../../constants/RouteConstants';
@@ -23,6 +22,7 @@ import { signupUser } from '../../services/auth/AuthServices';
 import toast from 'react-hot-toast';
 import { PageTransition, FadeInView } from '../../components/animations';
 import SetBrowserTabTitle from '../../layout/SetBrowserTabTitle';
+import AuthNavbar from '../../components/navigation/AuthNavbar';
 
 // Logo image - will be loaded from public folder
 const logoImage = '/logo.png';
@@ -127,128 +127,211 @@ function SignupScreen() {
           sx={{
             minHeight: '100vh',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
-            py: 4,
-            px: 2,
+            flexDirection: 'column',
+            backgroundColor: '#F8F9FA',
           }}
         >
-          <Container maxWidth="lg">
+          {/* Top Navigation Bar */}
+          <AuthNavbar currentPage="signup" />
+
+          {/* Main Content */}
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              py: { xs: 4, md: 6 },
+              px: 2,
+            }}
+          >
+          <Container maxWidth="xl">
             <FadeInView delay={0.1}>
               <Box
                 sx={{
                   backgroundColor: 'white',
-                  borderRadius: 4,
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                  borderRadius: 3,
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                   overflow: 'hidden',
                 }}
               >
                 <Grid container spacing={0}>
-                  {/* Left Side - Welcome Text & Features */}
+                  {/* Left Side - Logo, Company Name & Features */}
                   <Grid
                     item
-                    xs={6}
+                    xs={12}
+                    md={6}
                     sx={{
-                      background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
-                      color: 'white',
-                      p: { xs: 3, sm: 4, md: 8 },
+                      p: { xs: 4, sm: 5, md: 6, lg: 8 },
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
-                      minHeight: { xs: '400px', md: '600px' },
+                      backgroundColor: '#FAFBFC',
+                      minHeight: { xs: 'auto', md: '600px' },
+                      width: { xs: '100%', sm: '50%' },
+                      flexBasis: { xs: '100%', sm: '50%' },
+                      maxWidth: { xs: '100%', sm: '50%' },
                     }}
                   >
-                    {/* Logo */}
-                    <Box
-                      component="img"
-                      src={logoImage}
-                      alt="QuizCraft Logo"
-                      sx={{
-                        height: { xs: 35, sm: 50, md: 60 },
-                        width: 'auto',
-                        mb: { xs: 2, md: 4 },
-                        filter: 'brightness(0) invert(1)',
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
+                    {/* Logo and Company Name */}
+                    <Box sx={{ mb: 4 }}>
+                      <Box
+                        component="img"
+                        src={logoImage}
+                        alt="QuizCraft Logo"
+                        sx={{
+                          height: { xs: 60, sm: 80, md: 100 },
+                          width: 'auto',
+                          mb: 2,
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </Box>
 
+                    {/* Main Heading */}
                     <Typography
-                      variant="h3"
+                      variant="h4"
                       sx={{
                         fontWeight: 700,
-                        mb: { xs: 1, md: 2 },
-                        fontSize: { xs: '1.1rem', sm: '1.75rem', md: '2.5rem' },
+                        mb: 1,
+                        color: '#1A1A1A',
+                        fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
                       }}
                     >
-                      Join QuizCraft Today!
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        mb: { xs: 2, md: 4 },
-                        opacity: 0.95,
-                        fontSize: { xs: '0.75rem', sm: '1rem', md: '1.1rem' },
-                        display: { xs: 'none', sm: 'block' },
-                      }}
-                    >
-                      Create engaging quizzes and start your learning journey
+                      Manage Your Learning With -
                     </Typography>
 
                     {/* Features List */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, md: 2.5 } }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
-                        <Box
-                          sx={{
-                            width: { xs: 24, md: 36 },
-                            height: { xs: 24, md: 36 },
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Typography sx={{ fontSize: { xs: '0.9rem', md: '1.2rem' } }}>✓</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 4 }}>
+                      <Box>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 1 }}>
+                          <Box
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: '4px',
+                              background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              mt: 0.5,
+                            }}
+                          >
+                            <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>✓</Typography>
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant="subtitle1"
+                              sx={{
+                                fontWeight: 600,
+                                color: '#1A1A1A',
+                                mb: 0.5,
+                                fontSize: { xs: '0.95rem', md: '1rem' },
+                              }}
+                            >
+                              All-in-one Quiz Platform
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: '#6B7280',
+                                fontSize: { xs: '0.85rem', md: '0.9rem' },
+                                lineHeight: 1.6,
+                              }}
+                            >
+                              Create and take interactive quizzes from one unified dashboard—manage all your learning activities seamlessly.
+                            </Typography>
+                          </Box>
                         </Box>
-                        <Typography variant="body1" sx={{ fontSize: { xs: '0.7rem', sm: '0.9rem', md: '1rem' } }}>Free to get started</Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
-                        <Box
-                          sx={{
-                            width: { xs: 24, md: 36 },
-                            height: { xs: 24, md: 36 },
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Typography sx={{ fontSize: { xs: '0.9rem', md: '1.2rem' } }}>✓</Typography>
+
+                      <Box>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 1 }}>
+                          <Box
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: '4px',
+                              background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              mt: 0.5,
+                            }}
+                          >
+                            <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>✓</Typography>
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant="subtitle1"
+                              sx={{
+                                fontWeight: 600,
+                                color: '#1A1A1A',
+                                mb: 0.5,
+                                fontSize: { xs: '0.95rem', md: '1rem' },
+                              }}
+                            >
+                              Customizable To Your Learning
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: '#6B7280',
+                                fontSize: { xs: '0.85rem', md: '0.9rem' },
+                                lineHeight: 1.6,
+                              }}
+                            >
+                              Enable only the topics you need and customize settings based on how you learn best.
+                            </Typography>
+                          </Box>
                         </Box>
-                        <Typography variant="body1" sx={{ fontSize: { xs: '0.7rem', sm: '0.9rem', md: '1rem' } }}>Create unlimited quizzes</Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
-                        <Box
-                          sx={{
-                            width: { xs: 24, md: 36 },
-                            height: { xs: 24, md: 36 },
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Typography sx={{ fontSize: { xs: '0.9rem', md: '1.2rem' } }}>✓</Typography>
+
+                      <Box>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 1 }}>
+                          <Box
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: '4px',
+                              background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              mt: 0.5,
+                            }}
+                          >
+                            <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>✓</Typography>
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant="subtitle1"
+                              sx={{
+                                fontWeight: 600,
+                                color: '#1A1A1A',
+                                mb: 0.5,
+                                fontSize: { xs: '0.95rem', md: '1rem' },
+                              }}
+                            >
+                              Built-in Progress Tracking & Analytics
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: '#6B7280',
+                                fontSize: { xs: '0.85rem', md: '0.9rem' },
+                                lineHeight: 1.6,
+                              }}
+                            >
+                              Track your performance, view detailed analytics, and monitor your learning journey through integrated reports.
+                            </Typography>
+                          </Box>
                         </Box>
-                        <Typography variant="body1" sx={{ fontSize: { xs: '0.7rem', sm: '0.9rem', md: '1rem' } }}>Track your learning progress</Typography>
                       </Box>
                     </Box>
                   </Grid>
@@ -256,140 +339,220 @@ function SignupScreen() {
                   {/* Right Side - Signup Form */}
                   <Grid
                     item
-                    xs={6}
+                    xs={12}
+                    md={6}
                     sx={{
-                      p: { xs: 3, sm: 4, md: 8 },
+                      p: { xs: 4, sm: 5, md: 6, lg: 8 },
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
                       backgroundColor: 'white',
+                      width: { xs: '100%', sm: '50%' },
+                      flexBasis: { xs: '100%', sm: '50%' },
+                      maxWidth: { xs: '100%', sm: '50%' },
                     }}
                   >
                     {/* Form Header */}
-                    <Box sx={{ mb: { xs: 2, md: 4 } }}>
-                      <Typography
-                        variant="h4"
-                        component="h1"
-                        gutterBottom
-                        sx={{
-                          fontWeight: 700,
-                          background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          backgroundClip: 'text',
-                          fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' },
-                        }}
-                      >
-                        Create Account
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                          display: { xs: 'none', sm: 'block' },
-                        }}
-                      >
-                        Fill in your details to get started
-                      </Typography>
-                    </Box>
+                    <Typography
+                      variant="h4"
+                      component="h1"
+                      sx={{
+                        fontWeight: 700,
+                        color: '#1A1A1A',
+                        mb: 4,
+                        fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
+                      }}
+                    >
+                      Sign Up
+                    </Typography>
 
                     <form onSubmit={handleSubmit}>
                       {/* API Error Alert */}
                       {apiError && (
-                        <Alert severity="error" sx={{ mb: { xs: 1.5, md: 3 }, fontSize: { xs: '0.7rem', md: '0.875rem' } }}>
+                        <Alert severity="error" sx={{ mb: 3 }}>
                           {apiError}
                         </Alert>
                       )}
 
-                      {/* Email Field */}
-                      <QuizCraftTextInput
-                        label="Email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => {
-                          setEmail(e.target.value);
-                          setErrors({ ...errors, email: '' });
-                          setApiError('');
-                        }}
-                        error={errors.email}
-                        fullWidth
-                        required
-                        startIcon={<Email sx={{ fontSize: { xs: '1rem', md: '1.5rem' } }} />}
-                        placeholder="Enter your email"
-                        sx={{ mb: { xs: 1.5, md: 2.5 } }}
-                      />
+                      {/* Email Label and Field */}
+                      <Box sx={{ mb: 2.5 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mb: 1,
+                            color: '#1A1A1A',
+                            fontWeight: 500,
+                            '&::after': {
+                              content: '" *"',
+                              color: '#EF4444',
+                            },
+                          }}
+                        >
+                          Email
+                        </Typography>
+                        <QuizCraftTextInput
+                          type="email"
+                          value={email}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            setErrors({ ...errors, email: '' });
+                            setApiError('');
+                          }}
+                          error={errors.email}
+                          fullWidth
+                          required
+                          startIcon={<Person sx={{ color: '#9CA3AF' }} />}
+                          placeholder="Email"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: '#FAFBFC',
+                            },
+                          }}
+                        />
+                      </Box>
 
-                      {/* Name Field */}
-                      <QuizCraftTextInput
-                        label="Full Name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => {
-                          setName(e.target.value);
-                          setErrors({ ...errors, name: '' });
-                          setApiError('');
-                        }}
-                        error={errors.name}
-                        fullWidth
-                        required
-                        startIcon={<Person />}
-                        placeholder="Enter your full name"
-                        sx={{ mb: 2.5 }}
-                      />
+                      {/* Name Label and Field */}
+                      <Box sx={{ mb: 2.5 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mb: 1,
+                            color: '#1A1A1A',
+                            fontWeight: 500,
+                            '&::after': {
+                              content: '" *"',
+                              color: '#EF4444',
+                            },
+                          }}
+                        >
+                          Full Name
+                        </Typography>
+                        <QuizCraftTextInput
+                          type="text"
+                          value={name}
+                          onChange={(e) => {
+                            setName(e.target.value);
+                            setErrors({ ...errors, name: '' });
+                            setApiError('');
+                          }}
+                          error={errors.name}
+                          fullWidth
+                          required
+                          startIcon={<Person sx={{ color: '#9CA3AF' }} />}
+                          placeholder="Full Name"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: '#FAFBFC',
+                            },
+                          }}
+                        />
+                      </Box>
 
-                      {/* Password Field */}
-                      <QuizCraftTextInput
-                        label="Password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          setErrors({ ...errors, password: '' });
-                          setApiError('');
-                        }}
-                        error={errors.password}
-                        fullWidth
-                        required
-                        startIcon={<Lock />}
-                        placeholder="Enter your password"
-                        sx={{ mb: 2.5 }}
-                      />
+                      {/* Password Label and Field */}
+                      <Box sx={{ mb: 2.5 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mb: 1,
+                            color: '#1A1A1A',
+                            fontWeight: 500,
+                            '&::after': {
+                              content: '" *"',
+                              color: '#EF4444',
+                            },
+                          }}
+                        >
+                          Password
+                        </Typography>
+                        <QuizCraftTextInput
+                          type="password"
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                            setErrors({ ...errors, password: '' });
+                            setApiError('');
+                          }}
+                          error={errors.password}
+                          fullWidth
+                          required
+                          startIcon={<Lock sx={{ color: '#9CA3AF' }} />}
+                          placeholder="Password"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: '#FAFBFC',
+                            },
+                          }}
+                        />
+                      </Box>
 
-                      {/* Confirm Password Field */}
-                      <QuizCraftTextInput
-                        label="Confirm Password"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => {
-                          setConfirmPassword(e.target.value);
-                          setErrors({ ...errors, confirmPassword: '' });
-                          setApiError('');
-                        }}
-                        error={errors.confirmPassword}
-                        fullWidth
-                        required
-                        startIcon={<Lock />}
-                        placeholder="Confirm your password"
-                        sx={{ mb: 2.5 }}
-                      />
+                      {/* Confirm Password Label and Field */}
+                      <Box sx={{ mb: 2.5 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mb: 1,
+                            color: '#1A1A1A',
+                            fontWeight: 500,
+                            '&::after': {
+                              content: '" *"',
+                              color: '#EF4444',
+                            },
+                          }}
+                        >
+                          Confirm Password
+                        </Typography>
+                        <QuizCraftTextInput
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => {
+                            setConfirmPassword(e.target.value);
+                            setErrors({ ...errors, confirmPassword: '' });
+                            setApiError('');
+                          }}
+                          error={errors.confirmPassword}
+                          fullWidth
+                          required
+                          startIcon={<Lock sx={{ color: '#9CA3AF' }} />}
+                          placeholder="Confirm Password"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: '#FAFBFC',
+                            },
+                          }}
+                        />
+                      </Box>
 
-                      {/* Phone Number Field */}
-                      <QuizCraftTextInput
-                        label="Phone Number (Optional)"
-                        type="tel"
-                        value={phoneNumber}
-                        onChange={(e) => {
-                          setPhoneNumber(e.target.value);
-                          setErrors({ ...errors, phoneNumber: '' });
-                          setApiError('');
-                        }}
-                        error={errors.phoneNumber}
-                        fullWidth
-                        startIcon={<Phone />}
-                        placeholder="Enter your phone number"
-                        sx={{ mb: 3 }}
-                      />
+                      {/* Phone Number Label and Field (Optional) */}
+                      <Box sx={{ mb: 3 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mb: 1,
+                            color: '#1A1A1A',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Phone Number (Optional)
+                        </Typography>
+                        <QuizCraftTextInput
+                          type="tel"
+                          value={phoneNumber}
+                          onChange={(e) => {
+                            setPhoneNumber(e.target.value);
+                            setErrors({ ...errors, phoneNumber: '' });
+                            setApiError('');
+                          }}
+                          error={errors.phoneNumber}
+                          fullWidth
+                          startIcon={<Phone sx={{ color: '#9CA3AF' }} />}
+                          placeholder="Phone Number"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: '#FAFBFC',
+                            },
+                          }}
+                        />
+                      </Box>
 
                       {/* Sign Up Button */}
                       <QuizCraftButton
@@ -399,9 +562,12 @@ function SignupScreen() {
                         sx={{
                           background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
                           color: 'white',
-                          py: 1.5,
+                          py: 1.75,
                           fontSize: '1rem',
                           fontWeight: 600,
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          mb: 3,
                           '&:hover': {
                             background: 'linear-gradient(135deg, #0A4A32 0%, #6BC047 100%)',
                           },
@@ -410,22 +576,15 @@ function SignupScreen() {
                         {isLoading ? 'Creating Account...' : 'Sign Up'}
                       </QuizCraftButton>
 
-                      {/* Divider */}
-                      <Divider sx={{ my: 3 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          OR
-                        </Typography>
-                      </Divider>
-
                       {/* Login Link */}
                       <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="body2" color="text.secondary">
-                          Already have an account?{' '}
+                        <Typography variant="body2" sx={{ color: '#6B7280' }}>
+                          Already Have An Account?{' '}
                           <Link
                             component={RouterLink}
                             to={ROUTES.LOGIN}
                             sx={{
-                              color: '#0D5C3F',
+                              color: '#2563EB',
                               fontWeight: 600,
                               textDecoration: 'none',
                               '&:hover': {
@@ -438,29 +597,12 @@ function SignupScreen() {
                         </Typography>
                       </Box>
                     </form>
-
-                    {/* Back to Home */}
-                    <Box sx={{ textAlign: 'center', mt: 4 }}>
-                      <Link
-                        component={RouterLink}
-                        to={ROUTES.HOME}
-                        sx={{
-                          color: '#0D5C3F',
-                          textDecoration: 'none',
-                          fontSize: '0.875rem',
-                          '&:hover': {
-                            textDecoration: 'underline',
-                          },
-                        }}
-                      >
-                        ← Back to Home
-                      </Link>
-                    </Box>
                   </Grid>
                 </Grid>
               </Box>
             </FadeInView>
           </Container>
+          </Box>
         </Box>
       </PageTransition>
     </>
