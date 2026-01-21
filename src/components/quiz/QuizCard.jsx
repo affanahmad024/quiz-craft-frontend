@@ -37,12 +37,14 @@ function QuizCard({ quiz, onView, onEdit, onDelete }) {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 2,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        borderRadius: 3,
+        border: '1px solid #E8E8E8',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
         transition: 'all 0.3s ease',
         '&:hover': {
-          boxShadow: '0 8px 24px rgba(108, 92, 231, 0.2)',
+          boxShadow: '0 8px 20px rgba(102, 126, 234, 0.15)',
           transform: 'translateY(-4px)',
+          borderColor: '#667eea',
         },
       }}
     >
@@ -169,6 +171,49 @@ function QuizCard({ quiz, onView, onEdit, onDelete }) {
             </Box>
           </Tooltip>
         </Box>
+
+        {/* Latest Attempt Info */}
+        {quiz.latest_attempt && (
+          <Box
+            sx={{
+              mt: 2,
+              p: 1.5,
+              borderRadius: 1.5,
+              backgroundColor: quiz.latest_attempt.passed
+                ? 'rgba(67, 233, 123, 0.1)'
+                : 'rgba(245, 87, 108, 0.1)',
+              border: '1px solid',
+              borderColor: quiz.latest_attempt.passed
+                ? 'rgba(67, 233, 123, 0.3)'
+                : 'rgba(245, 87, 108, 0.3)',
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: COLORS.TEXT_SECONDARY }}>
+                Latest Attempt
+              </Typography>
+              <Chip
+                label={quiz.latest_attempt.passed ? 'Passed' : 'Failed'}
+                size="small"
+                sx={{
+                  height: 20,
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  backgroundColor: quiz.latest_attempt.passed ? '#43e97b' : '#f5576c',
+                  color: COLORS.WHITE,
+                }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: COLORS.TEXT_PRIMARY }}>
+                Score: {quiz.latest_attempt.percentage?.toFixed(1)}%
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {quiz.latest_attempt.score}/{quiz.latest_attempt.max_score} pts
+              </Typography>
+            </Box>
+          </Box>
+        )}
       </CardContent>
 
       {/* Action Buttons */}
@@ -255,6 +300,16 @@ QuizCard.propTypes = {
     share_count: PropTypes.number,
     tags: PropTypes.arrayOf(PropTypes.string),
     is_published: PropTypes.bool,
+    latest_attempt: PropTypes.shape({
+      attempt_id: PropTypes.string,
+      status: PropTypes.string,
+      score: PropTypes.number,
+      max_score: PropTypes.number,
+      percentage: PropTypes.number,
+      passed: PropTypes.bool,
+      started_at: PropTypes.string,
+      submitted_at: PropTypes.string,
+    }),
   }).isRequired,
   onView: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
