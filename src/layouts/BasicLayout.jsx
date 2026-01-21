@@ -1,14 +1,14 @@
 // Basic Layout
-// Layout for authenticated pages
+// Layout for authenticated pages with persistent navbar
 // Following Phoenix pattern
 
 import { Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
-import PropTypes from 'prop-types';
+import Header from '../layout/Header';
 
 /**
  * Basic layout wrapper for authenticated pages
- * Will be enhanced with navigation/sidebar in later phases
+ * Includes persistent header navigation
  */
 function BasicLayout() {
   return (
@@ -17,9 +17,11 @@ function BasicLayout() {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
+        backgroundColor: '#F8F9FA',
       }}
     >
-      {/* Header/Navigation will be added in Phase 3 */}
+      {/* Persistent Header Navigation */}
+      <Header />
 
       {/* Main Content */}
       <Box
@@ -32,8 +34,6 @@ function BasicLayout() {
       >
         <Outlet />
       </Box>
-
-      {/* Footer can be added later */}
     </Box>
   );
 }
