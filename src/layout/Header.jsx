@@ -35,6 +35,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/auth/AuthContextProvider';
 import { ROUTES } from '../constants/RouteConstants';
+import CreateQuizModal from '../components/modals/CreateQuizModal';
 
 // Logo image - will be loaded from public folder
 const logoImage = '/logo.png';
@@ -54,6 +55,7 @@ function Header() {
   // State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+  const [createQuizModalOpen, setCreateQuizModalOpen] = useState(false);
 
   // Handlers
   const handleLogoClick = () => {
@@ -199,7 +201,24 @@ function Header() {
 
                 {/* Auth Buttons / User Menu */}
                 {isAuthenticated ? (
-                  <Box sx={{ ml: 2 }}>
+                  <Box sx={{ display: 'flex', gap: 1.5, ml: 2, alignItems: 'center' }}>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => setCreateQuizModalOpen(true)}
+                      sx={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        px: 2,
+                        py: 0.75,
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #5568d3 0%, #63408e 100%)',
+                        },
+                      }}
+                    >
+                      + Create Quiz
+                    </Button>
                     <IconButton
                       onClick={handleUserMenuOpen}
                       sx={{
@@ -421,6 +440,12 @@ function Header() {
           </List>
         </Box>
       </Drawer>
+
+      {/* Create Quiz Modal */}
+      <CreateQuizModal
+        open={createQuizModalOpen}
+        onClose={() => setCreateQuizModalOpen(false)}
+      />
     </>
   );
 }

@@ -35,6 +35,7 @@ import {
 } from '@mui/icons-material';
 import SetBrowserTabTitle from '../layout/SetBrowserTabTitle';
 import toast from 'react-hot-toast';
+import CreateQuizModal from '../components/modals/CreateQuizModal';
 
 /**
  * Modern Dashboard Screen with real statistics
@@ -46,6 +47,7 @@ function DashboardScreen() {
   const [stats, setStats] = useState(null);
   const [recentQuizzes, setRecentQuizzes] = useState([]);
   const [recentAttempts, setRecentAttempts] = useState([]);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -190,7 +192,7 @@ function DashboardScreen() {
                 variant="contained"
                 size="large"
                 startIcon={<AddIcon />}
-                onClick={() => navigate(ROUTES.QUIZ_CREATE)}
+                onClick={() => setCreateModalOpen(true)}
                 sx={{
                   py: 1.5,
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -509,7 +511,7 @@ function DashboardScreen() {
                       <Button
                         variant="contained"
                         startIcon={<AddIcon />}
-                        onClick={() => navigate(ROUTES.QUIZ_CREATE)}
+                        onClick={() => setCreateModalOpen(true)}
                         sx={{ mt: 2 }}
                       >
                         Create Quiz
@@ -616,6 +618,12 @@ function DashboardScreen() {
           </Grid>
         </Container>
       </Box>
+
+      {/* Create Quiz Modal */}
+      <CreateQuizModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
     </>
   );
 }
