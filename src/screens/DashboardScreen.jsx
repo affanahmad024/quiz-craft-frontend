@@ -177,7 +177,7 @@ function DashboardScreen() {
             : 'radial-gradient(circle at 50% 0%, rgba(108, 92, 231, 0.08) 0%, transparent 50%)',
         }}
       >
-        <Container maxWidth="xl">
+        <Container maxWidth="lg">
           {/* Welcome Section */}
           <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, gap: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
