@@ -45,12 +45,12 @@ function DiscoveryContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      setSearchResults(response.data?.data || response.data.quizzes);
+      setSearchResults(response.data.quizzes || []);
       setSearchMeta({
-        total: response.data?.data || response.data.total,
-        page: response.data?.data || response.data.page,
-        limit: response.data?.data || response.data.limit,
-        totalPages: response.data?.data || response.data.total_pages,
+        total: response.data.total || 0,
+        page: response.data.page || 1,
+        limit: response.data.limit || 20,
+        totalPages: response.data.total_pages || 0,
       });
     }
 
