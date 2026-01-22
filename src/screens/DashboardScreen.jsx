@@ -83,16 +83,23 @@ function DashboardScreen() {
         listMyAttempts(fetchData, abortContRef, { page: 1, limit: 3 }),
       ]);
 
+      console.log('Stats Response:', statsRes);
+      console.log('Quizzes Response:', quizzesRes);
+      console.log('Attempts Response:', attemptsRes);
+
       // Handle Stats
       if (statsRes.status === 'fulfilled' && statsRes.value.data) {
-        const statsData = statsRes.value.data;
+        // Extract data - handle both nested and flat structures
+        const statsData = statsRes.value.data?.data || statsRes.value.data;
+        console.log('Dashboard Stats Data:', statsData);
+
         setStats({
-          quizzesCreated: statsData.total_quizzes_created || 0,
-          quizzesTaken: statsData.total_attempts || 0,
+          quizzesCreated: statsData.quizzes_created || 0,
+          quizzesTaken: statsData.total_quiz_attempts || 0,
           averageScore: Math.round(statsData.average_score || 0),
-          totalPoints: statsData.total_points || 0,
-          passingRate: Math.round(statsData.passing_rate || 0),
-          currentStreak: statsData.streak || 0,
+          totalPoints: statsData.total_points_earned || 0,
+          passingRate: Math.round(statsData.pass_rate || 0),
+          currentStreak: statsData.current_streak || 0,
         });
       } else {
         console.warn('Stats data missing or failed', statsRes);
@@ -100,14 +107,18 @@ function DashboardScreen() {
 
       // Handle Recent Quizzes
       if (quizzesRes.status === 'fulfilled' && quizzesRes.value.data) {
-        setRecentQuizzes(quizzesRes.value.data.quizzes || []);
+        const quizzesData = quizzesRes.value.data?.data || quizzesRes.value.data;
+        console.log('Dashboard Quizzes Data:', quizzesData);
+        setRecentQuizzes(quizzesData?.quizzes || []);
       } else {
         console.warn('Quizzes data missing or failed', quizzesRes);
       }
 
       // Handle Recent Attempts
       if (attemptsRes.status === 'fulfilled' && attemptsRes.value.data) {
-        setRecentAttempts(attemptsRes.value.data.attempts || []);
+        const attemptsData = attemptsRes.value.data?.data || attemptsRes.value.data;
+        console.log('Dashboard Attempts Data:', attemptsData);
+        setRecentAttempts(attemptsData?.attempts || []);
       } else {
         console.warn('Attempts data missing or failed', attemptsRes);
       }
@@ -507,9 +518,9 @@ function DashboardScreen() {
                       >
                          {/* Progress bar background */}
                          <Box sx={{
-                             position: 'absolute', bottom: 0, left: 0, height: 3, 
+                             position: 'absolute', bottom: 0, left: 0, height: 3,
                              width: `${(attempt.score / attempt.max_score) * 100}%`,
-                             bgcolor: attempt.is_passed ? 'success.main' : 'error.main',
+                             bgcolor: attempt.passed ? 'success.main' : 'error.main',
                              opacity: 0.8
                          }} />
 
@@ -517,8 +528,8 @@ function DashboardScreen() {
                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                               {attempt.quiz_title || 'Untitled Quiz'}
                            </Typography>
-                           <Typography variant="button" sx={{ 
-                               color: attempt.is_passed ? 'success.main' : 'error.main',
+                           <Typography variant="button" sx={{
+                               color: attempt.passed ? 'success.main' : 'error.main',
                                fontWeight: 700
                            }}>
                               {attempt.score}/{attempt.max_score}
@@ -527,14 +538,21 @@ function DashboardScreen() {
                         
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                             <Typography variant="caption" color="text.secondary">
-                                {formatDate(attempt.completed_at || attempt.created_at)}
+                                {formatDate(attempt.submitted_at || attempt.started_at)}
                             </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <TimeIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                                <Typography variant="caption" color="text.secondary">
-                                    {(attempt.time_taken_seconds / 60).toFixed(1)} min
-                                </Typography>
-                            </Box>
+                            {attempt.started_at && attempt.submitted_at && (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <TimeIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                                  <Typography variant="caption" color="text.secondary">
+                                      {(() => {
+                                        const start = new Date(attempt.started_at);
+                                        const end = new Date(attempt.submitted_at);
+                                        const diffMinutes = Math.round((end - start) / 60000);
+                                        return `${diffMinutes} min`;
+                                      })()}
+                                  </Typography>
+                              </Box>
+                            )}
                         </Box>
                       </Paper>
                     ))}
