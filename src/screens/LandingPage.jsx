@@ -118,8 +118,8 @@ function LandingPage() {
         sx={{
           position: 'relative',
           overflow: 'hidden',
-          pt: { xs: 12, md: 16 }, // Significant top padding
-          pb: { xs: 12, md: 16 }, // Significant bottom padding
+          pt: { xs: 4, md: 6 },
+          pb: { xs: 12, md: 16 },
           background: isDarkMode
             ? 'radial-gradient(circle at 15% 50%, rgba(108, 92, 231, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(0, 206, 201, 0.15), transparent 25%)'
             : 'radial-gradient(circle at 15% 50%, rgba(108, 92, 231, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(0, 206, 201, 0.08), transparent 25%)',
@@ -420,7 +420,7 @@ function LandingPage() {
                 </Typography>
              </Box>
 
-             <Grid container spacing={4}>
+             <Grid container spacing={4} justifyContent="center">
                  {[
                      { step: '01', title: 'Upload or Paste', desc: 'Paste your notes or upload any PDF/Doc file directly to the platform.' },
                      { step: '02', title: 'AI Generation', desc: 'Our advanced AI analyzes your content and generates relevant questions instantly.' },
