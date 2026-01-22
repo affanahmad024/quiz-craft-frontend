@@ -429,7 +429,7 @@ function LandingPage() {
                      <Grid item xs={12} md={4} key={index}>
                          <Box sx={{ p: 4, height: '100%', position: 'relative' }}>
                              <Typography variant="h1" sx={{
-                                 position: 'absolute', top: 0, left: 0,
+                                 position: 'absolute', top: 0, right: 20,
                                  opacity: 0.05, fontSize: '8rem', fontWeight: 900,
                                  pointerEvents: 'none'
                              }}>
