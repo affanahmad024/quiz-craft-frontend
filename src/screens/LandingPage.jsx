@@ -342,7 +342,7 @@ function LandingPage() {
                        {/* Decorative floating cards - Better positioned */}
                         <Card sx={{
                            position: 'absolute', top: { md: 0, lg: -10 }, right: { md: -10, lg: -30 },
-                           zIndex: 1, width: 240,
+                           zIndex: 3, width: 240,
                            p: 2.5, borderRadius: 4,
                            boxShadow: '0 20px 40px -15px rgba(0, 184, 148, 0.4)',
                            background: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
