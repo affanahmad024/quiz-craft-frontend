@@ -18,6 +18,8 @@ import {
   Skeleton,
   Paper,
   Divider,
+  useTheme,
+  Alert,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/auth/AuthContextProvider';
@@ -32,18 +34,30 @@ import {
   CheckCircle as CheckCircleIcon,
   ArrowForward as ArrowForwardIcon,
   Refresh as RefreshIcon,
+  Fireplace as FireIcon,
+  SignalCellularAlt as StatsIcon,
 } from '@mui/icons-material';
 import SetBrowserTabTitle from '../layout/SetBrowserTabTitle';
 import toast from 'react-hot-toast';
 import CreateQuizModal from '../components/modals/CreateQuizModal';
+import { getUserStatistics } from '../services/profile/ProfileServices';
+import { listMyQuizzes } from '../services/quiz/QuizServices';
+import { listMyAttempts } from '../services/attempt/AttemptServices';
+import useNetReq from '../hooks/NetworkRequest';
 
 /**
  * Modern Dashboard Screen with real statistics
  */
 function DashboardScreen() {
   const navigate = useNavigate();
+  const theme = useTheme();
   const { user } = useAuth();
+  const { fetchData } = useNetReq();
+  
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  
   const [stats, setStats] = useState(null);
   const [recentQuizzes, setRecentQuizzes] = useState([]);
   const [recentAttempts, setRecentAttempts] = useState([]);
@@ -54,63 +68,57 @@ function DashboardScreen() {
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (isRefresh = false) => {
     try {
-      setLoading(true);
-      // TODO: Replace with actual API calls
-      // Simulating API calls for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError(null);
 
-      // Mock data - replace with actual API calls
-      setStats({
-        quizzesCreated: 12,
-        quizzesTaken: 45,
-        averageScore: 78.5,
-        totalPoints: 3525,
-        passingRate: 84.4,
-        currentStreak: 5,
-      });
+      const abortContRef = { current: null };
 
-      setRecentQuizzes([
-        {
-          id: '1',
-          title: 'JavaScript Fundamentals',
-          difficulty: 'Medium',
-          questionCount: 20,
-          createdAt: '2 days ago',
-        },
-        {
-          id: '2',
-          title: 'React Hooks Deep Dive',
-          difficulty: 'Hard',
-          questionCount: 15,
-          createdAt: '5 days ago',
-        },
+      // Fetch all data in parallel
+      const [statsRes, quizzesRes, attemptsRes] = await Promise.allSettled([
+        getUserStatistics(fetchData, abortContRef),
+        listMyQuizzes(fetchData, abortContRef, { page: 1, limit: 3 }),
+        listMyAttempts(fetchData, abortContRef, { page: 1, limit: 3 }),
       ]);
 
-      setRecentAttempts([
-        {
-          id: '1',
-          quizTitle: 'Python Basics',
-          score: 85,
-          maxScore: 100,
-          passed: true,
-          completedAt: '1 hour ago',
-        },
-        {
-          id: '2',
-          quizTitle: 'Data Structures',
-          score: 72,
-          maxScore: 100,
-          passed: true,
-          completedAt: '3 hours ago',
-        },
-      ]);
-    } catch (error) {
-      toast.error('Failed to load dashboard data');
-      console.error('Dashboard error:', error);
+      // Handle Stats
+      if (statsRes.status === 'fulfilled' && statsRes.value.data) {
+        const statsData = statsRes.value.data;
+        setStats({
+          quizzesCreated: statsData.total_quizzes_created || 0,
+          quizzesTaken: statsData.total_attempts || 0,
+          averageScore: Math.round(statsData.average_score || 0),
+          totalPoints: statsData.total_points || 0,
+          passingRate: Math.round(statsData.passing_rate || 0),
+          currentStreak: statsData.streak || 0,
+        });
+      } else {
+        console.warn('Stats data missing or failed', statsRes);
+      }
+
+      // Handle Recent Quizzes
+      if (quizzesRes.status === 'fulfilled' && quizzesRes.value.data) {
+        setRecentQuizzes(quizzesRes.value.data.quizzes || []);
+      } else {
+        console.warn('Quizzes data missing or failed', quizzesRes);
+      }
+
+      // Handle Recent Attempts
+      if (attemptsRes.status === 'fulfilled' && attemptsRes.value.data) {
+        setRecentAttempts(attemptsRes.value.data.attempts || []);
+      } else {
+        console.warn('Attempts data missing or failed', attemptsRes);
+      }
+
+    } catch (err) {
+      console.error('Dashboard error:', err);
+      setError('Failed to load some dashboard data. Please try refreshing.');
+      toast.error('Could not load complete dashboard');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -118,10 +126,10 @@ function DashboardScreen() {
     if (!name) return '?';
     return name
       .split(' ')
+      .slice(0, 2)
       .map(n => n[0])
       .join('')
-      .toUpperCase()
-      .slice(0, 2);
+      .toUpperCase();
   };
 
   const getDifficultyColor = (difficulty) => {
@@ -133,487 +141,421 @@ function DashboardScreen() {
     return colors[difficulty] || 'default';
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString();
+  };
+
   return (
     <>
       <SetBrowserTabTitle title="Dashboard" />
       <Box
         sx={{
           minHeight: 'calc(100vh - 72px)',
-          backgroundColor: '#F8F9FA',
-          py: 3,
+          backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#F8F9FA',
+          py: 4,
+          backgroundImage: theme.palette.mode === 'dark' 
+            ? 'radial-gradient(circle at 50% 0%, rgba(108, 92, 231, 0.15) 0%, transparent 50%)' 
+            : 'radial-gradient(circle at 50% 0%, rgba(108, 92, 231, 0.08) 0%, transparent 50%)',
         }}
       >
         <Container maxWidth="xl">
           {/* Welcome Section */}
-          <Box sx={{ mb: 3 }}>
-            <Grid container spacing={3} alignItems="center">
-              <Grid item>
-                <Avatar
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    fontSize: '1.5rem',
-                    fontWeight: 700,
-                  }}
-                >
-                  {getInitials(user?.name)}
-                </Avatar>
-              </Grid>
-              <Grid item xs>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  Welcome back, {user?.name}!
+          <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, gap: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+              <Avatar
+                sx={{
+                  width: 72,
+                  height: 72,
+                  background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
+                  fontSize: '1.75rem',
+                  fontWeight: 700,
+                  boxShadow: '0 8px 16px rgba(108, 92, 231, 0.2)',
+                  border: '4px solid',
+                  borderColor: 'background.paper',
+                }}
+              >
+                {getInitials(user?.name)}
+              </Avatar>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5 }}>
+                  Hello, {user?.name?.split(' ')[0]}! 👋
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                  Ready to continue your learning journey?
+                  Let's learn something new today.
                 </Typography>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  onClick={fetchDashboardData}
-                  disabled={loading}
+              </Box>
+            </Box>
+            <Box>
+               <IconButton
+                  onClick={() => fetchDashboardData(true)}
+                  disabled={loading || refreshing}
                   sx={{
-                    backgroundColor: 'white',
+                    backgroundColor: 'background.paper',
                     boxShadow: 1,
-                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    transition: 'all 0.3s',
+                    mr: 2,
+                    '&:hover': { 
+                      backgroundColor: 'background.paper',
+                      transform: 'rotate(180deg)',
+                      boxShadow: 3
+                    },
                   }}
                 >
-                  <RefreshIcon />
+                  <RefreshIcon color={refreshing ? "primary" : "action"} />
                 </IconButton>
-              </Grid>
-            </Grid>
+                <Button
+                  variant="contained"
+                  size="large"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCreateModalOpen(true)}
+                  sx={{
+                    py: 1.5,
+                    px: 3,
+                    borderRadius: 3,
+                    background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
+                    boxShadow: '0 8px 20px -8px #6C5CE7',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #5b4cc4 0%, #8c85e6 100%)',
+                      boxShadow: '0 12px 24px -10px #6C5CE7',
+                      transform: 'translateY(-2px)'
+                    },
+                  }}
+                >
+                  Create New Quiz
+                </Button>
+            </Box>
           </Box>
 
-          {/* Quick Action Buttons */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Button
-                fullWidth
-                variant="contained"
-                size="large"
-                startIcon={<AddIcon />}
-                onClick={() => setCreateModalOpen(true)}
-                sx={{
-                  py: 1.5,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: 2,
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #63408e 100%)',
-                    boxShadow: 4,
-                  },
-                }}
-              >
-                Create Quiz
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Button
-                fullWidth
-                variant="outlined"
-                size="large"
-                startIcon={<QuizIcon />}
-                onClick={() => navigate(ROUTES.QUIZ_LIST)}
-                sx={{ py: 1.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
-              >
-                My Quizzes
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Button
-                fullWidth
-                variant="outlined"
-                size="large"
-                startIcon={<ExploreIcon />}
-                onClick={() => navigate(ROUTES.DISCOVER)}
-                sx={{ py: 1.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
-              >
-                Discover
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Button
-                fullWidth
-                variant="outlined"
-                size="large"
-                startIcon={<TimeIcon />}
-                onClick={() => navigate(ROUTES.ATTEMPT_LIST)}
-                sx={{ py: 1.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
-              >
-                My Attempts
-              </Button>
-            </Grid>
-          </Grid>
+          {error && (
+             <Alert severity="warning" sx={{ mb: 3 }} onClose={() => setError(null)}>
+                {error}
+             </Alert>
+          )}
 
           {/* Statistics Cards */}
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-            Your Statistics
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <StatsIcon color="primary" /> Your Progress
           </Typography>
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            {/* Quizzes Created */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card
-                sx={{
-                  height: '100%',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  transition: 'transform 0.2s',
-                  '&:hover': { transform: 'translateY(-4px)' },
-                }}
-              >
-                <CardContent>
-                  {loading ? (
-                    <Skeleton variant="rectangular" height={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
-                  ) : (
-                    <>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <QuizIcon sx={{ fontSize: 28 }} />
-                      </Box>
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                        {stats?.quizzesCreated || 0}
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        Quizzes Created
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Quizzes Taken */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card
-                sx={{
-                  height: '100%',
-                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                  color: 'white',
-                  transition: 'transform 0.2s',
-                  '&:hover': { transform: 'translateY(-4px)' },
-                }}
-              >
-                <CardContent>
-                  {loading ? (
-                    <Skeleton variant="rectangular" height={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
-                  ) : (
-                    <>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <CheckCircleIcon sx={{ fontSize: 28 }} />
-                      </Box>
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                        {stats?.quizzesTaken || 0}
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        Quizzes Taken
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Average Score */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card
-                sx={{
-                  height: '100%',
-                  background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                  color: 'white',
-                  transition: 'transform 0.2s',
-                  '&:hover': { transform: 'translateY(-4px)' },
-                }}
-              >
-                <CardContent>
-                  {loading ? (
-                    <Skeleton variant="rectangular" height={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
-                  ) : (
-                    <>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <TrendingUpIcon sx={{ fontSize: 28 }} />
-                      </Box>
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                        {stats?.averageScore || 0}%
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        Average Score
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Total Points */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card
-                sx={{
-                  height: '100%',
-                  background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-                  color: 'white',
-                  transition: 'transform 0.2s',
-                  '&:hover': { transform: 'translateY(-4px)' },
-                }}
-              >
-                <CardContent>
-                  {loading ? (
-                    <Skeleton variant="rectangular" height={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
-                  ) : (
-                    <>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <TrophyIcon sx={{ fontSize: 28 }} />
-                      </Box>
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                        {stats?.totalPoints || 0}
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        Total Points
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Passing Rate */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card
-                sx={{
-                  height: '100%',
-                  background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-                  color: 'white',
-                  transition: 'transform 0.2s',
-                  '&:hover': { transform: 'translateY(-4px)' },
-                }}
-              >
-                <CardContent>
-                  {loading ? (
-                    <Skeleton variant="rectangular" height={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
-                  ) : (
-                    <>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <CheckCircleIcon sx={{ fontSize: 28 }} />
-                      </Box>
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                        {stats?.passingRate || 0}%
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        Passing Rate
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Current Streak */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card
-                sx={{
-                  height: '100%',
-                  background: 'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
-                  color: 'white',
-                  transition: 'transform 0.2s',
-                  '&:hover': { transform: 'translateY(-4px)' },
-                }}
-              >
-                <CardContent>
-                  {loading ? (
-                    <Skeleton variant="rectangular" height={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
-                  ) : (
-                    <>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <TrophyIcon sx={{ fontSize: 28 }} />
-                      </Box>
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                        {stats?.currentStreak || 0}
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        Day Streak 🔥
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
+          
+          <Grid container spacing={2} sx={{ mb: 4 }}>
+            {/* Stats Cards - Array based generation for clean code */}
+            {[
+              { 
+                label: 'Quizzes Created', 
+                value: stats?.quizzesCreated, 
+                icon: <QuizIcon sx={{ fontSize: 32 }} />,
+                gradient: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
+                shadowColor: '#6C5CE7'
+              },
+              { 
+                label: 'Quizzes Taken', 
+                value: stats?.quizzesTaken, 
+                icon: <CheckCircleIcon sx={{ fontSize: 32 }} />,
+                gradient: 'linear-gradient(135deg, #FF7675 0%, #FAB1A0 100%)',
+                shadowColor: '#FF7675'
+              },
+              { 
+                label: 'Avg. Score', 
+                value: stats ? `${stats.averageScore}%` : null, 
+                icon: <TrendingUpIcon sx={{ fontSize: 32 }} />,
+                gradient: 'linear-gradient(135deg, #0984e3 0%, #74b9ff 100%)',
+                shadowColor: '#0984e3'
+              },
+              { 
+                label: 'Total Points', 
+                value: stats?.totalPoints, 
+                icon: <TrophyIcon sx={{ fontSize: 32 }} />,
+                gradient: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
+                shadowColor: '#00b894'
+              },
+              { 
+                label: 'Day Streak', 
+                value: stats?.currentStreak, 
+                icon: <FireIcon sx={{ fontSize: 32 }} />,
+                gradient: 'linear-gradient(135deg, #e17055 0%, #ffbe76 100%)',
+                shadowColor: '#e17055'
+              },
+            ].map((stat, index) => (
+              <Grid item xs={12} sm={6} md={2.4} key={index}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    position: 'relative',
+                    overflow: 'visible',
+                    borderRadius: 4,
+                    boxShadow: loading ? 'none' : `0 10px 20px -10px ${stat.shadowColor}40`,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    border: 'none',
+                    '&:hover': { 
+                      transform: 'translateY(-8px)',
+                      boxShadow: `0 14px 28px -10px ${stat.shadowColor}60`,
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: stat.gradient,
+                      opacity: 0.9,
+                      borderRadius: 4,
+                      zIndex: 1,
+                    }}
+                  />
+                  <CardContent sx={{ position: 'relative', zIndex: 2, color: 'white', p: '24px !important' }}>
+                    {loading ? (
+                      <Skeleton variant="rectangular" width="100%" height={60} sx={{ bgcolor: 'rgba(255,255,255,0.2)' }} />
+                    ) : (
+                      <>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          alignItems: 'flex-start',
+                          mb: 2 
+                        }}>
+                          <Box sx={{ 
+                            p: 1, 
+                            bgcolor: 'rgba(255,255,255,0.2)', 
+                            borderRadius: 2,
+                            display: 'flex'
+                          }}>
+                            {stat.icon}
+                          </Box>
+                        </Box>
+                        <Typography variant="h3" sx={{ fontWeight: 800, mb: 0.5, fontSize: '2.5rem' }}>
+                          {stat.value ?? 0}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, opacity: 0.9 }}>
+                          {stat.label}
+                        </Typography>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
 
-          {/* Recent Activity Section */}
+          {/* Recent Activity Section - Split View */}
           <Grid container spacing={3}>
-            {/* Recent Quizzes */}
+            {/* Recent Quizzes Side */}
             <Grid item xs={12} md={6}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Recent Quizzes
-                    </Typography>
-                    <Button
-                      endIcon={<ArrowForwardIcon />}
-                      onClick={() => navigate(ROUTES.QUIZ_LIST)}
-                      size="small"
-                    >
-                      View All
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: 3, 
+                  height: '100%', 
+                  borderRadius: 4,
+                  border: `1px solid ${theme.palette.divider}`,
+                  backgroundColor: theme.palette.background.paper,
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <QuizIcon color="primary" /> Recent Quizzes
+                  </Typography>
+                  <Button
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={() => navigate(ROUTES.QUIZ_LIST)}
+                    size="small"
+                    sx={{ borderRadius: 2 }}
+                  >
+                    View All
+                  </Button>
+                </Box>
+                
+                {loading ? (
+                  Array(3).fill(0).map((_, i) => (
+                    <Skeleton key={i} variant="rectangular" height={80} sx={{ mb: 2, borderRadius: 3 }} />
+                  ))
+                ) : recentQuizzes.length > 0 ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {recentQuizzes.map((quiz) => (
+                      <Paper
+                        key={quiz.id}
+                        elevation={0}
+                        onClick={() => navigate(`/quizzes/${quiz.id}`)}
+                        sx={{
+                          p: 2,
+                          borderRadius: 3,
+                          border: `1px solid ${theme.palette.divider}`,
+                          backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            transform: 'translateX(4px)',
+                            borderColor: 'primary.main',
+                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(108, 92, 231, 0.1)' : 'rgba(108, 92, 231, 0.04)',
+                          },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                {quiz.title}
+                            </Typography>
+                            <Chip
+                              label={quiz.is_published ? 'Published' : 'Draft'}
+                              size="small"
+                              color={quiz.is_published ? 'success' : 'default'}
+                              variant={quiz.is_published ? 'filled' : 'outlined'}
+                              sx={{ height: 20, fontSize: '0.65rem' }}
+                            />
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+                          <Chip
+                            label={quiz.difficulty || 'Medium'}
+                            size="small"
+                            color={getDifficultyColor(quiz.difficulty)}
+                            sx={{ borderRadius: 2, height: 24, fontSize: '0.75rem', fontWeight: 600 }}
+                          />
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            • {quiz.questions?.length ?? quiz.question_count ?? 0} Questions
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
+                             {formatDate(quiz.created_at)}
+                          </Typography>
+                        </Box>
+                      </Paper>
+                    ))}
+                  </Box>
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: 6, opacity: 0.7 }}>
+                     <Box sx={{ 
+                        width: 80, height: 80, borderRadius: '50%', 
+                        bgcolor: 'action.hover', display: 'flex', 
+                        alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' 
+                     }}>
+                        <AddIcon sx={{ fontSize: 40, color: 'text.secondary' }} />
+                     </Box>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>No quizzes created yet</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>start your teaching journey today</Typography>
+                    <Button variant="outlined" startIcon={<AddIcon />} onClick={() => setCreateModalOpen(true)}>
+                        Create Now
                     </Button>
                   </Box>
-                  <Divider sx={{ mb: 2 }} />
-                  {loading ? (
-                    <>
-                      <Skeleton variant="rectangular" height={80} sx={{ mb: 1.5, borderRadius: 1 }} />
-                      <Skeleton variant="rectangular" height={80} sx={{ borderRadius: 1 }} />
-                    </>
-                  ) : recentQuizzes.length > 0 ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                      {recentQuizzes.map((quiz) => (
-                        <Paper
-                          key={quiz.id}
-                          elevation={0}
-                          sx={{
-                            p: 2,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            '&:hover': {
-                              boxShadow: 2,
-                              borderColor: 'primary.main',
-                            },
-                          }}
-                          onClick={() => navigate(`/quizzes/${quiz.id}`)}
-                        >
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            {quiz.title}
-                          </Typography>
-                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                            <Chip
-                              label={quiz.difficulty}
-                              size="small"
-                              color={getDifficultyColor(quiz.difficulty)}
-                              sx={{ fontSize: '0.7rem' }}
-                            />
-                            <Chip
-                              label={`${quiz.questionCount} questions`}
-                              size="small"
-                              variant="outlined"
-                              sx={{ fontSize: '0.7rem' }}
-                            />
-                            <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto', alignSelf: 'center' }}>
-                              {quiz.createdAt}
-                            </Typography>
-                          </Box>
-                        </Paper>
-                      ))}
-                    </Box>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <QuizIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        No quizzes yet. Create your first quiz!
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={() => setCreateModalOpen(true)}
-                        sx={{ mt: 2 }}
-                      >
-                        Create Quiz
-                      </Button>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
+                )}
+              </Paper>
             </Grid>
 
-            {/* Recent Attempts */}
+            {/* Recent Attempts Side */}
             <Grid item xs={12} md={6}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Recent Attempts
-                    </Typography>
-                    <Button
-                      endIcon={<ArrowForwardIcon />}
-                      onClick={() => navigate(ROUTES.ATTEMPT_LIST)}
-                      size="small"
-                    >
-                      View All
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: 3, 
+                  height: '100%', 
+                  borderRadius: 4,
+                  border: `1px solid ${theme.palette.divider}`,
+                  backgroundColor: theme.palette.background.paper,
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ExploreIcon color="secondary" /> Recent Attempts
+                  </Typography>
+                  <Button
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={() => navigate(ROUTES.ATTEMPT_LIST)}
+                    size="small"
+                    color="secondary"
+                    sx={{ borderRadius: 2 }}
+                  >
+                    View All
+                  </Button>
+                </Box>
+
+                {loading ? (
+                   Array(3).fill(0).map((_, i) => (
+                    <Skeleton key={i} variant="rectangular" height={80} sx={{ mb: 2, borderRadius: 3 }} />
+                  ))
+                ) : recentAttempts.length > 0 ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {recentAttempts.map((attempt) => (
+                      <Paper
+                        key={attempt.id}
+                        elevation={0}
+                        onClick={() => navigate(`/attempts/${attempt.id}/results`)}
+                        sx={{
+                          p: 2,
+                          borderRadius: 3,
+                          border: `1px solid ${theme.palette.divider}`,
+                          backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          '&:hover': {
+                            transform: 'translateX(4px)',
+                            borderColor: 'secondary.main',
+                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(253, 121, 168, 0.1)' : 'rgba(253, 121, 168, 0.04)',
+                          },
+                        }}
+                      >
+                         {/* Progress bar background */}
+                         <Box sx={{
+                             position: 'absolute', bottom: 0, left: 0, height: 3, 
+                             width: `${(attempt.score / attempt.max_score) * 100}%`,
+                             bgcolor: attempt.is_passed ? 'success.main' : 'error.main',
+                             opacity: 0.8
+                         }} />
+
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                              {attempt.quiz_title || 'Untitled Quiz'}
+                           </Typography>
+                           <Typography variant="button" sx={{ 
+                               color: attempt.is_passed ? 'success.main' : 'error.main',
+                               fontWeight: 700
+                           }}>
+                              {attempt.score}/{attempt.max_score}
+                           </Typography>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Typography variant="caption" color="text.secondary">
+                                {formatDate(attempt.completed_at || attempt.created_at)}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <TimeIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                                <Typography variant="caption" color="text.secondary">
+                                    {(attempt.time_taken_seconds / 60).toFixed(1)} min
+                                </Typography>
+                            </Box>
+                        </Box>
+                      </Paper>
+                    ))}
+                  </Box>
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: 6, opacity: 0.7 }}>
+                     <Box sx={{ 
+                        width: 80, height: 80, borderRadius: '50%', 
+                        bgcolor: 'action.hover', display: 'flex', 
+                        alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' 
+                     }}>
+                        <ExploreIcon sx={{ fontSize: 40, color: 'text.secondary' }} />
+                     </Box>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>No attempts yet</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Challenge yourself with a quiz!</Typography>
+                     <Button variant="outlined" color="secondary" startIcon={<ExploreIcon />} onClick={() => navigate(ROUTES.DISCOVER)}>
+                        Discover Quizzes
                     </Button>
                   </Box>
-                  <Divider sx={{ mb: 2 }} />
-                  {loading ? (
-                    <>
-                      <Skeleton variant="rectangular" height={80} sx={{ mb: 1.5, borderRadius: 1 }} />
-                      <Skeleton variant="rectangular" height={80} sx={{ borderRadius: 1 }} />
-                    </>
-                  ) : recentAttempts.length > 0 ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                      {recentAttempts.map((attempt) => (
-                        <Paper
-                          key={attempt.id}
-                          elevation={0}
-                          sx={{
-                            p: 2,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            '&:hover': {
-                              boxShadow: 2,
-                              borderColor: 'primary.main',
-                            },
-                          }}
-                          onClick={() => navigate(`/attempts/${attempt.id}/results`)}
-                        >
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                            {attempt.quizTitle}
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Box sx={{ flex: 1 }}>
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                <Typography variant="caption" color="text.secondary">
-                                  Score
-                                </Typography>
-                                <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                                  {attempt.score}/{attempt.maxScore}
-                                </Typography>
-                              </Box>
-                              <LinearProgress
-                                variant="determinate"
-                                value={(attempt.score / attempt.maxScore) * 100}
-                                sx={{
-                                  height: 6,
-                                  borderRadius: 3,
-                                  backgroundColor: 'rgba(0,0,0,0.05)',
-                                  '& .MuiLinearProgress-bar': {
-                                    backgroundColor: attempt.passed ? '#43e97b' : '#f5576c',
-                                  },
-                                }}
-                              />
-                            </Box>
-                            <Typography variant="caption" color="text.secondary">
-                              {attempt.completedAt}
-                            </Typography>
-                          </Box>
-                        </Paper>
-                      ))}
-                    </Box>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <ExploreIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        No attempts yet. Start taking quizzes!
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        startIcon={<ExploreIcon />}
-                        onClick={() => navigate(ROUTES.DISCOVER)}
-                        sx={{ mt: 2 }}
-                      >
-                        Discover Quizzes
-                      </Button>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
+                )}
+              </Paper>
             </Grid>
           </Grid>
         </Container>
@@ -622,7 +564,10 @@ function DashboardScreen() {
       {/* Create Quiz Modal */}
       <CreateQuizModal
         open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
+        onClose={() => {
+             setCreateModalOpen(false);
+             fetchDashboardData(true); // Refresh data after creation
+        }}
       />
     </>
   );

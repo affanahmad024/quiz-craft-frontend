@@ -1,7 +1,8 @@
 // Landing Page Component
 // Production-ready home page for QuizCraft
+// Modern, high-conversion design
 
-import { Box, Container, Typography, Button, Grid, Card, CardContent, useTheme } from '@mui/material';
+import { Box, Container, Typography, Button, Grid, Card, CardContent, useTheme, Avatar, Chip, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
   Quiz as QuizIcon,
@@ -10,8 +11,12 @@ import {
   Groups as GroupIcon,
   Speed as SpeedIcon,
   Security as SecurityIcon,
-  DarkMode as DarkModeIcon,
-  Devices as DevicesIcon,
+  AutoAwesome as SparkleIcon,
+  ArrowForward as ArrowForwardIcon,
+  PlayArrow as PlayIcon,
+  School as SchoolIcon,
+  CheckCircle as CheckIcon,
+  Bolt as BoltIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { ROUTES } from '../constants/RouteConstants';
@@ -33,279 +38,431 @@ const staggerContainer = {
   },
 };
 
+const floatAnimation = {
+  animate: {
+    y: [0, -20, 0],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
+
 function LandingPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const { user } = useAuth();
   const { isDarkMode } = useThemeMode();
 
-  const handleGetStarted = () => {
-    if (user) {
-      navigate(ROUTES.DASHBOARD);
-    } else {
-      navigate(ROUTES.SIGNUP);
-    }
-  };
-
-  const handleExplore = () => {
-    navigate(ROUTES.DISCOVER);
-  };
-
-  const handleLogin = () => {
-    navigate(ROUTES.LOGIN);
-  };
+  const handleGetStarted = () => navigate(user ? ROUTES.DASHBOARD : ROUTES.SIGNUP);
+  const handleExplore = () => navigate(ROUTES.DISCOVER);
+  const handleLogin = () => navigate(ROUTES.LOGIN);
 
   const features = [
     {
-      icon: <QuizIcon sx={{ fontSize: 40 }} />,
-      title: 'Create Quizzes',
-      description: 'Design engaging quizzes with multiple question types, customization, and sharing options.',
+      icon: <QuizIcon sx={{ fontSize: 32 }} />,
+      title: 'AI-Powered Creation',
+      description: 'Generate comprehensive quizzes in seconds using advanced AI. Just paste your text or upload a file.',
+      color: '#6C5CE7',
+      bg: 'rgba(108, 92, 231, 0.1)',
     },
     {
-      icon: <BrainIcon sx={{ fontSize: 40 }} />,
-      title: 'Smart Learning',
-      description: 'Track your progress, identify weak areas, and improve with detailed analytics.',
+      icon: <BrainIcon sx={{ fontSize: 32 }} />,
+      title: 'Smart Learning Logic',
+      description: 'Adaptive algorithms that identify your weak spots and help you focus on what matters most.',
+      color: '#00cec9',
+      bg: 'rgba(0, 206, 201, 0.1)',
     },
     {
-      icon: <TrophyIcon sx={{ fontSize: 40 }} />,
-      title: 'Compete & Win',
-      description: 'Challenge friends, compete on leaderboards, and earn achievements.',
+      icon: <TrophyIcon sx={{ fontSize: 32 }} />,
+      title: 'Gamified Experience',
+      description: 'Earn badges, climb leaderboards, and maintain streaks to keep your motivation high.',
+      color: '#fdcb6e',
+      bg: 'rgba(253, 203, 110, 0.1)',
     },
     {
-      icon: <GroupIcon sx={{ fontSize: 40 }} />,
-      title: 'Share & Collaborate',
-      description: 'Share quizzes with your community, get feedback, and learn together.',
-    },
-    {
-      icon: <SpeedIcon sx={{ fontSize: 40 }} />,
-      title: 'Fast & Responsive',
-      description: 'Lightning-fast performance with smooth animations and instant feedback.',
-    },
-    {
-      icon: <SecurityIcon sx={{ fontSize: 40 }} />,
-      title: 'Secure & Private',
-      description: 'Your data is protected with enterprise-grade security and encryption.',
-    },
-    {
-      icon: <DarkModeIcon sx={{ fontSize: 40 }} />,
-      title: 'Dark Mode',
-      description: 'Easy on the eyes with beautiful dark mode support.',
-    },
-    {
-      icon: <DevicesIcon sx={{ fontSize: 40 }} />,
-      title: 'Works Everywhere',
-      description: 'Fully responsive design works seamlessly on all devices.',
+        icon: <GroupIcon sx={{ fontSize: 32 }} />,
+        title: 'Collaborative Groups',
+        description: 'Study with friends, share quizzes, and challenge each other in real-time battles.',
+        color: '#ff7675',
+        bg: 'rgba(255, 118, 117, 0.1)',
     },
   ];
 
-  const stats = [
-    { value: '10,000+', label: 'Active Users' },
-    { value: '50,000+', label: 'Quizzes Created' },
-    { value: '500,000+', label: 'Quiz Attempts' },
-    { value: '4.9/5', label: 'User Rating' },
+  const testimonials = [
+    {
+      text: "QuizCraft revolutionized how I study for my medical exams. The AI generation is frighteningly accurate!",
+      name: "Dr. Sarah Chen",
+      role: "Medical Resident",
+      avatar: "SC"
+    },
+    {
+      text: "As a teacher, I save hours every week. My students actually look forward to taking quizzes now.",
+      name: "Mark Johnson",
+      role: "High School Teacher",
+      avatar: "MJ"
+    },
+    {
+      text: "The analytics are amazing. I can pinpoint exactly what I need to review before my finals.",
+      name: "Emily Davis",
+      role: "University Student",
+      avatar: "ED"
+    }
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', overflowX: 'hidden' }}>
       {/* Hero Section */}
       <Box
         sx={{
-          background: isDarkMode
-            ? 'linear-gradient(135deg, #5F4FDB 0%, #4A3FB8 100%)'
-            : 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
-          color: 'white',
-          py: { xs: 8, md: 12 },
           position: 'relative',
           overflow: 'hidden',
+          pt: { xs: 12, md: 16 }, // Significant top padding
+          pb: { xs: 12, md: 16 }, // Significant bottom padding
+          background: isDarkMode
+            ? 'radial-gradient(circle at 15% 50%, rgba(108, 92, 231, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(0, 206, 201, 0.15), transparent 25%)'
+            : 'radial-gradient(circle at 15% 50%, rgba(108, 92, 231, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(0, 206, 201, 0.08), transparent 25%)',
         }}
       >
-        {/* Background decoration */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            opacity: 0.1,
-            backgroundImage: 'radial-gradient(circle at 20px 20px, white 1px, transparent 0)',
-            backgroundSize: '40px 40px',
-          }}
-        />
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: '100%', opacity: 0.4, pointerEvents: 'none', zIndex: -1 }}>
+             <Box sx={{
+                 position: 'absolute', top: '10%', right: '5%', width: 300, height: 300, 
+                 borderRadius: '50%', filter: 'blur(80px)', background: '#a29bfe', opacity: 0.3,
+                 animation: 'pulse 10s infinite'
+             }}/>
+             <Box sx={{
+                 position: 'absolute', bottom: '10%', left: '5%', width: 400, height: 400, 
+                 borderRadius: '50%', filter: 'blur(100px)', background: '#74b9ff', opacity: 0.2
+             }}/>
+        </Box>
 
-        <Container maxWidth="lg" sx={{ position: 'relative' }}>
-          <motion.div initial="initial" animate="animate" variants={fadeInUp}>
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.5rem' },
-                  fontWeight: 700,
-                  mb: 2,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                }}
-              >
-                Welcome to QuizCraft
-              </Typography>
-
-              <Typography
-                variant="h5"
-                sx={{
-                  fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.75rem' },
-                  mb: 4,
-                  opacity: 0.95,
-                  fontWeight: 400,
-                  maxWidth: 800,
-                  mx: 'auto',
-                }}
-              >
-                Create Engaging Quizzes, Learn Smarter, Grow Faster
-              </Typography>
-
-              <Typography
-                variant="body1"
-                sx={{
-                  fontSize: { xs: '1rem', md: '1.1rem' },
-                  mb: 5,
-                  opacity: 0.9,
-                  maxWidth: 700,
-                  mx: 'auto',
-                }}
-              >
-                The ultimate quiz platform for educators, students, and quiz enthusiasts.
-                Build beautiful quizzes, track progress, and engage your audience.
-              </Typography>
-
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  onClick={handleGetStarted}
-                  sx={{
-                    bgcolor: 'white',
-                    color: 'primary.main',
-                    px: 5,
-                    py: 1.5,
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
-                    '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 0.95)',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
-                    },
-                    transition: 'all 0.3s',
-                  }}
-                >
-                  {user ? 'Go to Dashboard' : 'Get Started Free'}
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={handleExplore}
-                  sx={{
-                    borderColor: 'white',
-                    color: 'white',
-                    px: 5,
-                    py: 1.5,
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    borderWidth: 2,
-                    '&:hover': {
-                      borderWidth: 2,
-                      bgcolor: 'rgba(255, 255, 255, 0.15)',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.3s',
-                  }}
-                >
-                  Explore Quizzes
-                </Button>
-
-                {!user && (
-                  <Button
-                    variant="text"
-                    size="large"
-                    onClick={handleLogin}
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 2 }}>
+          <Grid container spacing={8} alignItems="center" justifyContent="center">
+            <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+              <motion.div initial="initial" animate="animate" variants={fadeInUp}>
+                 <Chip
+                    label="✨ Now with AI Generation"
+                    icon={<SparkleIcon sx={{ fontSize: 16 }} />}
                     sx={{
-                      color: 'white',
+                        mb: 4,
+                        px: 2,
+                        py: 0.5,
+                        fontWeight: 600,
+                        bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(108, 92, 231, 0.1)',
+                        color: 'primary.main',
+                        border: '1px solid',
+                        borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(108, 92, 231, 0.2)',
+                        fontSize: '0.875rem',
+                        '& .MuiChip-icon': {
+                            color: 'primary.main'
+                        }
+                    }}
+                />
+                
+                <Typography
+                  variant="h1"
+                  sx={{
+                    fontSize: { xs: '2.5rem', md: '4rem', lg: '4.5rem' },
+                    fontWeight: 800,
+                    mb: 3,
+                    lineHeight: 1.1,
+                    letterSpacing: '-0.02em',
+                    background: isDarkMode 
+                        ? 'linear-gradient(135deg, #fff 0%, #a29bfe 100%)' 
+                        : 'linear-gradient(135deg, #2d3436 0%, #6c5ce7 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: isDarkMode ? '0 0 40px rgba(162, 155, 254, 0.3)' : 'none',
+                  }}
+                >
+                  Master Any Subject with QuizCraft
+                </Typography>
+
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontSize: { xs: '1.1rem', md: '1.4rem' },
+                    mb: 6,
+                    color: 'text.secondary',
+                    fontWeight: 400,
+                    lineHeight: 1.6,
+                    maxWidth: { xs: '100%', md: 600 },
+                    mx: { xs: 'auto', md: 0 }
+                  }}
+                >
+                  Create, share, and play quizzes that adapt to your learning style. Join 10,000+ learners achieving their goals faster.
+                </Typography>
+
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={2.5}
+                  sx={{
+                    justifyContent: { xs: 'center', md: 'flex-start' },
+                    alignItems: 'center'
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={handleGetStarted}
+                    endIcon={<ArrowForwardIcon />}
+                    sx={{
                       px: 5,
-                      py: 1.5,
+                      py: 2,
                       fontSize: '1.1rem',
-                      fontWeight: 600,
+                      fontWeight: 700,
+                      borderRadius: 3,
+                      background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
+                      boxShadow: '0 20px 40px -15px rgba(108, 92, 231, 0.5)',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      width: { xs: '100%', sm: 'auto' },
                       '&:hover': {
-                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      },
+                        transform: 'translateY(-3px)',
+                        boxShadow: '0 25px 50px -15px rgba(108, 92, 231, 0.6)'
+                      }
                     }}
                   >
-                    Sign In
+                    {user ? 'Go to Dashboard' : 'Get Started Free'}
                   </Button>
-                )}
-              </Box>
-            </Box>
-          </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            initial="initial"
-            animate="animate"
-            variants={staggerContainer}
-          >
-            <Grid container spacing={3} sx={{ mt: 6 }}>
-              {stats.map((stat, index) => (
-                <Grid item xs={6} sm={3} key={index}>
-                  <motion.div variants={fadeInUp}>
-                    <Box
-                      sx={{
-                        textAlign: 'center',
-                        p: 2,
-                        bgcolor: 'rgba(255, 255, 255, 0.15)',
-                        borderRadius: 2,
-                        backdropFilter: 'blur(10px)',
-                      }}
-                    >
-                      <Typography
-                        variant="h4"
-                        sx={{ fontWeight: 700, mb: 0.5 }}
-                      >
-                        {stat.value}
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                        {stat.label}
-                      </Typography>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    onClick={handleExplore}
+                    startIcon={<PlayIcon />}
+                    sx={{
+                      px: 5,
+                      py: 2,
+                      fontSize: '1.1rem',
+                      fontWeight: 700,
+                      borderRadius: 3,
+                      borderWidth: 2,
+                      borderColor: 'divider',
+                      color: 'text.primary',
+                      width: { xs: '100%', sm: 'auto' },
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                          borderWidth: 2,
+                          borderColor: 'primary.main',
+                          color: 'primary.main',
+                          bgcolor: 'rgba(108, 92, 231, 0.05)',
+                          transform: 'translateY(-2px)'
+                      }
+                    }}
+                  >
+                    Explore Quizzes
+                  </Button>
+                </Stack>
+                
+                <Box sx={{
+                    mt: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    justifyContent: { xs: 'center', md: 'flex-start' },
+                    flexWrap: { xs: 'wrap', sm: 'nowrap' }
+                }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                       {[1,2,3,4].map((i) => (
+                           <Avatar
+                               key={i}
+                               sx={{
+                                   width: 44,
+                                   height: 44,
+                                   ml: i === 1 ? 0 : -1.5,
+                                   border: '3px solid',
+                                   borderColor: 'background.default',
+                                   fontSize: 14,
+                                   bgcolor: `hsl(${i * 90}, 60%, 50%)`
+                               }}
+                           >
+                               U{i}
+                           </Avatar>
+                       ))}
                     </Box>
-                  </motion.div>
-                </Grid>
-              ))}
+                    <Box sx={{ textAlign: { xs: 'center', md: 'left' }, width: { xs: '100%', sm: 'auto' } }}>
+                         <Box sx={{ display: 'flex', gap: 0.5, color: '#F1C40F', mb: 0.5, justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                            {'★★★★★'}
+                         </Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                            Trusted by 10,000+ learners worldwide
+                        </Typography>
+                    </Box>
+                </Box>
+              </motion.div>
             </Grid>
-          </motion.div>
+            
+            <Grid item xs={12} md={6} sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+               <motion.div variants={floatAnimation} animate="animate" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                   {/* Centered Box for Floating Elements */}
+                   <Box sx={{
+                       position: 'relative',
+                       width: '100%',
+                       maxWidth: 500,
+                       p: { md: 2, lg: 4 },
+                       pt: { md: 4, lg: 8 }
+                   }}>
+                       {/* Main Floating Card */}
+                       <Card sx={{ 
+                           position: 'relative', 
+                           zIndex: 2, 
+                           borderRadius: 5, 
+                           boxShadow: isDarkMode ? '0 40px 100px -20px rgba(0,0,0,0.5)' : '0 50px 120px -30px rgba(50,50,93,0.3)',
+                           background: isDarkMode ? '#1e1e1e' : '#fff',
+                           border: '1px solid',
+                           borderColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                           overflow: 'hidden'
+                       }}>
+                           <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', p: 2, display: 'flex', gap: 1.5, bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}>
+                               <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ff5f57', boxShadow: '0 2px 4px rgba(255,95,87,0.3)' }} />
+                               <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#febc2e', boxShadow: '0 2px 4px rgba(254,188,46,0.3)' }} />
+                               <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#28c840', boxShadow: '0 2px 4px rgba(40,200,64,0.3)' }} />
+                           </Box>
+                           <CardContent sx={{ p: 5 }}>
+                               <Chip size="small" label="Question 3/10" color="primary" sx={{ mb: 2, fontWeight: 700, borderRadius: 2 }} />
+                               <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, lineHeight: 1.3 }}> What does the `useEffect` hook do in React?</Typography>
+                               <Stack spacing={2}>
+                                   <Box sx={{ p: 2.5, borderRadius: 3, border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 2, transition: 'all 0.2s', '&:hover': { borderColor: 'text.disabled', bgcolor: 'action.hover' } }}>
+                                       <Box sx={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid', borderColor: 'text.disabled' }} />
+                                       <Typography sx={{ fontWeight: 500 }}>Manages global state</Typography>
+                                   </Box>
+                                    <Box sx={{ p: 2.5, borderRadius: 3, border: '2px solid', borderColor: '#6C5CE7', bgcolor: 'rgba(108, 92, 231, 0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                       <CheckIcon sx={{ color: '#6C5CE7' }} />
+                                       <Typography sx={{ fontWeight: 600, color: '#6C5CE7' }}>Handles side effects</Typography>
+                                   </Box>
+                                   <Box sx={{ p: 2.5, borderRadius: 3, border: '1px solid', borderColor: 'divider', opacity: 0.6 }}>
+                                       <Box sx={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid', borderColor: 'text.disabled' }} />
+                                       <Typography>Creates components</Typography>
+                                   </Box>
+                               </Stack>
+                           </CardContent>
+                       </Card>
+
+                       {/* Decorative floating cards - Better positioned */}
+                        <Card sx={{
+                           position: 'absolute', top: { md: 0, lg: -10 }, right: { md: -10, lg: -30 },
+                           zIndex: 1, width: 240,
+                           p: 2.5, borderRadius: 4,
+                           boxShadow: '0 20px 40px -15px rgba(0, 184, 148, 0.4)',
+                           background: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
+                           color: 'white',
+                           transform: 'rotate(6deg)',
+                           display: { xs: 'none', md: 'block' }
+                       }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>Current Streak</Typography>
+                                <Typography variant="h5">🔥</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                                <Typography variant="h3" sx={{ fontWeight: 800 }}>12</Typography>
+                                <Typography variant="h6" sx={{ opacity: 0.9 }}>Days</Typography>
+                            </Box>
+                       </Card>
+
+                       <Card sx={{
+                           position: 'absolute', bottom: { md: -10, lg: -20 }, left: { md: -10, lg: -30 },
+                           zIndex: 3, width: 220,
+                           p: 2.5, borderRadius: 4,
+                           boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.15)',
+                           background: isDarkMode ? '#2d3436' : '#fff',
+                           border: '1px solid',
+                           borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                           transform: 'rotate(-3deg)',
+                           display: { xs: 'none', md: 'block' }
+                       }}>
+                           <Stack direction="row" spacing={2} alignItems="center">
+                               <Box sx={{
+                                   p: 1.5,
+                                   bgcolor: 'rgba(108, 92, 231, 0.1)',
+                                   borderRadius: 3,
+                                   color: 'primary.main'
+                               }}>
+                                   <BoltIcon fontSize="large" />
+                               </Box>
+                               <Box>
+                                   <Typography
+                                       variant="caption"
+                                       color="text.secondary"
+                                       sx={{
+                                           fontWeight: 600,
+                                           textTransform: 'uppercase',
+                                           letterSpacing: 1
+                                       }}
+                                   >
+                                       Accuracy
+                                   </Typography>
+                                   <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main' }}>
+                                       94%
+                                   </Typography>
+                               </Box>
+                           </Stack>
+                       </Card>
+                   </Box>
+               </motion.div>
+            </Grid>
+          </Grid>
         </Container>
       </Box>
 
-      {/* Features Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
-        <Box sx={{ textAlign: 'center', mb: 8 }}>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: '2rem', md: '3rem' },
-              fontWeight: 700,
-              mb: 2,
-              color: 'text.primary',
-            }}
-          >
-            Everything You Need
+      {/* How it Works Section */}
+      <Box sx={{ py: 12, bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : 'grey.50' }}>
+         <Container maxWidth="lg">
+             <Box sx={{ textAlign: 'center', mb: 8 }}>
+                <Typography variant="overline" color="primary" sx={{ fontWeight: 700, letterSpacing: 1.5 }}>
+                    SIMPLE WORKFLOW
+                </Typography>
+                <Typography variant="h3" sx={{ fontWeight: 800, mt: 1, mb: 2 }}>
+                    From Chaos to Structured Knowledge
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
+                    Stop wasting time manually creating flashcards. Let our AI do the heavy lifting while you focus on learning.
+                </Typography>
+             </Box>
+
+             <Grid container spacing={4}>
+                 {[
+                     { step: '01', title: 'Upload or Paste', desc: 'Paste your notes or upload any PDF/Doc file directly to the platform.' },
+                     { step: '02', title: 'AI Generation', desc: 'Our advanced AI analyzes your content and generates relevant questions instantly.' },
+                     { step: '03', title: 'Master It', desc: 'Take the quiz, review explanations, and track your progress over time.' }
+                 ].map((item, index) => (
+                     <Grid item xs={12} md={4} key={index}>
+                         <Box sx={{ p: 4, height: '100%', position: 'relative' }}>
+                             <Typography variant="h1" sx={{
+                                 position: 'absolute', top: 0, left: 0,
+                                 opacity: 0.05, fontSize: '8rem', fontWeight: 900,
+                                 pointerEvents: 'none'
+                             }}>
+                                 {item.step}
+                             </Typography>
+                             <Box sx={{
+                                 width: 60, height: 60, borderRadius: '20px',
+                                 bgcolor: 'primary.main', display: 'flex', alignItems: 'center',
+                                 justifyContent: 'center', color: 'white', fontWeight: 700, mb: 3,
+                                 boxShadow: '0 10px 20px rgba(108, 92, 231, 0.3)'
+                             }}>
+                                 {parseInt(item.step)}
+                             </Box>
+                             <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>{item.title}</Typography>
+                             <Typography color="text.secondary">{item.desc}</Typography>
+                         </Box>
+                     </Grid>
+                 ))}
+             </Grid>
+         </Container>
+      </Box>
+
+      {/* Features Grid */}
+      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 15 } }}>
+        <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 10 } }}>
+          <Typography variant="overline" color="primary" sx={{ fontWeight: 700, letterSpacing: 1.5, mb: 1 }}>
+            POWERFUL FEATURES
           </Typography>
-          <Typography
-            variant="h6"
-            sx={{
-              color: 'text.secondary',
-              maxWidth: 600,
-              mx: 'auto',
-            }}
-          >
-            Powerful features to create, share, and master quizzes
+          <Typography variant="h3" sx={{ fontWeight: 800, mb: 2 }}>
+            Everything You Need to Excel
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
+            From AI-powered quiz generation to detailed analytics, we've got you covered.
           </Typography>
         </Box>
 
@@ -319,39 +476,51 @@ function LandingPage() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card
+                  elevation={0}
                   sx={{
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    transition: 'all 0.3s',
+                    transition: 'all 0.3s ease',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 4,
+                    bgcolor: 'background.paper',
                     '&:hover': {
                       transform: 'translateY(-8px)',
-                      boxShadow: theme.shadows[8],
+                      boxShadow: `0 20px 40px -15px ${feature.color}40`,
+                      borderColor: feature.color,
+                      bgcolor: feature.bg,
+                      '& .feature-icon': {
+                        transform: 'scale(1.1) rotate(5deg)',
+                        bgcolor: feature.color,
+                        color: 'white'
+                      }
                     },
                   }}
                 >
-                  <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
+                  <CardContent sx={{ p: 4 }}>
                     <Box
+                      className="feature-icon"
                       sx={{
-                        color: 'primary.main',
-                        mb: 2,
+                        color: feature.color,
+                        bgcolor: feature.bg,
+                        width: 60,
+                        height: 60,
+                        borderRadius: 3,
                         display: 'flex',
+                        alignItems: 'center',
                         justifyContent: 'center',
+                        mb: 3,
+                        transition: 'all 0.3s ease',
                       }}
                     >
                       {feature.icon}
                     </Box>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 600, mb: 1.5 }}
-                    >
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
                       {feature.title}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ lineHeight: 1.6 }}
-                    >
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
                       {feature.description}
                     </Typography>
                   </CardContent>
@@ -362,83 +531,122 @@ function LandingPage() {
         </Grid>
       </Container>
 
-      {/* CTA Section */}
-      <Box
-        sx={{
-          background: isDarkMode
-            ? 'linear-gradient(135deg, #4A3FB8 0%, #5F4FDB 100%)'
-            : 'linear-gradient(135deg, #A29BFE 0%, #6C5CE7 100%)',
-          color: 'white',
-          py: { xs: 8, md: 10 },
-        }}
-      >
-        <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontSize: { xs: '2rem', md: '2.5rem' },
-                fontWeight: 700,
-                mb: 2,
-              }}
-            >
-              Ready to Get Started?
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{
-                mb: 4,
-                opacity: 0.95,
-                fontWeight: 400,
-              }}
-            >
-              Join thousands of users creating and taking quizzes every day
-            </Typography>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleGetStarted}
-              sx={{
-                bgcolor: 'white',
-                color: 'primary.main',
-                px: 6,
-                py: 2,
-                fontSize: '1.2rem',
-                fontWeight: 600,
-                boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.95)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
-                },
-                transition: 'all 0.3s',
-              }}
-            >
-              {user ? 'Go to Dashboard' : 'Start Creating Now'}
-            </Button>
-          </Box>
-        </Container>
+      {/* Testimonials */}
+      <Box sx={{ py: 12, bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : '#F8F9FA' }}>
+         <Container maxWidth="lg">
+             <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 800, mb: 8 }}>
+                 Loved by Learners
+             </Typography>
+             
+             <Grid container spacing={4}>
+                 {testimonials.map((t, i) => (
+                     <Grid item xs={12} md={4} key={i}>
+                         <Card elevation={0} sx={{ 
+                             p: 3, height: '100%', borderRadius: 4,
+                             bgcolor: 'background.paper',
+                             boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+                         }}>
+                             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                                 {[1,2,3,4,5].map(s => <Box key={s} sx={{ color: '#fdcb6e' }}>★</Box>)}
+                             </Box>
+                             <Typography variant="body1" sx={{ mb: 4, fontStyle: 'italic' }}>
+                                 "{t.text}"
+                             </Typography>
+                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                 <Avatar sx={{ bgcolor: 'secondary.main', fontWeight: 700 }}>{t.avatar}</Avatar>
+                                 <Box>
+                                     <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{t.name}</Typography>
+                                     <Typography variant="caption" color="text.secondary">{t.role}</Typography>
+                                 </Box>
+                             </Box>
+                         </Card>
+                     </Grid>
+                 ))}
+             </Grid>
+         </Container>
       </Box>
 
-      {/* Footer */}
-      <Box
-        sx={{
-          bgcolor: isDarkMode ? 'grey.900' : 'grey.100',
-          py: 4,
-          borderTop: 1,
-          borderColor: 'divider',
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              © 2026 QuizCraft - Built with React 19, Material-UI 7, and modern web technologies
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              All 10 phases complete • Production ready • Enterprise-grade architecture
-            </Typography>
+      {/* CTA Section */}
+      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+        <Box
+          sx={{
+            background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
+            borderRadius: { xs: 4, md: 8 },
+            p: { xs: 4, sm: 6, md: 8 },
+            textAlign: 'center',
+            color: 'white',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 20px 60px -10px rgba(108, 92, 231, 0.5)',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: 'radial-gradient(circle at 20px 20px, rgba(255,255,255,0.2) 2px, transparent 0)',
+              backgroundSize: '40px 40px',
+              opacity: 0.3,
+            }}
+          />
+          
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Typography variant="h3" sx={{ fontWeight: 800, mb: 3, fontSize: { xs: '1.75rem', md: '3rem' } }}>
+                Ready to Boost Your Learning?
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 5,
+                  opacity: 0.9,
+                  fontWeight: 400,
+                  maxWidth: 600,
+                  mx: 'auto',
+                  fontSize: { xs: '1rem', md: '1.25rem' }
+                }}
+              >
+                Join thousands of learners. Start creating impactful quizzes today.
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleGetStarted}
+                endIcon={<ArrowForwardIcon />}
+                sx={{
+                  bgcolor: 'white',
+                  color: 'primary.main',
+                  px: { xs: 4, md: 6 },
+                  py: { xs: 1.5, md: 2 },
+                  fontSize: { xs: '1rem', md: '1.2rem' },
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 0.95)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 15px 30px rgba(0,0,0,0.2)',
+                  },
+                }}
+              >
+                {user ? 'Go to Dashboard' : 'Get Started for Free'}
+              </Button>
           </Box>
-        </Container>
+        </Box>
+      </Container>
+
+      {/* Footer */}
+      <Box sx={{ py: 6, borderTop: 1, borderColor: 'divider', textAlign: 'center' }}>
+         <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 2 }}>QuizCraft</Typography>
+         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            © {new Date().getFullYear()} QuizCraft. All rights reserved.
+         </Typography>
+         <Typography variant="caption" color="text.disabled">
+            Built with React 19 & Material-UI 7
+         </Typography>
       </Box>
     </Box>
   );
