@@ -495,14 +495,17 @@ function CreateQuizModal({ open, onClose }) {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} sm={6}>
                   <Box>
                     <Typography
-                      variant="body2"
+                      variant="caption"
                       sx={{
-                        color: '#2D3436',
-                        fontWeight: 600,
-                        mb: 1,
+                        color: 'rgba(0, 0, 0, 0.6)',
+                        fontWeight: 400,
+                        fontSize: '0.75rem',
+                        mb: 0.5,
+                        display: 'block',
+                        lineHeight: 1.66,
                       }}
                     >
                       Tags
@@ -516,7 +519,8 @@ function CreateQuizModal({ open, onClose }) {
                         border: '1px solid #E8E8E8',
                         borderRadius: 1,
                         backgroundColor: '#F8F9FA',
-                        minHeight: 48,
+                        height: 56,
+                        maxHeight: 56,
                         overflowX: 'auto',
                         overflowY: 'hidden',
                         '&:hover': {
@@ -612,10 +616,11 @@ function CreateQuizModal({ open, onClose }) {
                     <Typography
                       variant="caption"
                       sx={{
-                        color: '#636E72',
+                        color: 'rgba(0, 0, 0, 0.6)',
                         mt: 0.5,
                         display: 'block',
                         fontSize: '0.75rem',
+                        lineHeight: 1.66,
                       }}
                     >
                       Press Enter or click + to add tags. Click tags to remove them.
