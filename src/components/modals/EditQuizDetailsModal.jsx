@@ -475,138 +475,6 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: 'rgba(0, 0, 0, 0.6)',
-                        fontWeight: 400,
-                        fontSize: '0.75rem',
-                        mb: 0.5,
-                        display: 'block',
-                        lineHeight: 1.66,
-                      }}
-                    >
-                      Tags
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        p: 1,
-                        border: '1px solid #E8E8E8',
-                        borderRadius: 1,
-                        backgroundColor: '#F8F9FA',
-                        height: 56,
-                        maxHeight: 56,
-                        overflowX: 'auto',
-                        overflowY: 'hidden',
-                        '&:hover': {
-                          borderColor: '#667eea',
-                        },
-                        '&:focus-within': {
-                          borderColor: '#667eea',
-                          boxShadow: '0 0 0 1px #667eea',
-                        },
-                        '&::-webkit-scrollbar': {
-                          height: 6,
-                        },
-                        '&::-webkit-scrollbar-track': {
-                          backgroundColor: 'transparent',
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                          backgroundColor: '#DFE6E9',
-                          borderRadius: 3,
-                          '&:hover': {
-                            backgroundColor: '#B2BEC3',
-                          },
-                        },
-                      }}
-                    >
-                      {formData.tags.map((tag, index) => (
-                        <Chip
-                          key={index}
-                          label={tag}
-                          onDelete={() => removeTag(tag)}
-                          size="small"
-                          sx={{
-                            backgroundColor: '#667eea',
-                            color: '#FFFFFF',
-                            fontWeight: 500,
-                            fontSize: '0.8rem',
-                            height: 28,
-                            flexShrink: 0,
-                            '& .MuiChip-deleteIcon': {
-                              color: 'rgba(255, 255, 255, 0.7)',
-                              fontSize: '1rem',
-                              '&:hover': {
-                                color: '#FFFFFF',
-                              },
-                            },
-                          }}
-                        />
-                      ))}
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          flex: 1,
-                          minWidth: 200,
-                        }}
-                      >
-                        <input
-                          type="text"
-                          placeholder={formData.tags.length === 0 ? "Type a tag and press Enter" : ""}
-                          value={tagInput}
-                          onChange={handleTagInputChange}
-                          onKeyDown={handleTagKeyPress}
-                          style={{
-                            border: 'none',
-                            outline: 'none',
-                            backgroundColor: 'transparent',
-                            fontSize: '0.875rem',
-                            width: '100%',
-                            fontFamily: 'inherit',
-                            color: '#2D3436',
-                          }}
-                        />
-                        {tagInput.trim() && (
-                          <IconButton
-                            size="small"
-                            onClick={addTag}
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              backgroundColor: '#667eea',
-                              color: '#FFFFFF',
-                              ml: 1,
-                              flexShrink: 0,
-                              '&:hover': {
-                                backgroundColor: '#5568d3',
-                              },
-                            }}
-                          >
-                            <AddIcon sx={{ fontSize: 16 }} />
-                          </IconButton>
-                        )}
-                      </Box>
-                    </Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: 'rgba(0, 0, 0, 0.6)',
-                        mt: 0.5,
-                        display: 'block',
-                        fontSize: '0.75rem',
-                        lineHeight: 1.66,
-                      }}
-                    >
-                      Press Enter or click + to add tags. Click tags to remove them.
-                    </Typography>
-                  </Box>
-                </Grid>
               </Grid>
             </Box>
 
@@ -629,7 +497,7 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
                   }}
                 />
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#2D3436', fontSize: '1.1rem' }}>
-                  Visibility
+                  Visibility & Discovery
                 </Typography>
               </Box>
               <Box
@@ -672,6 +540,103 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
                     </Box>
                   }
                 />
+              </Box>
+
+              {/* Tags Section */}
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="body1" sx={{ fontWeight: 600, mb: 1.5, color: '#2D3436' }}>
+                  Tags
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    p: 1.5,
+                    border: '1px solid',
+                    borderColor: '#E8E8E8',
+                    borderRadius: 2,
+                    backgroundColor: '#F8F9FA',
+                    minHeight: 56,
+                    flexWrap: 'wrap',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: '#667eea',
+                    },
+                    '&:focus-within': {
+                      borderColor: '#667eea',
+                      boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.1)',
+                    },
+                  }}
+                >
+                  {formData.tags.map((tag, index) => (
+                    <Chip
+                      key={index}
+                      label={tag}
+                      onDelete={() => removeTag(tag)}
+                      size="small"
+                      sx={{
+                        backgroundColor: '#667eea',
+                        color: '#FFFFFF',
+                        fontWeight: 500,
+                        fontSize: '0.85rem',
+                        height: 32,
+                        '& .MuiChip-deleteIcon': {
+                          color: 'rgba(255, 255, 255, 0.8)',
+                          '&:hover': {
+                            color: '#FFFFFF',
+                          },
+                        },
+                      }}
+                    />
+                  ))}
+                  <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 150 }}>
+                    <input
+                      type="text"
+                      placeholder={formData.tags.length === 0 ? "Type a tag and press Enter" : ""}
+                      value={tagInput}
+                      onChange={handleTagInputChange}
+                      onKeyDown={handleTagKeyPress}
+                      style={{
+                        border: 'none',
+                        outline: 'none',
+                        backgroundColor: 'transparent',
+                        fontSize: '0.875rem',
+                        width: '100%',
+                        fontFamily: 'inherit',
+                        color: '#2D3436',
+                      }}
+                    />
+                    {tagInput.trim() && (
+                      <IconButton
+                        size="small"
+                        onClick={addTag}
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          backgroundColor: '#667eea',
+                          color: '#FFFFFF',
+                          '&:hover': {
+                            backgroundColor: '#5568d3',
+                          },
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: 'block',
+                    mt: 0.75,
+                    color: 'text.secondary',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Add relevant tags to help others discover your quiz
+                </Typography>
               </Box>
             </Box>
           </Box>
