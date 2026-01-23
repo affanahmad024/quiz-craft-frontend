@@ -273,26 +273,42 @@ function AddQuestionsModal({
               </Typography>
             </Box>
 
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-                mr: 2,
-                px: 2,
-                py: 1,
-                backgroundColor: alpha('#667eea', 0.1),
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="body2" sx={{ fontWeight: 600, color: '#667eea' }}>
-                Total Questions: {questions.length}
-              </Typography>
-            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  px: 2,
+                  py: 1,
+                  backgroundColor: alpha('#667eea', 0.1),
+                  borderRadius: 2,
+                }}
+              >
+                <Typography variant="body2" sx={{ fontWeight: 600, color: '#667eea' }}>
+                  Total Questions: {questions.length}
+                </Typography>
+              </Box>
 
-            <IconButton edge="end" color="inherit" onClick={onClose}>
-              <CloseIcon />
-            </IconButton>
+              <QuizCraftButton
+                variant="contained"
+                onClick={onClose}
+                sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  fontWeight: 600,
+                  px: 3,
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #5568d3 0%, #63408e 100%)',
+                  },
+                }}
+              >
+                Done Adding Questions
+              </QuizCraftButton>
+
+              <IconButton edge="end" color="inherit" onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
           </Toolbar>
         </AppBar>
 
@@ -314,24 +330,6 @@ function AddQuestionsModal({
               {/* Short Answer Section */}
               {renderTypeSection('short_answer')}
             </Stack>
-
-            <Box sx={{ mt: 4, textAlign: 'center' }}>
-              <QuizCraftButton
-                variant="contained"
-                onClick={onClose}
-                sx={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  fontWeight: 600,
-                  px: 4,
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #63408e 100%)',
-                  },
-                }}
-              >
-                Done Adding Questions
-              </QuizCraftButton>
-            </Box>
           </Box>
         </Box>
       </Dialog>
