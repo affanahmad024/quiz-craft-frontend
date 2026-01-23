@@ -67,7 +67,7 @@ function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoad
         question_text: '',
         points: 1,
         explanation: '',
-        image_file_id: null,
+        image_file: null,
         answers: getDefaultAnswers(questionType),
         expanded: index === 0, // First one expanded by default
       }));
@@ -149,7 +149,7 @@ function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoad
       question_type: questionType,
       points: parseInt(q.points),
       explanation: q.explanation.trim() || null,
-      image_file_id: q.image_file_id || null,
+      image_file: q.image_file instanceof File ? q.image_file : null,
       answers:
         questionType !== 'short_answer'
           ? q.answers.map((a, index) => ({

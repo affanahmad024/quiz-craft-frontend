@@ -42,9 +42,9 @@ function QuestionFormFields({ data, questionType, onChange, errors }) {
     onChange({ ...data, [field]: value });
   };
 
-  // Handle image upload
-  const handleImageChange = (fileId) => {
-    onChange({ ...data, image_file_id: fileId });
+  // Handle image file selection
+  const handleImageChange = (file) => {
+    onChange({ ...data, image_file: file });
   };
 
   // Handle answer change
@@ -182,9 +182,9 @@ function QuestionFormFields({ data, questionType, onChange, errors }) {
           Question Image (Optional)
         </Typography>
         <ImageUploadField
-          value={data.image_file_id}
+          value={data.image_file}
           onChange={handleImageChange}
-          error={errors?.image_file_id}
+          error={errors?.image_file}
         />
       </Box>
 
@@ -383,7 +383,10 @@ QuestionFormFields.propTypes = {
     question_text: PropTypes.string.isRequired,
     points: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     explanation: PropTypes.string,
-    image_file_id: PropTypes.string,
+    image_file: PropTypes.oneOfType([
+      PropTypes.instanceOf(File),
+      PropTypes.string,
+    ]),
     answers: PropTypes.arrayOf(
       PropTypes.shape({
         answer_text: PropTypes.string.isRequired,

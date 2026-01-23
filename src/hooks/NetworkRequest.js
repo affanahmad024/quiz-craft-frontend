@@ -35,10 +35,15 @@ const useNetReq = () => {
     try {
       // Build headers
       const headers = {
-        'Content-Type': 'application/json',
         'X-Application-Name': 'quizcraft',
         ...customHeaders,
       };
+
+      // Only set Content-Type if body is not FormData
+      // FormData will set its own Content-Type with boundary
+      if (!(body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
 
       // Add authorization token if required
       if (authRequired) {

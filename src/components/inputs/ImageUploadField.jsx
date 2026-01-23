@@ -1,13 +1,12 @@
 // Image Upload Field Component
 // Following Phoenix pattern
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
   Button,
   IconButton,
-  CircularProgress,
   Typography,
   alpha,
 } from '@mui/material';
@@ -16,32 +15,44 @@ import {
   Delete as DeleteIcon,
   Image as ImageIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
-import { getFromLS } from '../../funcs/LSFuncs';
-import { LS_CONSTS } from '../../constants/LSConstants';
 import { toast } from 'react-hot-toast';
 
 /**
  * ImageUploadField Component
- * Handles image file uploads with preview
- * @param {function} onChange - Callback when file is uploaded (receives file_id)
- * @param {string} value - Current file ID (optional)
+ * Handles image file selection with preview (no immediate upload)
+ * @param {function} onChange - Callback when file is selected (receives file object)
+ * @param {File|string} value - Current file object or file ID
  * @param {string} error - Error message (optional)
  * @param {string} helperText - Helper text (optional)
  */
 function ImageUploadField({ onChange, value, error, helperText }) {
-  const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [fileName, setFileName] = useState('');
   const fileInputRef = useRef(null);
 
-  // Get API base URL
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+  // Create preview when value changes
+  useEffect(() => {
+    if (value instanceof File) {
+      const preview = URL.createObjectURL(value);
+      setPreviewUrl(preview);
+      setFileName(value.name);
+
+      // Cleanup
+      return () => URL.revokeObjectURL(preview);
+    } else if (typeof value === 'string' && value) {
+      // If value is a URL string (for editing existing questions)
+      setPreviewUrl(value);
+      setFileName('Existing image');
+    } else {
+      setPreviewUrl(null);
+      setFileName('');
+    }
+  }, [value]);
 
   /**
-   * Handle file selection and upload
+   * Handle file selection
    */
-  const handleFileChange = async (event) => {
+  const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -58,59 +69,12 @@ function ImageUploadField({ onChange, value, error, helperText }) {
       return;
     }
 
-    setUploading(true);
-    setFileName(file.name);
+    // Pass file object to parent
+    onChange(file);
 
-    // Create preview
-    const preview = URL.createObjectURL(file);
-    setPreviewUrl(preview);
-
-    try {
-      // Prepare form data
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // Get auth token
-      const token = getFromLS(LS_CONSTS.LS_ACCESS_TOKEN);
-
-      // Upload file
-      const response = await axios.post(
-        `${baseURL}/files/upload`,
-        formData,
-        {
-          headers: {
-            'Authorization': token ? `Bearer ${token}` : '',
-            'X-Application-Name': 'quizcraft',
-          },
-          withCredentials: true,
-        }
-      );
-
-      if (response.data?.data?.id) {
-        const fileId = response.data.data.id;
-        onChange(fileId);
-        toast.success('Image uploaded successfully');
-      } else if (response.data?.id) {
-        // Handle direct ID in response
-        const fileId = response.data.id;
-        onChange(fileId);
-        toast.success('Image uploaded successfully');
-      } else {
-        throw new Error('Invalid response format');
-      }
-    } catch (err) {
-      console.error('Upload error:', err);
-      toast.error(err.response?.data?.error?.message || 'Failed to upload image');
-      // Clear preview on error
-      setPreviewUrl(null);
-      setFileName('');
-      URL.revokeObjectURL(preview);
-    } finally {
-      setUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -118,7 +82,7 @@ function ImageUploadField({ onChange, value, error, helperText }) {
    * Handle image removal
    */
   const handleRemove = () => {
-    if (previewUrl) {
+    if (previewUrl && value instanceof File) {
       URL.revokeObjectURL(previewUrl);
     }
     setPreviewUrl(null);
@@ -144,7 +108,7 @@ function ImageUploadField({ onChange, value, error, helperText }) {
       />
 
       {!previewUrl && !value ? (
-        // Upload button (no image uploaded)
+        // Upload button (no image selected)
         <Box
           sx={{
             border: '2px dashed',
@@ -153,35 +117,24 @@ function ImageUploadField({ onChange, value, error, helperText }) {
             p: 3,
             textAlign: 'center',
             backgroundColor: alpha('#F8F9FA', 0.5),
-            cursor: uploading ? 'not-allowed' : 'pointer',
+            cursor: 'pointer',
             transition: 'all 0.2s',
             '&:hover': {
-              borderColor: uploading ? undefined : '#667eea',
-              backgroundColor: uploading ? undefined : alpha('#667eea', 0.05),
+              borderColor: '#667eea',
+              backgroundColor: alpha('#667eea', 0.05),
             },
           }}
-          onClick={uploading ? undefined : handleButtonClick}
+          onClick={handleButtonClick}
         >
-          {uploading ? (
-            <Box>
-              <CircularProgress size={40} sx={{ color: '#667eea', mb: 2 }} />
-              <Typography variant="body2" color="text.secondary">
-                Uploading...
-              </Typography>
-            </Box>
-          ) : (
-            <Box>
-              <CloudUploadIcon
-                sx={{ fontSize: 48, color: '#667eea', mb: 1 }}
-              />
-              <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                Click to upload image
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                PNG, JPG, GIF up to 5MB
-              </Typography>
-            </Box>
-          )}
+          <CloudUploadIcon
+            sx={{ fontSize: 48, color: '#667eea', mb: 1 }}
+          />
+          <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
+            Click to upload image
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            PNG, JPG, GIF up to 5MB
+          </Typography>
         </Box>
       ) : (
         // Preview with remove button
@@ -247,16 +200,15 @@ function ImageUploadField({ onChange, value, error, helperText }) {
                 variant="body2"
                 sx={{ fontWeight: 600, mb: 0.5 }}
               >
-                {fileName || 'Image uploaded'}
+                {fileName || 'Image selected'}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {previewUrl ? 'Ready to use' : 'File ID: ' + value}
+                {value instanceof File ? `${(value.size / 1024).toFixed(1)} KB` : 'Ready to upload'}
               </Typography>
             </Box>
 
             <IconButton
               onClick={handleRemove}
-              disabled={uploading}
               sx={{
                 color: '#f5576c',
                 '&:hover': {
@@ -270,7 +222,6 @@ function ImageUploadField({ onChange, value, error, helperText }) {
 
           <Button
             onClick={handleButtonClick}
-            disabled={uploading}
             startIcon={<CloudUploadIcon />}
             sx={{
               mt: 2,
@@ -309,7 +260,10 @@ function ImageUploadField({ onChange, value, error, helperText }) {
 
 ImageUploadField.propTypes = {
   onChange: PropTypes.func.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.instanceOf(File),
+    PropTypes.string,
+  ]),
   error: PropTypes.string,
   helperText: PropTypes.string,
 };

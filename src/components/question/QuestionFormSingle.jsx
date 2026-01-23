@@ -61,7 +61,7 @@ function QuestionFormSingle({
     question_text: '',
     points: 1,
     explanation: '',
-    image_file_id: null,
+    image_file: null,
     answers: getDefaultAnswers(questionType),
   });
 
@@ -74,7 +74,7 @@ function QuestionFormSingle({
         question_text: initialData.question_text || '',
         points: initialData.points || 1,
         explanation: initialData.explanation || '',
-        image_file_id: initialData.image_file_id || null,
+        image_file: initialData.meta?.image_url || null,
         answers: initialData.answers || getDefaultAnswers(questionType),
       });
     } else {
@@ -83,7 +83,7 @@ function QuestionFormSingle({
         question_text: '',
         points: 1,
         explanation: '',
-        image_file_id: null,
+        image_file: null,
         answers: getDefaultAnswers(questionType),
       });
     }
@@ -160,7 +160,7 @@ function QuestionFormSingle({
       question_type: questionType,
       points: parseInt(formData.points),
       explanation: formData.explanation.trim() || null,
-      image_file_id: formData.image_file_id || null,
+      image_file: formData.image_file instanceof File ? formData.image_file : null,
       answers:
         questionType !== 'short_answer'
           ? formData.answers.map((a, index) => ({
