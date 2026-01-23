@@ -16,8 +16,11 @@ import {
   IconButton,
   Typography,
   alpha,
+  Chip,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Close as CloseIcon, Add as AddIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import QuizCraftTextInput from '../inputs/QuizCraftTextInput';
 import QuizCraftButton from '../buttons/QuizCraftButton';
@@ -46,9 +49,10 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
     time_limit_minutes: '',
     passing_score: '70',
     is_public: true,
-    tags: '',
+    tags: [],
   });
 
+  const [tagInput, setTagInput] = useState('');
   const [errors, setErrors] = useState({});
 
   // Populate form when quiz changes
@@ -62,7 +66,7 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
         time_limit_minutes: quiz.time_limit_minutes?.toString() || '',
         passing_score: quiz.passing_score?.toString() || '70',
         is_public: quiz.is_public ?? true,
-        tags: quiz.tags?.join(', ') || '',
+        tags: quiz.tags || [],
       });
     }
   }, [quiz]);
@@ -75,6 +79,39 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));
     }
+  };
+
+  // Handle tag input change
+  const handleTagInputChange = (event) => {
+    setTagInput(event.target.value);
+  };
+
+  // Handle tag input key press
+  const handleTagKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addTag();
+    }
+  };
+
+  // Add a new tag
+  const addTag = () => {
+    const trimmedTag = tagInput.trim();
+    if (trimmedTag && !formData.tags.includes(trimmedTag)) {
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, trimmedTag],
+      }));
+      setTagInput('');
+    }
+  };
+
+  // Remove a tag
+  const removeTag = (tagToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
   };
 
   // Validate form
@@ -163,11 +200,8 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
     }
 
     // Add tags if provided
-    if (formData.tags.trim()) {
-      updates.tags = formData.tags
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
+    if (formData.tags.length > 0) {
+      updates.tags = formData.tags;
     }
 
     await onSave(updates);
@@ -444,19 +478,91 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <QuizCraftTextInput
-                    placeholder="e.g., javascript, programming, beginner"
-                    value={formData.tags}
-                    onChange={handleChange('tags')}
-                    helperText="Separate tags with commas to help users find your quiz"
-                    fullWidth
-                    label="Tags"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: '#F8F9FA',
-                      },
-                    }}
-                  />
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#636E72',
+                        fontWeight: 600,
+                        mb: 1,
+                        display: 'block',
+                      }}
+                    >
+                      Tags
+                    </Typography>
+                    <TextField
+                      placeholder="Type a tag and press Enter"
+                      value={tagInput}
+                      onChange={handleTagInputChange}
+                      onKeyDown={handleTagKeyPress}
+                      fullWidth
+                      size="small"
+                      slotProps={{
+                        input: {
+                          endAdornment: tagInput.trim() && (
+                            <InputAdornment position="end">
+                              <IconButton
+                                size="small"
+                                onClick={addTag}
+                                sx={{
+                                  color: '#667eea',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                  },
+                                }}
+                              >
+                                <AddIcon />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: '#F8F9FA',
+                        },
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#636E72',
+                        mt: 0.5,
+                        display: 'block',
+                      }}
+                    >
+                      Press Enter or click + to add tags. Click tags to remove them.
+                    </Typography>
+                    {formData.tags.length > 0 && (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: 1,
+                          mt: 2,
+                        }}
+                      >
+                        {formData.tags.map((tag, index) => (
+                          <Chip
+                            key={index}
+                            label={tag}
+                            onDelete={() => removeTag(tag)}
+                            sx={{
+                              backgroundColor: '#667eea',
+                              color: '#FFFFFF',
+                              fontWeight: 500,
+                              '& .MuiChip-deleteIcon': {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                '&:hover': {
+                                  color: '#FFFFFF',
+                                },
+                              },
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
                 </Grid>
               </Grid>
             </Box>

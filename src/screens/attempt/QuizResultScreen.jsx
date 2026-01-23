@@ -15,7 +15,6 @@ import {
   Stack,
   Grid,
   LinearProgress,
-  Paper,
   Collapse,
   IconButton,
 } from '@mui/material';
@@ -73,8 +72,7 @@ function QuizResultScreen() {
   // Extract the data we need
   const attempt = currentResults;
   const quiz = currentResults;
-  const questions = currentResults.questions || [];
-  const user_answers = currentResults.user_answers || [];
+  const answers = currentResults.answers || [];
 
   // Handle retake quiz
   const handleRetakeQuiz = () => {
@@ -113,16 +111,11 @@ function QuizResultScreen() {
     }));
   };
 
-  // Get user answer for a question
-  const getUserAnswer = (questionId) => {
-    return user_answers?.find((ua) => ua.question_id === questionId);
-  };
-
   // Calculate stats
   const calculateStats = () => {
-    const totalQuestions = questions.length;
-    const answeredQuestions = user_answers.length;
-    const correctAnswers = user_answers.filter((ua) => ua.is_correct).length;
+    const totalQuestions = currentResults.total_questions || 0;
+    const answeredQuestions = currentResults.answered_count || 0;
+    const correctAnswers = answers.filter((a) => a.is_correct).length;
     const incorrectAnswers = answeredQuestions - correctAnswers;
     const unansweredQuestions = totalQuestions - answeredQuestions;
 
@@ -575,21 +568,20 @@ function QuizResultScreen() {
               mb: 3,
             }}
           >
-            Review Answers ({questions?.length || 0} Questions)
+            Review Answers ({answers?.length || 0} Questions)
           </Typography>
         </Box>
 
         {/* Questions List */}
-        {questions && questions.length > 0 ? (
+        {answers && answers.length > 0 ? (
           <Stack spacing={2}>
-            {questions.map((question, index) => {
-              const userAnswer = getUserAnswer(question.id);
-              const isCorrect = userAnswer?.is_correct;
-              const isExpanded = expandedQuestions[question.id];
+            {answers.map((answer, index) => {
+              const isCorrect = answer.is_correct;
+              const isExpanded = expandedQuestions[answer.question_id];
 
               return (
                 <Card
-                  key={question.id}
+                  key={answer.id}
                   sx={{
                     borderRadius: 3,
                     border: '1px solid #E8E8E8',
@@ -606,7 +598,7 @@ function QuizResultScreen() {
                         mb: 2,
                         cursor: 'pointer',
                       }}
-                      onClick={() => toggleQuestion(question.id)}
+                      onClick={() => toggleQuestion(answer.question_id)}
                     >
                       <Box sx={{ flex: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -619,32 +611,20 @@ function QuizResultScreen() {
                               fontWeight: 600,
                             }}
                           />
-                          {userAnswer ? (
-                            <Chip
-                              label={isCorrect ? 'Correct' : 'Incorrect'}
-                              size="small"
-                              icon={isCorrect ? <CheckIcon /> : <CloseIcon />}
-                              sx={{
-                                backgroundColor: isCorrect
-                                  ? 'rgba(67, 233, 123, 0.1)'
-                                  : 'rgba(245, 87, 108, 0.1)',
-                                color: isCorrect ? '#43e97b' : '#f5576c',
-                                fontWeight: 600,
-                              }}
-                            />
-                          ) : (
-                            <Chip
-                              label="Not Answered"
-                              size="small"
-                              sx={{
-                                backgroundColor: 'rgba(158, 158, 158, 0.1)',
-                                color: '#9E9E9E',
-                                fontWeight: 600,
-                              }}
-                            />
-                          )}
                           <Chip
-                            label={`${userAnswer?.points_earned || 0} / ${question.points || 1} pts`}
+                            label={isCorrect ? 'Correct' : 'Incorrect'}
+                            size="small"
+                            icon={isCorrect ? <CheckIcon /> : <CloseIcon />}
+                            sx={{
+                              backgroundColor: isCorrect
+                                ? 'rgba(67, 233, 123, 0.1)'
+                                : 'rgba(245, 87, 108, 0.1)',
+                              color: isCorrect ? '#43e97b' : '#f5576c',
+                              fontWeight: 600,
+                            }}
+                          />
+                          <Chip
+                            label={`${answer.points_earned || 0} pts`}
                             size="small"
                             sx={{
                               backgroundColor: 'rgba(255, 152, 0, 0.1)',
@@ -660,7 +640,7 @@ function QuizResultScreen() {
                             color: '#2D3436',
                           }}
                         >
-                          {question.question_text}
+                          {answer.question_text}
                         </Typography>
                       </Box>
 
@@ -673,40 +653,72 @@ function QuizResultScreen() {
                     <Collapse in={isExpanded}>
                       <Divider sx={{ my: 2 }} />
 
-                      {/* Answers */}
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          mb: 2,
-                          color: '#636E72',
-                          fontWeight: 600,
-                        }}
-                      >
-                        Answer Options:
-                      </Typography>
+                      {/* Answer Details */}
+                      <Box sx={{ mb: 2 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            mb: 2,
+                            color: '#636E72',
+                            fontWeight: 600,
+                          }}
+                        >
+                          Your Answer:
+                        </Typography>
+                        <Box
+                          sx={{
+                            p: 2,
+                            borderRadius: 2,
+                            border: '2px solid',
+                            borderColor: isCorrect ? '#43e97b' : '#f5576c',
+                            backgroundColor: isCorrect
+                              ? 'rgba(67, 233, 123, 0.05)'
+                              : 'rgba(245, 87, 108, 0.05)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            mb: 2,
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              fontWeight: 600,
+                              flex: 1,
+                            }}
+                          >
+                            {answer.selected_answer_text}
+                          </Typography>
+                          <Chip
+                            label={isCorrect ? 'Correct' : 'Incorrect'}
+                            size="small"
+                            icon={isCorrect ? <CheckIcon /> : <CloseIcon />}
+                            sx={{
+                              backgroundColor: isCorrect ? '#43e97b' : '#f5576c',
+                              color: '#FFFFFF',
+                              fontWeight: 600,
+                            }}
+                          />
+                        </Box>
 
-                      <Stack spacing={1.5} sx={{ mb: 3 }}>
-                        {question.answers?.map((answer, answerIndex) => {
-                          const isUserAnswer = userAnswer?.answer_id === answer.id;
-                          const isCorrectAnswer = answer.is_correct;
-
-                          return (
+                        {!isCorrect && answer.correct_answer_text && (
+                          <>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                mb: 2,
+                                color: '#636E72',
+                                fontWeight: 600,
+                              }}
+                            >
+                              Correct Answer:
+                            </Typography>
                             <Box
-                              key={answer.id}
                               sx={{
                                 p: 2,
                                 borderRadius: 2,
-                                border: '2px solid',
-                                borderColor: isCorrectAnswer
-                                  ? '#43e97b'
-                                  : isUserAnswer && !isCorrect
-                                  ? '#f5576c'
-                                  : '#E8E8E8',
-                                backgroundColor: isCorrectAnswer
-                                  ? 'rgba(67, 233, 123, 0.05)'
-                                  : isUserAnswer && !isCorrect
-                                  ? 'rgba(245, 87, 108, 0.05)'
-                                  : '#FFFFFF',
+                                border: '2px solid #43e97b',
+                                backgroundColor: 'rgba(67, 233, 123, 0.05)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 2,
@@ -715,87 +727,26 @@ function QuizResultScreen() {
                               <Typography
                                 variant="body1"
                                 sx={{
-                                  fontWeight: isUserAnswer || isCorrectAnswer ? 600 : 400,
+                                  fontWeight: 600,
                                   flex: 1,
                                 }}
                               >
-                                {String.fromCharCode(65 + answerIndex)}. {answer.answer_text}
+                                {answer.correct_answer_text}
                               </Typography>
-
-                              {isCorrectAnswer && (
-                                <Chip
-                                  label="Correct Answer"
-                                  size="small"
-                                  icon={<CheckIcon />}
-                                  sx={{
-                                    backgroundColor: '#43e97b',
-                                    color: '#FFFFFF',
-                                    fontWeight: 600,
-                                  }}
-                                />
-                              )}
-
-                              {isUserAnswer && !isCorrect && (
-                                <Chip
-                                  label="Your Answer"
-                                  size="small"
-                                  icon={<CloseIcon />}
-                                  sx={{
-                                    backgroundColor: '#f5576c',
-                                    color: '#FFFFFF',
-                                    fontWeight: 600,
-                                  }}
-                                />
-                              )}
-
-                              {isUserAnswer && isCorrect && (
-                                <Chip
-                                  label="Your Answer"
-                                  size="small"
-                                  icon={<CheckIcon />}
-                                  sx={{
-                                    backgroundColor: '#43e97b',
-                                    color: '#FFFFFF',
-                                    fontWeight: 600,
-                                  }}
-                                />
-                              )}
+                              <Chip
+                                label="Correct Answer"
+                                size="small"
+                                icon={<CheckIcon />}
+                                sx={{
+                                  backgroundColor: '#43e97b',
+                                  color: '#FFFFFF',
+                                  fontWeight: 600,
+                                }}
+                              />
                             </Box>
-                          );
-                        })}
-                      </Stack>
-
-                      {/* Explanation */}
-                      {question.explanation && (
-                        <Paper
-                          sx={{
-                            p: 2,
-                            backgroundColor: 'rgba(102, 126, 234, 0.05)',
-                            border: '1px solid rgba(102, 126, 234, 0.2)',
-                            borderRadius: 2,
-                          }}
-                        >
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              color: '#667eea',
-                              fontWeight: 600,
-                              mb: 1,
-                            }}
-                          >
-                            Explanation:
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: '#636E72',
-                              lineHeight: 1.6,
-                            }}
-                          >
-                            {question.explanation}
-                          </Typography>
-                        </Paper>
-                      )}
+                          </>
+                        )}
+                      </Box>
                     </Collapse>
                   </CardContent>
                 </Card>
