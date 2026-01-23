@@ -30,6 +30,9 @@ import {
   Divider,
   TextField,
   Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -40,6 +43,7 @@ import {
   Create as ManualIcon,
   Upload as UploadIcon,
   CheckCircle as CheckCircleIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import { useQuiz } from '../../contexts/quiz/QuizContextProvider';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
@@ -79,6 +83,7 @@ function EditQuizScreen() {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState(null);
+  const [expandedQuestions, setExpandedQuestions] = useState({});
 
   // Manual question form
   const [questionFormData, setQuestionFormData] = useState({
@@ -635,22 +640,168 @@ function EditQuizScreen() {
             {!addMode && currentQuiz.questions && currentQuiz.questions.length > 0 && (
               <Box>
                 <Divider sx={{ my: 4 }} />
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Existing Questions ({currentQuiz.questions.length})
-                </Typography>
-                <Stack spacing={3}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6">
+                    Existing Questions ({currentQuiz.questions.length})
+                  </Typography>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      const allExpanded = currentQuiz.questions.every(q => expandedQuestions[q.id]);
+                      const newExpanded = {};
+                      if (!allExpanded) {
+                        currentQuiz.questions.forEach(q => {
+                          newExpanded[q.id] = true;
+                        });
+                      }
+                      setExpandedQuestions(newExpanded);
+                    }}
+                    sx={{ textTransform: 'none', color: COLORS.PRIMARY }}
+                  >
+                    {currentQuiz.questions.every(q => expandedQuestions[q.id]) ? 'Collapse All' : 'Expand All'}
+                  </Button>
+                </Box>
+                <Stack spacing={2}>
                   {currentQuiz.questions.map((question, index) => (
-                    <Box key={question.id}>
-                      <Typography variant="subtitle2" sx={{ mb: 1, color: COLORS.TEXT_SECONDARY }}>
-                        Question {index + 1}
-                      </Typography>
-                      <QuestionCard
-                        question={question}
-                        editable={true}
-                        onEdit={handleEditQuestion}
-                        onDelete={handleDeleteQuestion}
-                      />
-                    </Box>
+                    <Accordion
+                      key={question.id}
+                      expanded={expandedQuestions[question.id] || false}
+                      onChange={() => {
+                        setExpandedQuestions(prev => ({
+                          ...prev,
+                          [question.id]: !prev[question.id]
+                        }));
+                      }}
+                      sx={{
+                        borderRadius: '12px !important',
+                        border: '1px solid #E8E8E8',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                        '&:before': {
+                          display: 'none',
+                        },
+                        '&.Mui-expanded': {
+                          margin: '0 0 16px 0 !important',
+                        },
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        sx={{
+                          px: 3,
+                          py: 1.5,
+                          backgroundColor: '#FAFBFC',
+                          borderRadius: '12px',
+                          '&.Mui-expanded': {
+                            borderBottomLeftRadius: 0,
+                            borderBottomRightRadius: 0,
+                          },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, pr: 2 }}>
+                          <Chip
+                            label={`Q${index + 1}`}
+                            size="small"
+                            sx={{
+                              backgroundColor: COLORS.PRIMARY,
+                              color: '#FFFFFF',
+                              fontWeight: 600,
+                              minWidth: 45,
+                            }}
+                          />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: 600,
+                                color: '#2D3436',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {question.question_text}
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                              <Chip
+                                label={QUESTION_TYPE_LABELS[question.question_type]}
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.7rem',
+                                  backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                  color: COLORS.PRIMARY,
+                                }}
+                              />
+                              <Chip
+                                label={`${question.points || 1} pts`}
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.7rem',
+                                  backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                                  color: '#FF9800',
+                                }}
+                              />
+                              {question.meta?.image_url && (
+                                <Chip
+                                  label="Has Image"
+                                  size="small"
+                                  sx={{
+                                    height: 20,
+                                    fontSize: '0.7rem',
+                                    backgroundColor: 'rgba(67, 233, 123, 0.1)',
+                                    color: '#43e97b',
+                                  }}
+                                />
+                              )}
+                            </Box>
+                          </Box>
+                          <Box
+                            sx={{ display: 'flex', gap: 0.5 }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditQuestion(question);
+                              }}
+                              sx={{
+                                color: COLORS.INFO,
+                                '&:hover': {
+                                  backgroundColor: 'rgba(116, 185, 255, 0.1)',
+                                },
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteQuestion(question);
+                              }}
+                              sx={{
+                                color: COLORS.ERROR,
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                },
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: 3, backgroundColor: '#FFFFFF' }}>
+                        <QuestionCard
+                          question={question}
+                          editable={false}
+                          onEdit={handleEditQuestion}
+                          onDelete={handleDeleteQuestion}
+                        />
+                      </AccordionDetails>
+                    </Accordion>
                   ))}
                 </Stack>
               </Box>
