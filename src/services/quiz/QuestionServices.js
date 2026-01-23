@@ -24,6 +24,24 @@ export const addQuestion = (fetchData, abortContRef, { quizId, questionData }) =
   });
 
 /**
+ * Bulk add questions to quiz
+ * @param {Function} fetchData - Network request function
+ * @param {Object} abortContRef - AbortController reference
+ * @param {Object} params - { quizId, questions }
+ * @returns {Promise} Created questions
+ */
+export const bulkAddQuestions = (fetchData, abortContRef, { quizId, questions }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.BULK_ADD_QUESTIONS,
+    urlKeys: { id: quizId },
+    payload: { questions },
+    authRequired: true,
+    defaultErrorMsg: "Couldn't add questions.",
+  });
+
+/**
  * Get question by ID
  * @param {Function} fetchData - Network request function
  * @param {Object} abortContRef - AbortController reference

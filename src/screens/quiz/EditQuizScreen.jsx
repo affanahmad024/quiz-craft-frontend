@@ -48,6 +48,7 @@ import QuizCraftButton from '../../components/buttons/QuizCraftButton';
 import QuestionCard from '../../components/quiz/QuestionCard';
 import LoadingScreen from '../../components/screens/LoadingScreen';
 import EditQuizDetailsModal from '../../components/modals/EditQuizDetailsModal';
+import AddQuestionsModal from '../../components/modals/AddQuestionsModal';
 import { COLORS } from '../../constants/ColorConstants';
 import {
   DIFFICULTY_LABELS,
@@ -67,11 +68,13 @@ function EditQuizScreen() {
     getQuiz,
     updateQuiz,
     addQuestion,
+    bulkAddQuestions,
     updateQuestion,
     deleteQuestion,
   } = useQuiz();
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
+  const [addQuestionsModalOpen, setAddQuestionsModalOpen] = useState(false);
   const [addMode, setAddMode] = useState(null); // 'manual' | 'ai' | null
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -138,19 +141,7 @@ function EditQuizScreen() {
   // === MANUAL QUESTION FUNCTIONS ===
 
   const handleStartManualAdd = () => {
-    setEditingQuestion(null);
-    setQuestionFormData({
-      question_text: '',
-      question_type: 'multiple_choice',
-      points: '1',
-      explanation: '',
-      answers: [
-        { answer_text: '', is_correct: false },
-        { answer_text: '', is_correct: false },
-      ],
-    });
-    setQuestionErrors({});
-    setAddMode('manual');
+    setAddQuestionsModalOpen(true);
   };
 
   const handleEditQuestion = (question) => {
@@ -610,209 +601,6 @@ function EditQuizScreen() {
               </Grid>
             )}
 
-            {/* Manual Question Entry Form */}
-            {addMode === 'manual' && (
-              <Card
-                sx={{
-                  mb: 4,
-                  borderRadius: 3,
-                  border: '2px solid #667eea',
-                  backgroundColor: '#FAFBFC',
-                }}
-              >
-                <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {editingQuestion ? 'Edit Question' : 'Add New Question'}
-                    </Typography>
-                    <IconButton onClick={() => setAddMode(null)} size="small">
-                      <CloseIcon />
-                    </IconButton>
-                  </Box>
-
-                  <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                      <QuizCraftTextInput
-                        label="Question Text *"
-                        value={questionFormData.question_text}
-                        onChange={(e) =>
-                          setQuestionFormData((prev) => ({
-                            ...prev,
-                            question_text: e.target.value,
-                          }))
-                        }
-                        error={!!questionErrors.question_text}
-                        helperText={questionErrors.question_text}
-                        fullWidth
-                        multiline
-                        rows={3}
-                        placeholder="Enter your question here..."
-                      />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <QuizCraftTextInput
-                        select
-                        label="Question Type"
-                        value={questionFormData.question_type}
-                        onChange={handleQuestionTypeChange}
-                        fullWidth
-                      >
-                        {Object.entries(QUESTION_TYPE_LABELS).map(([key, label]) => (
-                          <MenuItem key={key} value={key}>
-                            {label}
-                          </MenuItem>
-                        ))}
-                      </QuizCraftTextInput>
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <QuizCraftTextInput
-                        label="Points *"
-                        type="number"
-                        value={questionFormData.points}
-                        onChange={(e) =>
-                          setQuestionFormData((prev) => ({
-                            ...prev,
-                            points: e.target.value,
-                          }))
-                        }
-                        error={!!questionErrors.points}
-                        helperText={questionErrors.points}
-                        fullWidth
-                        inputProps={{
-                          min: QUIZ_VALIDATION.MIN_POINTS,
-                          max: QUIZ_VALIDATION.MAX_POINTS,
-                        }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <QuizCraftTextInput
-                        label="Explanation (Optional)"
-                        value={questionFormData.explanation}
-                        onChange={(e) =>
-                          setQuestionFormData((prev) => ({
-                            ...prev,
-                            explanation: e.target.value,
-                          }))
-                        }
-                        fullWidth
-                        multiline
-                        rows={2}
-                        placeholder="Provide an explanation for the correct answer"
-                      />
-                    </Grid>
-
-                    {/* Answers Section */}
-                    {questionFormData.question_type !== 'short_answer' && (
-                      <Grid item xs={12}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                            Answers *
-                          </Typography>
-                          {questionFormData.question_type === 'multiple_choice' && (
-                            <Button
-                              size="small"
-                              startIcon={<AddIcon />}
-                              onClick={handleAddAnswer}
-                              disabled={
-                                questionFormData.answers.length >=
-                                MAX_ANSWERS_ALLOWED[questionFormData.question_type]
-                              }
-                            >
-                              Add Answer
-                            </Button>
-                          )}
-                        </Box>
-
-                        {questionErrors.answers && (
-                          <Alert severity="error" sx={{ mb: 2 }}>
-                            {questionErrors.answers}
-                          </Alert>
-                        )}
-
-                        {questionFormData.question_type === 'true_false' ? (
-                          <FormControl component="fieldset">
-                            <RadioGroup
-                              value={
-                                questionFormData.answers.findIndex((a) => a.is_correct)
-                              }
-                              onChange={(e) => handleAnswerRadioChange(parseInt(e.target.value))}
-                            >
-                              {questionFormData.answers.map((answer, index) => (
-                                <FormControlLabel
-                                  key={index}
-                                  value={index}
-                                  control={<Radio />}
-                                  label={answer.answer_text}
-                                />
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                        ) : (
-                          <Stack spacing={2}>
-                            {questionFormData.answers.map((answer, index) => (
-                              <Box
-                                key={index}
-                                sx={{
-                                  display: 'flex',
-                                  gap: 1,
-                                  alignItems: 'flex-start',
-                                }}
-                              >
-                                <Checkbox
-                                  checked={answer.is_correct}
-                                  onChange={handleAnswerChange(index, 'is_correct')}
-                                  sx={{ mt: 1 }}
-                                />
-                                <QuizCraftTextInput
-                                  placeholder={`Answer ${index + 1}`}
-                                  value={answer.answer_text}
-                                  onChange={handleAnswerChange(index, 'answer_text')}
-                                  fullWidth
-                                />
-                                {questionFormData.answers.length >
-                                  MIN_ANSWERS_REQUIRED[questionFormData.question_type] && (
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => handleRemoveAnswer(index)}
-                                    sx={{ mt: 1 }}
-                                  >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                )}
-                              </Box>
-                            ))}
-                          </Stack>
-                        )}
-                      </Grid>
-                    )}
-
-                    <Grid item xs={12}>
-                      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                        <QuizCraftButton
-                          variant="outlined"
-                          onClick={() => setAddMode(null)}
-                        >
-                          Cancel
-                        </QuizCraftButton>
-                        <QuizCraftButton
-                          variant="contained"
-                          onClick={handleSubmitManualQuestion}
-                          loading={isLoading}
-                          sx={{
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                          }}
-                        >
-                          {editingQuestion ? 'Update Question' : 'Add Question'}
-                        </QuizCraftButton>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            )}
 
             {/* AI Generation Form - Coming Soon */}
             {addMode === 'ai' && (
@@ -909,6 +697,16 @@ function EditQuizScreen() {
         quiz={currentQuiz}
         onSave={handleSaveQuizDetails}
         isLoading={isLoading}
+      />
+
+      {/* Add Questions Modal */}
+      <AddQuestionsModal
+        open={addQuestionsModalOpen}
+        onClose={() => setAddQuestionsModalOpen(false)}
+        questions={currentQuiz?.questions || []}
+        onAddQuestion={addQuestion}
+        onBulkAddQuestions={bulkAddQuestions}
+        quizId={id}
       />
     </Box>
   );

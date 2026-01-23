@@ -264,6 +264,37 @@ function QuestionCard({ question, editable = false, onEdit, onDelete }) {
           {question.question_text}
         </Typography>
 
+        {/* Question Image (if present) */}
+        {question.meta?.image_url && (
+          <Box
+            sx={{
+              mb: 2,
+              borderRadius: 2,
+              overflow: 'hidden',
+              border: `1px solid ${COLORS.BORDER_LIGHT}`,
+              backgroundColor: '#F8F9FA',
+            }}
+          >
+            <img
+              src={
+                question.meta.image_url.startsWith('http')
+                  ? question.meta.image_url
+                  : `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'}${question.meta.image_url}`
+              }
+              alt="Question"
+              style={{
+                width: '100%',
+                maxHeight: 400,
+                objectFit: 'contain',
+                display: 'block',
+              }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          </Box>
+        )}
+
         <Divider sx={{ mb: 2 }} />
 
         {/* Answers */}
@@ -323,6 +354,10 @@ QuestionCard.propTypes = {
     question_type: PropTypes.oneOf(['multiple_choice', 'true_false', 'short_answer']).isRequired,
     points: PropTypes.number,
     explanation: PropTypes.string,
+    meta: PropTypes.shape({
+      image_url: PropTypes.string,
+      image_file_id: PropTypes.string,
+    }),
     answers: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.number,

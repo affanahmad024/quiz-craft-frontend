@@ -13,6 +13,12 @@ export const QUESTION_ENDPOINTS = {
     method: API_METHODS.POST,
   },
 
+  // Bulk add questions to quiz
+  BULK_ADD_QUESTIONS: {
+    url: 'quizzes/:id/questions/bulk',
+    method: API_METHODS.POST,
+  },
+
   // Get question by ID
   GET_QUESTION: {
     url: 'quizzes/questions/:qid',
