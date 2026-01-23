@@ -17,8 +17,6 @@ import {
   Typography,
   alpha,
   Chip,
-  TextField,
-  InputAdornment,
 } from '@mui/material';
 import { Close as CloseIcon, Add as AddIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
@@ -480,88 +478,128 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
                 <Grid item xs={12}>
                   <Box>
                     <Typography
-                      variant="caption"
+                      variant="body2"
                       sx={{
-                        color: '#636E72',
+                        color: '#2D3436',
                         fontWeight: 600,
                         mb: 1,
-                        display: 'block',
                       }}
                     >
                       Tags
                     </Typography>
-                    <TextField
-                      placeholder="Type a tag and press Enter"
-                      value={tagInput}
-                      onChange={handleTagInputChange}
-                      onKeyDown={handleTagKeyPress}
-                      fullWidth
-                      size="small"
-                      slotProps={{
-                        input: {
-                          endAdornment: tagInput.trim() && (
-                            <InputAdornment position="end">
-                              <IconButton
-                                size="small"
-                                onClick={addTag}
-                                sx={{
-                                  color: '#667eea',
-                                  '&:hover': {
-                                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                                  },
-                                }}
-                              >
-                                <AddIcon />
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        },
-                      }}
+                    <Box
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          backgroundColor: '#F8F9FA',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        p: 1,
+                        border: '1px solid #E8E8E8',
+                        borderRadius: 1,
+                        backgroundColor: '#F8F9FA',
+                        minHeight: 48,
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        '&:hover': {
+                          borderColor: '#667eea',
+                        },
+                        '&:focus-within': {
+                          borderColor: '#667eea',
+                          boxShadow: '0 0 0 1px #667eea',
+                        },
+                        '&::-webkit-scrollbar': {
+                          height: 6,
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          backgroundColor: 'transparent',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          backgroundColor: '#DFE6E9',
+                          borderRadius: 3,
+                          '&:hover': {
+                            backgroundColor: '#B2BEC3',
+                          },
                         },
                       }}
-                    />
+                    >
+                      {formData.tags.map((tag, index) => (
+                        <Chip
+                          key={index}
+                          label={tag}
+                          onDelete={() => removeTag(tag)}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#667eea',
+                            color: '#FFFFFF',
+                            fontWeight: 500,
+                            fontSize: '0.8rem',
+                            height: 28,
+                            flexShrink: 0,
+                            '& .MuiChip-deleteIcon': {
+                              color: 'rgba(255, 255, 255, 0.7)',
+                              fontSize: '1rem',
+                              '&:hover': {
+                                color: '#FFFFFF',
+                              },
+                            },
+                          }}
+                        />
+                      ))}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          flex: 1,
+                          minWidth: 200,
+                        }}
+                      >
+                        <input
+                          type="text"
+                          placeholder={formData.tags.length === 0 ? "Type a tag and press Enter" : ""}
+                          value={tagInput}
+                          onChange={handleTagInputChange}
+                          onKeyDown={handleTagKeyPress}
+                          style={{
+                            border: 'none',
+                            outline: 'none',
+                            backgroundColor: 'transparent',
+                            fontSize: '0.875rem',
+                            width: '100%',
+                            fontFamily: 'inherit',
+                            color: '#2D3436',
+                          }}
+                        />
+                        {tagInput.trim() && (
+                          <IconButton
+                            size="small"
+                            onClick={addTag}
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              backgroundColor: '#667eea',
+                              color: '#FFFFFF',
+                              ml: 1,
+                              flexShrink: 0,
+                              '&:hover': {
+                                backgroundColor: '#5568d3',
+                              },
+                            }}
+                          >
+                            <AddIcon sx={{ fontSize: 16 }} />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </Box>
                     <Typography
                       variant="caption"
                       sx={{
                         color: '#636E72',
                         mt: 0.5,
                         display: 'block',
+                        fontSize: '0.75rem',
                       }}
                     >
                       Press Enter or click + to add tags. Click tags to remove them.
                     </Typography>
-                    {formData.tags.length > 0 && (
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          gap: 1,
-                          mt: 2,
-                        }}
-                      >
-                        {formData.tags.map((tag, index) => (
-                          <Chip
-                            key={index}
-                            label={tag}
-                            onDelete={() => removeTag(tag)}
-                            sx={{
-                              backgroundColor: '#667eea',
-                              color: '#FFFFFF',
-                              fontWeight: 500,
-                              '& .MuiChip-deleteIcon': {
-                                color: 'rgba(255, 255, 255, 0.7)',
-                                '&:hover': {
-                                  color: '#FFFFFF',
-                                },
-                              },
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    )}
                   </Box>
                 </Grid>
               </Grid>
