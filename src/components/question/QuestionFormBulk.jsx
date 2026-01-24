@@ -177,13 +177,25 @@ function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoad
   };
 
   return (
-    <Dialog fullScreen open={open} onClose={handleClose}>
+    <Dialog
+      fullScreen
+      open={open}
+      onClose={handleClose}
+      PaperProps={{
+        sx: {
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+        },
+      }}
+    >
       <AppBar
         position="sticky"
         sx={{
           backgroundColor: '#FFFFFF',
           color: '#2D3436',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          flexShrink: 0,
         }}
       >
         <Toolbar>
@@ -225,9 +237,10 @@ function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoad
 
       <Box
         sx={{
+          flex: 1,
           p: 3,
           backgroundColor: '#F8F9FA',
-          minHeight: 'calc(100vh - 64px - 72px)', // viewport - appbar - footer
+          overflowY: 'auto',
         }}
       >
         <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
@@ -324,8 +337,7 @@ function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoad
 
       <Box
         sx={{
-          position: 'sticky',
-          bottom: 0,
+          flexShrink: 0,
           p: 2,
           backgroundColor: '#FFFFFF',
           borderTop: '1px solid #E8E8E8',
