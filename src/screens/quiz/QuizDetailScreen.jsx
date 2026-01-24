@@ -149,6 +149,9 @@ function QuizDetailScreen() {
           : 'Quiz published successfully'
       );
       setPublishDialogOpen(false);
+
+      // Refresh quiz data to show updated information
+      await getQuiz(id, true);
     } else {
       toast.error(response.error || 'Failed to update quiz status');
       setPublishDialogOpen(false);
