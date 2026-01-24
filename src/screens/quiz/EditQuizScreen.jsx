@@ -53,6 +53,7 @@ import QuestionCard from '../../components/quiz/QuestionCard';
 import LoadingScreen from '../../components/screens/LoadingScreen';
 import EditQuizDetailsModal from '../../components/modals/EditQuizDetailsModal';
 import AddQuestionsModal from '../../components/modals/AddQuestionsModal';
+import AddAIQuestionsModal from '../../components/modals/AddAIQuestionsModal';
 import { COLORS } from '../../constants/ColorConstants';
 import {
   DIFFICULTY_LABELS,
@@ -79,6 +80,7 @@ function EditQuizScreen() {
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
   const [addQuestionsModalOpen, setAddQuestionsModalOpen] = useState(false);
+  const [addAIQuestionsModalOpen, setAddAIQuestionsModalOpen] = useState(false);
   const [addMode, setAddMode] = useState(null); // 'manual' | 'ai' | null
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -344,6 +346,11 @@ function EditQuizScreen() {
   // === AI GENERATION FUNCTIONS ===
 
   const handleStartAIGeneration = () => {
+    // Open modal to add AI questions to this quiz
+    setAddAIQuestionsModalOpen(true);
+  };
+
+  const handleStartAIGenerationOld = () => {
     setAIFormData({
       source_type: 'text',
       text_content: '',
@@ -606,36 +613,6 @@ function EditQuizScreen() {
               </Grid>
             )}
 
-
-            {/* AI Generation Form - Coming Soon */}
-            {addMode === 'ai' && (
-              <Card
-                sx={{
-                  mb: 4,
-                  borderRadius: 3,
-                  border: '2px solid #764ba2',
-                  backgroundColor: '#FAFBFC',
-                }}
-              >
-                <CardContent sx={{ p: 4, textAlign: 'center' }}>
-                  <AIIcon sx={{ fontSize: 64, color: '#764ba2', mb: 2 }} />
-                  <Typography variant="h6" gutterBottom>
-                    AI Question Generation
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                    Generate questions automatically from text, documents, or images using AI.
-                    This feature is coming soon!
-                  </Typography>
-                  <QuizCraftButton
-                    variant="outlined"
-                    onClick={() => setAddMode(null)}
-                  >
-                    Close
-                  </QuizCraftButton>
-                </CardContent>
-              </Card>
-            )}
-
             {/* Existing Questions List */}
             {!addMode && currentQuiz.questions && currentQuiz.questions.length > 0 && (
               <Box>
@@ -858,6 +835,14 @@ function EditQuizScreen() {
         onAddQuestion={addQuestion}
         onBulkAddQuestions={bulkAddQuestions}
         quizId={id}
+      />
+
+      {/* Add AI Questions Modal */}
+      <AddAIQuestionsModal
+        open={addAIQuestionsModalOpen}
+        onClose={() => setAddAIQuestionsModalOpen(false)}
+        quizId={id}
+        quizTitle={currentQuiz?.title || 'Loading...'}
       />
     </Box>
   );

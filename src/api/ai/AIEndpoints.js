@@ -33,4 +33,22 @@ export const AI_ENDPOINTS = {
     url: 'ai/jobs',
     method: API_METHODS.GET,
   },
+
+  // Add questions to existing quiz from text
+  ADD_QUESTIONS_FROM_TEXT: {
+    url: 'quizzes/:id/add-questions-from-text',
+    method: API_METHODS.POST,
+  },
+
+  // Add questions to existing quiz from file
+  ADD_QUESTIONS_FROM_FILE: {
+    url: 'quizzes/:id/add-questions-from-file',
+    method: API_METHODS.POST,
+  },
+
+  // Extract and add questions to existing quiz from file
+  ADD_QUESTIONS_FROM_IMAGE: {
+    url: 'quizzes/:id/extract-questions-from-file',
+    method: API_METHODS.POST,
+  },
 };

@@ -131,6 +131,30 @@ function GenerationStatusModal({ open, onClose, generationId, onComplete }) {
     }
   }, [open, generationId]);
 
+  // Auto-close after 5 seconds and notify user
+  useEffect(() => {
+    if (open && generationId) {
+      const autoCloseTimer = setTimeout(() => {
+        // Stop polling
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+        // Close modal
+        onClose();
+        // Show notification
+        import('react-hot-toast').then(({ toast }) => {
+          toast.success(
+            'Your quiz is being generated in the background. We\'ll notify you once it\'s complete!',
+            { duration: 5000 }
+          );
+        });
+      }, 5000); // 5 seconds
+
+      return () => clearTimeout(autoCloseTimer);
+    }
+  }, [open, generationId, onClose]);
+
   // Handle view quiz
   const handleViewQuiz = () => {
     if (quizId) {
