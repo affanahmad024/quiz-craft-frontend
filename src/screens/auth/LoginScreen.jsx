@@ -72,14 +72,30 @@ function LoginScreen() {
     setIsLoading(true);
 
     try {
-      const success = await login({ email, password });
+      const result = await login({ email, password });
 
-      if (success) {
+      if (result.success) {
         // Redirect to intended page or dashboard
         const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
         navigate(from, { replace: true });
       } else {
-        setApiError('Invalid email or password. Please try again.');
+        // Extract error code and message
+        const errorCode = result.error?.error || result.error?.code;
+        const errorMessage = result.error?.message;
+
+        console.log('Login failed:', { errorCode, errorMessage, fullResult: result });
+
+        // Check for specific error codes and show appropriate messages
+        if (errorCode === 'email-not-verified') {
+          setApiError('Please verify your email address before logging in. Check your inbox for the verification link.');
+        } else if (errorCode === 'invalid-credentials' || errorCode === 'unauthorized') {
+          setApiError('Invalid email or password. Please try again.');
+        } else if (errorMessage) {
+          // Show backend message if available
+          setApiError(errorMessage);
+        } else {
+          setApiError('Invalid email or password. Please try again.');
+        }
       }
     } catch (error) {
       setApiError(error.message || 'Login failed. Please try again.');
