@@ -37,7 +37,6 @@ import {
   AI_QUESTION_TYPE_LABELS,
   AI_VALIDATION,
 } from '../../constants/AIConstants';
-import GenerationStatusModal from './GenerationStatusModal';
 
 /**
  * GenerateFromFileModal Component
@@ -50,20 +49,20 @@ function GenerateFromFileModal({ open, onClose }) {
   // Form state
   const [formData, setFormData] = useState({
     file: null,
-    title: '',
+    category: '', // AI generation option
+    title: '', // Quiz metadata
     description: '',
     tags: [],
     num_questions: 10,
     difficulty: AI_DIFFICULTY_LEVELS.MEDIUM,
     question_type: AI_QUESTION_TYPES.MIXED,
+    language: 'en', // AI generation option
     time_limit_minutes: 30,
     passing_score_percentage: 70,
   });
 
   // UI state
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationId, setGenerationId] = useState(null);
-  const [statusModalOpen, setStatusModalOpen] = useState(false);
 
   // Handle field change
   const handleChange = (field) => (event) => {
@@ -109,6 +108,11 @@ function GenerateFromFileModal({ open, onClose }) {
       return false;
     }
 
+    if (!formData.category.trim()) {
+      toast.error('Please enter a quiz category (e.g., "Biology", "History")');
+      return false;
+    }
+
     if (!formData.title.trim()) {
       toast.error('Please enter a quiz title');
       return false;
@@ -137,9 +141,13 @@ function GenerateFromFileModal({ open, onClose }) {
     const response = await generateQuizFromFile(fetchData, abortRef, {
       file: formData.file,
       config: {
+        // AI generation options
+        category: formData.category.trim(),
         num_questions: parseInt(formData.num_questions),
         difficulty: formData.difficulty,
         question_type: formData.question_type,
+        language: formData.language || 'en',
+        // Quiz metadata (stored for later use)
         title: formData.title.trim(),
         description: formData.description.trim() || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
@@ -154,9 +162,24 @@ function GenerateFromFileModal({ open, onClose }) {
       // Handle nested data structure: response.data.data.generation_id or response.data.generation_id
       const genId = response.data?.data?.generation_id || response.data?.generation_id;
       if (genId) {
-        setGenerationId(genId);
-        setStatusModalOpen(true);
-        toast.success('Quiz generation started! This may take a few moments.');
+        toast.success('Quiz generation started! We\'ll notify you when it\'s complete.');
+        onClose();
+        // Reset form
+        setFormData({
+          file: null,
+          category: '',
+          title: '',
+          description: '',
+          tags: [],
+          num_questions: 10,
+          difficulty: AI_DIFFICULTY_LEVELS.MEDIUM,
+          question_type: AI_QUESTION_TYPES.MIXED,
+          language: 'en',
+          time_limit_minutes: 30,
+          passing_score_percentage: 70,
+        });
+        // Navigate to dashboard
+        navigate('/dashboard');
       } else {
         console.error('Generation ID not found in response:', response);
         toast.error('Failed to start generation: No generation ID received');
@@ -164,26 +187,6 @@ function GenerateFromFileModal({ open, onClose }) {
     } else {
       toast.error(response.error?.message || 'Failed to start quiz generation');
     }
-  };
-
-  // Handle generation completion
-  const handleGenerationComplete = (quizId) => {
-    setStatusModalOpen(false);
-    onClose();
-    // Reset form
-    setFormData({
-      file: null,
-      title: '',
-      description: '',
-      tags: [],
-      num_questions: 10,
-      difficulty: AI_DIFFICULTY_LEVELS.MEDIUM,
-      question_type: AI_QUESTION_TYPES.MIXED,
-      time_limit_minutes: 30,
-      passing_score_percentage: 70,
-    });
-    // Navigate to quiz edit page
-    navigate(`/quizzes/${quizId}/edit`);
   };
 
   // Handle close
@@ -327,6 +330,43 @@ function GenerateFromFileModal({ open, onClose }) {
               </Typography>
 
               <Grid container spacing={2}>
+                {/* Category */}
+                <Grid item xs={12} sm={6}>
+                  <QuizCraftTextInput
+                    label="Category *"
+                    placeholder="e.g., Biology, History, Math"
+                    value={formData.category}
+                    onChange={handleChange('category')}
+                    fullWidth
+                    helperText="Topic or subject area for AI generation"
+                  />
+                </Grid>
+
+                {/* Language */}
+                <Grid item xs={12} sm={6}>
+                  <QuizCraftTextInput
+                    label="Language *"
+                    select
+                    value={formData.language}
+                    onChange={handleChange('language')}
+                    fullWidth
+                    helperText="Language for quiz generation"
+                  >
+                    <MenuItem value="en">English</MenuItem>
+                    <MenuItem value="es">Spanish</MenuItem>
+                    <MenuItem value="fr">French</MenuItem>
+                    <MenuItem value="de">German</MenuItem>
+                    <MenuItem value="it">Italian</MenuItem>
+                    <MenuItem value="pt">Portuguese</MenuItem>
+                    <MenuItem value="ru">Russian</MenuItem>
+                    <MenuItem value="zh">Chinese</MenuItem>
+                    <MenuItem value="ja">Japanese</MenuItem>
+                    <MenuItem value="ko">Korean</MenuItem>
+                    <MenuItem value="ar">Arabic</MenuItem>
+                    <MenuItem value="hi">Hindi</MenuItem>
+                  </QuizCraftTextInput>
+                </Grid>
+
                 {/* Title */}
                 <Grid item xs={12}>
                   <QuizCraftTextInput
@@ -335,6 +375,7 @@ function GenerateFromFileModal({ open, onClose }) {
                     value={formData.title}
                     onChange={handleChange('title')}
                     fullWidth
+                    helperText="Display title for your quiz"
                   />
                 </Grid>
 
@@ -482,16 +523,6 @@ function GenerateFromFileModal({ open, onClose }) {
           </QuizCraftButton>
         </DialogActions>
       </Dialog>
-
-      {/* Generation Status Modal */}
-      {generationId && (
-        <GenerationStatusModal
-          open={statusModalOpen}
-          onClose={() => setStatusModalOpen(false)}
-          generationId={generationId}
-          onComplete={handleGenerationComplete}
-        />
-      )}
     </>
   );
 }

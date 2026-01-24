@@ -45,11 +45,20 @@ function QuizResultScreen() {
   const { currentResults, isLoading, getAttemptResults } = useAttempt();
   const [expandedQuestions, setExpandedQuestions] = useState({});
 
-  // Fetch results on mount
+  // Fetch results on mount - always fetch fresh data
   useEffect(() => {
     const fetchResults = async () => {
+      console.log('[QuizResultScreen] Fetching results for attempt:', id);
       const response = await getAttemptResults(id);
+
+      console.log('[QuizResultScreen] Results response:', {
+        success: response.success,
+        hasData: !!response.data,
+        dataKeys: response.data ? Object.keys(response.data) : []
+      });
+
       if (!response.success) {
+        console.error('[QuizResultScreen] Failed to fetch results:', response.error);
         toast.error(response.error || 'Failed to load results');
         navigate(ROUTES.ATTEMPT_LIST);
       }
@@ -64,7 +73,23 @@ function QuizResultScreen() {
     navigate(ROUTES.ATTEMPT_LIST);
   };
 
-  if (isLoading || !currentResults) {
+  // Validate that results have required data
+  const hasValidResults = currentResults &&
+    currentResults.id &&
+    typeof currentResults.score !== 'undefined' &&
+    typeof currentResults.max_score !== 'undefined';
+
+  console.log('[QuizResultScreen] Render state:', {
+    isLoading,
+    hasCurrentResults: !!currentResults,
+    hasValidResults,
+    currentResultsId: currentResults?.id,
+    score: currentResults?.score,
+    maxScore: currentResults?.max_score
+  });
+
+  if (isLoading || !currentResults || !hasValidResults) {
+    console.log('[QuizResultScreen] Showing loading screen');
     return <LoadingScreen message="Loading results..." />;
   }
 

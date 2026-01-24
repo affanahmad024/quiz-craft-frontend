@@ -6,6 +6,9 @@ import { fetchWithAbort } from '../CommonFetch';
 
 /**
  * Generate quiz from text content
+ * @param {Object} config - Configuration object with generation options and quiz metadata
+ * @param {Object} config.options - AI generation options (category, num_questions, difficulty, question_type, language)
+ * @param {Object} config.metadata - Quiz metadata (title, description, tags, time_limit_minutes, passing_score_percentage)
  */
 export const generateQuizFromText = async (
   fetchData,
@@ -14,17 +17,23 @@ export const generateQuizFromText = async (
 ) => {
   const payload = {
     text,
-    num_questions: config.num_questions,
-    difficulty: config.difficulty,
-    question_type: config.question_type,
-    title: config.title,
+    options: {
+      num_questions: config.num_questions,
+      difficulty: config.difficulty,
+      question_type: config.question_type,
+      category: config.category || 'General',
+      language: config.language || 'en',
+    },
+    // Quiz metadata to be used after generation completes
+    metadata: {}
   };
 
-  // Add optional fields
-  if (config.description) payload.description = config.description;
-  if (config.tags && config.tags.length > 0) payload.tags = config.tags;
-  if (config.time_limit_minutes) payload.time_limit_minutes = config.time_limit_minutes;
-  if (config.passing_score_percentage) payload.passing_score_percentage = config.passing_score_percentage;
+  // Add quiz metadata (these are NOT used for generation, but stored for quiz creation)
+  if (config.title) payload.metadata.title = config.title;
+  if (config.description) payload.metadata.description = config.description;
+  if (config.tags && config.tags.length > 0) payload.metadata.tags = config.tags;
+  if (config.time_limit_minutes) payload.metadata.time_limit_minutes = config.time_limit_minutes;
+  if (config.passing_score_percentage) payload.metadata.passing_score_percentage = config.passing_score_percentage;
 
   return fetchWithAbort({
     fetchData,
@@ -38,6 +47,7 @@ export const generateQuizFromText = async (
 
 /**
  * Generate quiz from uploaded file
+ * @param {Object} config - Configuration object with generation options and quiz metadata
  */
 export const generateQuizFromFile = async (
   fetchData,
@@ -46,22 +56,29 @@ export const generateQuizFromFile = async (
 ) => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('num_questions', config.num_questions);
-  formData.append('difficulty', config.difficulty);
-  formData.append('question_type', config.question_type);
-  formData.append('title', config.title);
 
+  // AI generation options (nested under 'options')
+  formData.append('options[num_questions]', config.num_questions);
+  formData.append('options[difficulty]', config.difficulty);
+  formData.append('options[question_type]', config.question_type);
+  formData.append('options[category]', config.category || 'General');
+  formData.append('options[language]', config.language || 'en');
+
+  // Quiz metadata (nested under 'metadata')
+  if (config.title) {
+    formData.append('metadata[title]', config.title);
+  }
   if (config.description) {
-    formData.append('description', config.description);
+    formData.append('metadata[description]', config.description);
   }
   if (config.tags && config.tags.length > 0) {
-    formData.append('tags', config.tags.join(','));
+    formData.append('metadata[tags]', config.tags.join(','));
   }
   if (config.time_limit_minutes) {
-    formData.append('time_limit_minutes', config.time_limit_minutes);
+    formData.append('metadata[time_limit_minutes]', config.time_limit_minutes);
   }
   if (config.passing_score_percentage) {
-    formData.append('passing_score_percentage', config.passing_score_percentage);
+    formData.append('metadata[passing_score_percentage]', config.passing_score_percentage);
   }
 
   return fetchWithAbort({
@@ -76,6 +93,7 @@ export const generateQuizFromFile = async (
 
 /**
  * Extract quiz from image/PDF file
+ * @param {Object} config - Configuration object with quiz metadata
  */
 export const extractQuizFromFile = async (
   fetchData,
@@ -84,19 +102,22 @@ export const extractQuizFromFile = async (
 ) => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('title', config.title);
 
+  // Quiz metadata (extraction doesn't have generation options like num_questions, difficulty)
+  if (config.title) {
+    formData.append('metadata[title]', config.title);
+  }
   if (config.description) {
-    formData.append('description', config.description);
+    formData.append('metadata[description]', config.description);
   }
   if (config.tags && config.tags.length > 0) {
-    formData.append('tags', config.tags.join(','));
+    formData.append('metadata[tags]', config.tags.join(','));
   }
   if (config.time_limit_minutes) {
-    formData.append('time_limit_minutes', config.time_limit_minutes);
+    formData.append('metadata[time_limit_minutes]', config.time_limit_minutes);
   }
   if (config.passing_score_percentage) {
-    formData.append('passing_score_percentage', config.passing_score_percentage);
+    formData.append('metadata[passing_score_percentage]', config.passing_score_percentage);
   }
 
   return fetchWithAbort({

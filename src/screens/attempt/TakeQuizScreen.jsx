@@ -55,6 +55,7 @@ function TakeQuizScreen() {
     getAttempt,
     submitAnswer,
     finishAttempt,
+    getAttemptResults,
   } = useAttempt();
   const { currentQuiz, getQuiz } = useQuiz();
 
@@ -273,14 +274,52 @@ function TakeQuizScreen() {
     if (!currentAttempt) return;
 
     setIsFinishing(true);
-    const response = await finishAttempt(currentAttempt.id);
-    setIsFinishing(false);
 
-    if (response.success) {
-      toast.success('Quiz submitted successfully!');
-      navigate(buildRoute(ROUTES.ATTEMPT_RESULTS, { id: currentAttempt.id }));
-    } else {
-      toast.error(response.error || 'Failed to submit quiz');
+    try {
+      console.log('[TakeQuizScreen] Finishing attempt:', currentAttempt.id);
+
+      // First, finish the attempt
+      const finishResponse = await finishAttempt(currentAttempt.id);
+
+      console.log('[TakeQuizScreen] Finish response:', {
+        success: finishResponse.success,
+        error: finishResponse.error
+      });
+
+      if (finishResponse.success) {
+        // Add a small delay to ensure backend has computed results
+        console.log('[TakeQuizScreen] Waiting 500ms for backend to compute results...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Now fetch the results
+        console.log('[TakeQuizScreen] Fetching results...');
+        const resultsResponse = await getAttemptResults(currentAttempt.id);
+
+        console.log('[TakeQuizScreen] Results response:', {
+          success: resultsResponse.success,
+          hasData: !!resultsResponse.data,
+          error: resultsResponse.error
+        });
+
+        setIsFinishing(false);
+
+        if (resultsResponse.success) {
+          toast.success('Quiz submitted successfully!');
+          console.log('[TakeQuizScreen] Navigating to results page');
+          navigate(buildRoute(ROUTES.ATTEMPT_RESULTS, { id: currentAttempt.id }));
+        } else {
+          console.error('[TakeQuizScreen] Failed to fetch results:', resultsResponse.error);
+          toast.error(resultsResponse.error || 'Failed to load results');
+          navigate(ROUTES.ATTEMPT_LIST);
+        }
+      } else {
+        setIsFinishing(false);
+        toast.error(finishResponse.error || 'Failed to submit quiz');
+      }
+    } catch (error) {
+      console.error('[TakeQuizScreen] Error in handleFinishQuiz:', error);
+      setIsFinishing(false);
+      toast.error('An error occurred while submitting the quiz');
     }
   };
 
