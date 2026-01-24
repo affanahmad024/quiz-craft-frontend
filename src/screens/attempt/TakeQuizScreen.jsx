@@ -23,6 +23,8 @@ import {
   DialogActions,
   Paper,
   Collapse,
+  Drawer,
+  Fab,
 } from '@mui/material';
 import {
   KeyboardArrowLeft as KeyboardArrowLeftIcon,
@@ -56,7 +58,7 @@ function TakeQuizScreen() {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [markedForReview, setMarkedForReview] = useState({});
   const [visitedQuestions, setVisitedQuestions] = useState({});
-  const [paletteCollapsed, setPaletteCollapsed] = useState(false);
+  const [paletteCollapsed, setPaletteCollapsed] = useState(true);
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isFinishing, setIsFinishing] = useState(false);
@@ -405,10 +407,10 @@ function TakeQuizScreen() {
       </Box>
 
       {/* Main Content */}
-      <Container maxWidth="xl" sx={{ py: 2 }}>
+      <Container maxWidth="xl" sx={{ py: 2, position: 'relative' }}>
         <Grid container spacing={2}>
           {/* Question Area */}
-          <Grid item xs={12} md={paletteCollapsed ? 12 : 8}>
+          <Grid item xs={12} md={8}>
             {/* Scroll Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
               <IconButton
@@ -598,222 +600,435 @@ function TakeQuizScreen() {
               </Box>
             </Paper>
           </Grid>
+        </Grid>
 
-          {/* Question Palette */}
-          <Grid item xs={12} md={4}>
-            <Collapse in={!paletteCollapsed} orientation="horizontal">
-              <Paper
+        {/* Desktop Question Palette - Outside Grid */}
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            width: 'calc(33.333% - 16px)',
+            pr: 3,
+          }}
+        >
+          <Paper
+            sx={{
+              position: 'sticky',
+              top: 20,
+              p: 2,
+              backgroundColor: '#FFFFFF',
+              maxHeight: 'calc(100vh - 40px)',
+              overflowY: 'auto',
+            }}
+          >
+            {/* Status Legend */}
+            <Box sx={{ mb: 3 }}>
+              <Box
                 sx={{
-                  p: 2,
-                  backgroundColor: '#FFFFFF',
-                  position: 'sticky',
-                  top: 20,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  mb: 1,
                 }}
               >
-                {/* Collapse Button */}
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => setPaletteCollapsed(!paletteCollapsed)}
-                  >
-                    <KeyboardArrowRightIcon />
-                  </IconButton>
-                </Box>
-
-                {/* Status Legend */}
-                <Box sx={{ mb: 3 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: '4px',
-                        backgroundColor: '#B0BEC5',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {notVisited}
-                    </Box>
-                    <Typography variant="caption">Not Visited</Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: '4px',
-                        backgroundColor: '#FF5722',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {notAnswered}
-                    </Box>
-                    <Typography variant="caption">Not Answered</Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: '4px',
-                        backgroundColor: '#4CAF50',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {answered}
-                    </Box>
-                    <Typography variant="caption">Answered</Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: '4px',
-                        backgroundColor: '#9C27B0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {markedCount}
-                    </Box>
-                    <Typography variant="caption">Marked for Review</Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: '50%',
-                        backgroundColor: '#9C27B0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {answeredAndMarked}
-                    </Box>
-                    <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
-                      Answered & Marked for Review (will be considered for evaluation)
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Question Grid */}
                 <Box
                   sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(6, 1fr)',
-                    gap: 1,
+                    width: 30,
+                    height: 30,
+                    borderRadius: '4px',
+                    backgroundColor: '#B0BEC5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
                   }}
                 >
-                  {currentQuiz.questions?.map((question, index) => {
-                    const status = getQuestionStatus(question);
-                    const isCurrent = index === currentQuestionIndex;
-
-                    return (
-                      <Box
-                        key={question.id}
-                        onClick={() => handleQuestionClick(index)}
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: status === 'answered-marked' ? '50%' : '4px',
-                          backgroundColor: getStatusColor(status),
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#FFFFFF',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          border: isCurrent ? '3px solid #000' : 'none',
-                          '&:hover': {
-                            opacity: 0.8,
-                          },
-                        }}
-                      >
-                        {String(index + 1).padStart(2, '0')}
-                      </Box>
-                    );
-                  })}
+                  {notVisited}
                 </Box>
-              </Paper>
-            </Collapse>
+                <Typography variant="caption">Not Visited</Typography>
+              </Box>
 
-            {/* Expand Button */}
-            {paletteCollapsed && (
-              <Box sx={{ position: 'fixed', right: 20, top: '50%' }}>
-                <IconButton
-                  onClick={() => setPaletteCollapsed(false)}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  mb: 1,
+                }}
+              >
+                <Box
                   sx={{
-                    backgroundColor: '#FFFFFF',
-                    boxShadow: 2,
-                    '&:hover': { backgroundColor: '#F5F5F5' },
+                    width: 30,
+                    height: 30,
+                    borderRadius: '4px',
+                    backgroundColor: '#FF5722',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
                   }}
                 >
-                  <KeyboardArrowLeftIcon />
-                </IconButton>
+                  {notAnswered}
+                </Box>
+                <Typography variant="caption">Not Answered</Typography>
               </Box>
-            )}
-          </Grid>
-        </Grid>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  mb: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: '4px',
+                    backgroundColor: '#4CAF50',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
+                  }}
+                >
+                  {answered}
+                </Box>
+                <Typography variant="caption">Answered</Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  mb: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: '4px',
+                    backgroundColor: '#9C27B0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
+                  }}
+                >
+                  {markedCount}
+                </Box>
+                <Typography variant="caption">Marked for Review</Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  mb: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: '50%',
+                    backgroundColor: '#9C27B0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
+                  }}
+                >
+                  {answeredAndMarked}
+                </Box>
+                <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+                  Answered & Marked for Review (will be considered for evaluation)
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Question Grid */}
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(6, 1fr)',
+                gap: 1,
+              }}
+            >
+              {currentQuiz.questions?.map((question, index) => {
+                const status = getQuestionStatus(question);
+                const isCurrent = index === currentQuestionIndex;
+
+                return (
+                  <Box
+                    key={question.id}
+                    onClick={() => handleQuestionClick(index)}
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: status === 'answered-marked' ? '50%' : '4px',
+                      backgroundColor: getStatusColor(status),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      border: isCurrent ? '3px solid #000' : 'none',
+                      '&:hover': {
+                        opacity: 0.8,
+                      },
+                    }}
+                  >
+                    {String(index + 1).padStart(2, '0')}
+                  </Box>
+                );
+              })}
+            </Box>
+          </Paper>
+        </Box>
       </Container>
+
+      {/* Mobile Floating Action Button */}
+      <Fab
+        onClick={() => setPaletteCollapsed(!paletteCollapsed)}
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          position: 'fixed',
+          right: 16,
+          bottom: 80,
+          backgroundColor: '#2196F3',
+          color: '#FFFFFF',
+          '&:hover': {
+            backgroundColor: '#1976D2',
+          },
+        }}
+      >
+        ☰
+      </Fab>
+
+      {/* Mobile Drawer for Question Palette */}
+      <Drawer
+        anchor="right"
+        open={!paletteCollapsed}
+        onClose={() => setPaletteCollapsed(true)}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: '100%',
+            maxWidth: 400,
+          },
+        }}
+      >
+        <Box sx={{ p: 2, height: '100%', overflowY: 'auto' }}>
+          {/* Mobile Header */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+              pb: 2,
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Question Palette
+            </Typography>
+            <IconButton size="small" onClick={() => setPaletteCollapsed(true)}>
+              <KeyboardArrowRightIcon />
+            </IconButton>
+          </Box>
+
+          {/* Status Legend */}
+          <Box sx={{ mb: 3 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#B0BEC5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {notVisited}
+              </Box>
+              <Typography variant="caption">Not Visited</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#FF5722',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {notAnswered}
+              </Box>
+              <Typography variant="caption">Not Answered</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#4CAF50',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {answered}
+              </Box>
+              <Typography variant="caption">Answered</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#9C27B0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {markedCount}
+              </Box>
+              <Typography variant="caption">Marked for Review</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '50%',
+                  backgroundColor: '#9C27B0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {answeredAndMarked}
+              </Box>
+              <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+                Answered & Marked for Review (will be considered for evaluation)
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Question Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(6, 1fr)',
+              gap: 1,
+            }}
+          >
+            {currentQuiz.questions?.map((question, index) => {
+              const status = getQuestionStatus(question);
+              const isCurrent = index === currentQuestionIndex;
+
+              return (
+                <Box
+                  key={question.id}
+                  onClick={() => {
+                    handleQuestionClick(index);
+                    setPaletteCollapsed(true);
+                  }}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: status === 'answered-marked' ? '50%' : '4px',
+                    backgroundColor: getStatusColor(status),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: isCurrent ? '3px solid #000' : 'none',
+                    '&:hover': {
+                      opacity: 0.8,
+                    },
+                  }}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
+      </Drawer>
 
       {/* Submit Confirmation Dialog */}
       <Dialog
