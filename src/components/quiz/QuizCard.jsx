@@ -34,6 +34,7 @@ function QuizCard({ quiz, onView, onEdit, onDelete }) {
   return (
     <Card
       sx={{
+        width: '100%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',

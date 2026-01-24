@@ -8,7 +8,6 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -300,18 +299,28 @@ function QuizListScreen() {
             />
           </Box>
         ) : (
-          <Grid container spacing={3}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(4, 1fr)',
+              },
+              gap: 3,
+            }}
+          >
             {filteredQuizzes.map((quiz) => (
-              <Grid item xs={12} sm={6} lg={4} key={quiz.id}>
+              <Box key={quiz.id} sx={{ display: 'flex', width: '100%' }}>
                 <QuizCard
                   quiz={quiz}
                   onView={handleViewQuiz}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
                 />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         )}
       </Container>
 
