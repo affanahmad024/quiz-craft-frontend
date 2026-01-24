@@ -13,6 +13,7 @@ import { attemptRoutes } from './routes/AttemptRoutes';
 import { discoveryRoutes } from './routes/DiscoveryRoutes';
 import { profileRoutes } from './routes/ProfileRoutes';
 import { adminRoutes } from './routes/AdminRoutes';
+import { aiRoutes } from './routes/AIRoutes';
 import RequireAuth from './guards/RequireAuth';
 import BasicLayout from './layouts/BasicLayout';
 import DashboardScreen from './screens/DashboardScreen';
@@ -43,6 +44,9 @@ function App() {
 
           {/* Admin Routes */}
           {adminRoutes}
+
+          {/* AI Routes */}
+          {aiRoutes}
 
           {/* Dashboard Route */}
           <Route

@@ -36,6 +36,7 @@ import {
   Refresh as RefreshIcon,
   Fireplace as FireIcon,
   SignalCellularAlt as StatsIcon,
+  AutoAwesome as AutoAwesomeIcon,
 } from '@mui/icons-material';
 import SetBrowserTabTitle from '../layout/SetBrowserTabTitle';
 import toast from 'react-hot-toast';
@@ -252,6 +253,108 @@ function DashboardScreen() {
                 {error}
              </Alert>
           )}
+
+          {/* AI Feature Card */}
+          <Card
+            sx={{
+              mb: 4,
+              position: 'relative',
+              overflow: 'hidden',
+              borderRadius: 4,
+              border: 'none',
+              boxShadow: '0 12px 24px -10px rgba(102, 126, 234, 0.4)',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 16px 32px -10px rgba(102, 126, 234, 0.6)',
+              },
+            }}
+            onClick={() => navigate(ROUTES.AI_GENERATE)}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                opacity: 0.95,
+              }}
+            />
+            <CardContent sx={{ position: 'relative', zIndex: 2, p: 4, color: 'white' }}>
+              <Grid container spacing={3} alignItems="center">
+                <Grid item xs={12} md={8}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        bgcolor: 'rgba(255,255,255,0.2)',
+                        borderRadius: 2,
+                        display: 'flex',
+                      }}
+                    >
+                      <AutoAwesomeIcon sx={{ fontSize: 40 }} />
+                    </Box>
+                    <Chip
+                      label="NEW"
+                      size="small"
+                      sx={{
+                        bgcolor: '#43e97b',
+                        color: 'white',
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+                    AI-Powered Quiz Generation
+                  </Typography>
+                  <Typography variant="body1" sx={{ opacity: 0.95, mb: 2 }}>
+                    Let AI create quizzes for you! Generate questions from text, upload documents, or extract from images.
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip
+                      label="From Text"
+                      size="small"
+                      sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                    />
+                    <Chip
+                      label="From Documents"
+                      size="small"
+                      sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                    />
+                    <Chip
+                      label="From Images"
+                      size="small"
+                      sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ textAlign: { md: 'right' } }}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    endIcon={<ArrowForwardIcon />}
+                    sx={{
+                      bgcolor: 'white',
+                      color: '#667eea',
+                      fontWeight: 700,
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: 3,
+                      '&:hover': {
+                        bgcolor: 'rgba(255,255,255,0.9)',
+                      },
+                    }}
+                  >
+                    Try AI Generation
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
 
           {/* Statistics Cards */}
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
