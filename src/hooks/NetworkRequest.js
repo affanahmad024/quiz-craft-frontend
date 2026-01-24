@@ -78,14 +78,23 @@ const useNetReq = () => {
       }
 
       // Parse error response
+      // Backend can return error in two formats:
+      // 1. String: { error: "email-already-verified", message: "..." }
+      // 2. Object: { error: { code: "...", message: "..." } }
+      const backendError = err.response?.data?.error;
+      const backendMessage = err.response?.data?.message;
+
       const errorResponse = {
         error: {
-          code: err.response?.data?.error?.code || 'unknown-error',
+          // If error is a string, use it as the error code
+          error: typeof backendError === 'string' ? backendError : backendError?.code,
+          code: typeof backendError === 'string' ? backendError : backendError?.code || 'unknown-error',
           message:
-            err.response?.data?.error?.message ||
+            backendMessage ||
+            backendError?.message ||
             err.message ||
             'An error occurred',
-          details: err.response?.data?.error?.details || {},
+          details: typeof backendError === 'object' ? backendError?.details || {} : {},
         },
       };
 

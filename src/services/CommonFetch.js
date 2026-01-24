@@ -22,6 +22,7 @@ export const fetchWithAbort = async ({
   payload = null,
   defaultErrorMsg = null,
   showSuccessToast = false,
+  showErrorToast = true,
   successMsg = 'Operation successful',
   authRequired = true,
 }) => {
@@ -68,9 +69,11 @@ export const fetchWithAbort = async ({
     }
 
     // Handle error response from API
-    const errorMessage =
-      response?.error?.message || defaultErrorMsg || 'An error occurred';
-    toast.error(errorMessage);
+    if (showErrorToast) {
+      const errorMessage =
+        response?.error?.message || defaultErrorMsg || 'An error occurred';
+      toast.error(errorMessage);
+    }
 
     if (onError) {
       onError(response?.error);
@@ -86,8 +89,10 @@ export const fetchWithAbort = async ({
 
     // Handle other errors
     console.error('Fetch error:', error);
-    const errorMsg = error.message || defaultErrorMsg || 'Network error occurred';
-    toast.error(errorMsg);
+    if (showErrorToast) {
+      const errorMsg = error.message || defaultErrorMsg || 'Network error occurred';
+      toast.error(errorMsg);
+    }
 
     if (onError) {
       onError(error);

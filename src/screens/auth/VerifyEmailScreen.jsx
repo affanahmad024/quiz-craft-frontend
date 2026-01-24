@@ -36,6 +36,7 @@ function VerifyEmailScreen() {
 
   const [verificationStatus, setVerificationStatus] = useState('verifying'); // verifying, success, error
   const [errorMessage, setErrorMessage] = useState('');
+  const [errorCode, setErrorCode] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -59,7 +60,43 @@ function VerifyEmailScreen() {
           toast.success('Email verified successfully!');
         } else {
           setVerificationStatus('error');
-          setErrorMessage(response.error?.message || 'Failed to verify email. The link may have expired.');
+
+          // Extract error information from response
+          const backendErrorCode = response.error?.error || response.error?.code;
+          const backendMessage = response.error?.message;
+
+          console.log('Verification failed:', { backendErrorCode, backendMessage, fullResponse: response });
+
+          setErrorCode(backendErrorCode);
+
+          // Show backend message directly, with friendly fallbacks for generic messages
+          let displayMessage = backendMessage;
+
+          // If backend message is generic or empty, use error code to show friendly message
+          const isGenericMessage = !displayMessage ||
+            displayMessage === 'Bad request' ||
+            displayMessage === 'Internal server error' ||
+            displayMessage === 'An error occurred' ||
+            displayMessage.toLowerCase().includes('bad request');
+
+          if (isGenericMessage) {
+            // Use error code to show specific, user-friendly message
+            switch (backendErrorCode) {
+              case 'email-already-verified':
+                displayMessage = 'Your email has already been verified. You can proceed to login.';
+                break;
+              case 'invalid-verification-token':
+                displayMessage = 'Invalid or expired verification link. Please request a new verification email.';
+                break;
+              case 'user-not-found':
+                displayMessage = 'User account not found. Please sign up again.';
+                break;
+              default:
+                displayMessage = 'Failed to verify email. The link may have expired.';
+            }
+          }
+
+          setErrorMessage(displayMessage);
         }
       } catch (error) {
         console.error('Verification error:', error);
@@ -342,49 +379,15 @@ function VerifyEmailScreen() {
 
                       {verificationStatus === 'error' && (
                         <Box>
-                          <Alert severity="error" sx={{ mb: 3 }}>
+                          <Alert severity={errorCode === 'email-already-verified' ? 'info' : 'error'} sx={{ mb: 3 }}>
                             {errorMessage}
                           </Alert>
 
-                          <Box sx={{ mb: 3 }}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                mb: 1,
-                                color: '#1A1A1A',
-                                fontWeight: 500,
-                              }}
-                            >
-                              Need a new verification link?
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                mb: 2,
-                                color: '#6B7280',
-                              }}
-                            >
-                              Enter your email below to receive a new verification link
-                            </Typography>
-                            <QuizCraftTextInput
-                              type="email"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              fullWidth
-                              startIcon={<Email sx={{ color: '#9CA3AF' }} />}
-                              placeholder="Enter your email"
-                              sx={{
-                                mb: 2,
-                                '& .MuiOutlinedInput-root': {
-                                  backgroundColor: '#FAFBFC',
-                                },
-                              }}
-                            />
+                          {errorCode === 'email-already-verified' ? (
+                            // Show Go to Login button for already verified emails
                             <QuizCraftButton
-                              onClick={handleResendVerification}
+                              onClick={() => navigate(ROUTES.LOGIN)}
                               fullWidth
-                              loading={isResending}
-                              disabled={!email}
                               sx={{
                                 background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
                                 color: 'white',
@@ -393,18 +396,76 @@ function VerifyEmailScreen() {
                                 fontWeight: 600,
                                 borderRadius: 2,
                                 textTransform: 'none',
+                                mb: 3,
                                 '&:hover': {
                                   background: 'linear-gradient(135deg, #0A4A32 0%, #6BC047 100%)',
                                 },
-                                '&:disabled': {
-                                  background: '#E5E7EB',
-                                  color: '#9CA3AF',
-                                },
                               }}
                             >
-                              {isResending ? 'Sending...' : 'Resend Verification Email'}
+                              Go to Login
                             </QuizCraftButton>
-                          </Box>
+                          ) : (
+                            // Show resend verification form for other errors
+                            <Box sx={{ mb: 3 }}>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  mb: 1,
+                                  color: '#1A1A1A',
+                                  fontWeight: 500,
+                                }}
+                              >
+                                Need a new verification link?
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  mb: 2,
+                                  color: '#6B7280',
+                                }}
+                              >
+                                Enter your email below to receive a new verification link
+                              </Typography>
+                              <QuizCraftTextInput
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                fullWidth
+                                startIcon={<Email sx={{ color: '#9CA3AF' }} />}
+                                placeholder="Enter your email"
+                                sx={{
+                                  mb: 2,
+                                  '& .MuiOutlinedInput-root': {
+                                    backgroundColor: '#FAFBFC',
+                                  },
+                                }}
+                              />
+                              <QuizCraftButton
+                                onClick={handleResendVerification}
+                                fullWidth
+                                loading={isResending}
+                                disabled={!email}
+                                sx={{
+                                  background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
+                                  color: 'white',
+                                  py: 1.75,
+                                  fontSize: '1rem',
+                                  fontWeight: 600,
+                                  borderRadius: 2,
+                                  textTransform: 'none',
+                                  '&:hover': {
+                                    background: 'linear-gradient(135deg, #0A4A32 0%, #6BC047 100%)',
+                                  },
+                                  '&:disabled': {
+                                    background: '#E5E7EB',
+                                    color: '#9CA3AF',
+                                  },
+                                }}
+                              >
+                                {isResending ? 'Sending...' : 'Resend Verification Email'}
+                              </QuizCraftButton>
+                            </Box>
+                          )}
 
                           <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="body2" sx={{ color: '#6B7280' }}>

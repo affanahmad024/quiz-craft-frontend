@@ -36,6 +36,7 @@ export const verifyEmail = (fetchData, abortContRef, { userId, token }) =>
     endpoint: AUTH_ENDPOINTS.VERIFY_EMAIL,
     payload: { user_id: userId, token },
     authRequired: false,
+    showErrorToast: false, // Don't show automatic error toast - component handles errors
     defaultErrorMsg: "Couldn't verify email",
   });
 
