@@ -135,8 +135,10 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
       newErrors.difficulty = 'Difficulty is required';
     }
 
-    // Time limit validation (optional)
-    if (formData.time_limit_minutes) {
+    // Time limit validation (required)
+    if (!formData.time_limit_minutes) {
+      newErrors.time_limit_minutes = 'Time limit is required';
+    } else {
       const timeLimit = parseInt(formData.time_limit_minutes);
       if (isNaN(timeLimit)) {
         newErrors.time_limit_minutes = 'Time limit must be a number';
@@ -190,12 +192,8 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
       difficulty: formData.difficulty,
       is_public: formData.is_public,
       passing_score: formData.passing_score ? parseInt(formData.passing_score) : 70,
+      time_limit_minutes: parseInt(formData.time_limit_minutes),
     };
-
-    // Add optional fields
-    if (formData.time_limit_minutes) {
-      updates.time_limit_minutes = parseInt(formData.time_limit_minutes);
-    }
 
     // Add tags if provided
     if (formData.tags.length > 0) {
@@ -441,9 +439,9 @@ function EditQuizDetailsModal({ open, onClose, quiz, onSave, isLoading }) {
                     value={formData.time_limit_minutes}
                     onChange={handleChange('time_limit_minutes')}
                     error={!!errors.time_limit_minutes}
-                    helperText={errors.time_limit_minutes || 'Leave empty for no time limit'}
+                    helperText={errors.time_limit_minutes || 'Set the time limit in minutes'}
                     fullWidth
-                    label="Time Limit (minutes)"
+                    label="Time Limit (minutes) *"
                     inputProps={{
                       min: QUIZ_VALIDATION.MIN_TIME_LIMIT,
                       max: QUIZ_VALIDATION.MAX_TIME_LIMIT,
