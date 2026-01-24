@@ -2,7 +2,7 @@
 // Following ERPICA template design pattern
 
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link as RouterLink } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -27,10 +27,11 @@ const logoImage = '/logo.png';
 
 function VerifyEmailScreen() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { fetchData } = useNetReq();
   const abortContRef = useRef(new AbortController());
 
-  const userId = searchParams.get('userId');
+  const userId = searchParams.get('user_id');
   const token = searchParams.get('token');
 
   const [verificationStatus, setVerificationStatus] = useState('verifying'); // verifying, success, error
@@ -318,8 +319,7 @@ function VerifyEmailScreen() {
                             Your email has been successfully verified! You can now login to your account.
                           </Alert>
                           <QuizCraftButton
-                            component={RouterLink}
-                            to={ROUTES.LOGIN}
+                            onClick={() => navigate(ROUTES.LOGIN)}
                             fullWidth
                             sx={{
                               background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
