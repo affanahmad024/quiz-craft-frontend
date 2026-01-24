@@ -174,14 +174,21 @@ export const addQuestionsFromText = async (
   abortContRef,
   { quizId, text, config }
 ) => {
+  console.log('[AIServices] addQuestionsFromText called with quizId:', quizId);
+  console.log('[AIServices] Config:', config);
+
   const payload = {
     text,
     options: {
       num_questions: config.num_questions,
       difficulty: config.difficulty,
       question_type: config.question_type,
+      category: config.category || 'General',
+      language: config.language || 'en',
     },
   };
+
+  console.log('[AIServices] Sending payload to /quizzes/' + quizId + '/add-questions-from-text');
 
   return fetchWithAbort({
     fetchData,
@@ -202,11 +209,20 @@ export const addQuestionsFromFile = async (
   abortContRef,
   { quizId, file, config }
 ) => {
+  console.log('[AIServices] addQuestionsFromFile called with quizId:', quizId);
+  console.log('[AIServices] File:', file.name, 'Config:', config);
+
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('num_questions', config.num_questions);
-  formData.append('difficulty', config.difficulty);
-  formData.append('question_type', config.question_type);
+
+  // AI generation options (nested under 'options')
+  formData.append('options[num_questions]', config.num_questions);
+  formData.append('options[difficulty]', config.difficulty);
+  formData.append('options[question_type]', config.question_type);
+  formData.append('options[category]', config.category || 'General');
+  formData.append('options[language]', config.language || 'en');
+
+  console.log('[AIServices] Sending to /quizzes/' + quizId + '/add-questions-from-file');
 
   return fetchWithAbort({
     fetchData,
@@ -227,9 +243,14 @@ export const addQuestionsFromImage = async (
   abortContRef,
   { quizId, file, extractImages = true }
 ) => {
+  console.log('[AIServices] addQuestionsFromImage called with quizId:', quizId);
+  console.log('[AIServices] File:', file.name);
+
   const formData = new FormData();
   formData.append('file', file);
   formData.append('extract_images', extractImages.toString());
+
+  console.log('[AIServices] Sending to /quizzes/' + quizId + '/extract-questions-from-file');
 
   return fetchWithAbort({
     fetchData,

@@ -42,9 +42,11 @@ function AddQuestionsFromTextModal({ open, onClose, quizId, quizTitle }) {
   // Form state
   const [formData, setFormData] = useState({
     text: '',
+    category: '',
     num_questions: 10,
     difficulty: AI_DIFFICULTY_LEVELS.MEDIUM,
     question_type: AI_QUESTION_TYPES.MIXED,
+    language: 'en',
   });
 
   // UI state
@@ -72,6 +74,11 @@ function AddQuestionsFromTextModal({ open, onClose, quizId, quizTitle }) {
       return false;
     }
 
+    if (!formData.category.trim()) {
+      toast.error('Please enter a category (e.g., "Biology", "History")');
+      return false;
+    }
+
     if (
       formData.num_questions < AI_VALIDATION.MIN_QUESTIONS ||
       formData.num_questions > AI_VALIDATION.MAX_QUESTIONS
@@ -96,9 +103,11 @@ function AddQuestionsFromTextModal({ open, onClose, quizId, quizTitle }) {
       quizId,
       text: formData.text.trim(),
       config: {
+        category: formData.category.trim(),
         num_questions: parseInt(formData.num_questions),
         difficulty: formData.difficulty,
         question_type: formData.question_type,
+        language: formData.language || 'en',
       },
     });
 
@@ -111,9 +120,11 @@ function AddQuestionsFromTextModal({ open, onClose, quizId, quizTitle }) {
       // Reset form
       setFormData({
         text: '',
+        category: '',
         num_questions: 10,
         difficulty: AI_DIFFICULTY_LEVELS.MEDIUM,
         question_type: AI_QUESTION_TYPES.MIXED,
+        language: 'en',
       });
       onClose();
     } else {
@@ -206,6 +217,43 @@ function AddQuestionsFromTextModal({ open, onClose, quizId, quizTitle }) {
             </Typography>
 
             <Grid container spacing={2}>
+              {/* Category */}
+              <Grid item xs={12} sm={6}>
+                <QuizCraftTextInput
+                  label="Category *"
+                  placeholder="e.g., Biology, History, Math"
+                  value={formData.category}
+                  onChange={handleChange('category')}
+                  fullWidth
+                  helperText="Topic or subject area for AI generation"
+                />
+              </Grid>
+
+              {/* Language */}
+              <Grid item xs={12} sm={6}>
+                <QuizCraftTextInput
+                  label="Language *"
+                  select
+                  value={formData.language}
+                  onChange={handleChange('language')}
+                  fullWidth
+                  helperText="Language for question generation"
+                >
+                  <MenuItem value="en">English</MenuItem>
+                  <MenuItem value="es">Spanish</MenuItem>
+                  <MenuItem value="fr">French</MenuItem>
+                  <MenuItem value="de">German</MenuItem>
+                  <MenuItem value="it">Italian</MenuItem>
+                  <MenuItem value="pt">Portuguese</MenuItem>
+                  <MenuItem value="ru">Russian</MenuItem>
+                  <MenuItem value="zh">Chinese</MenuItem>
+                  <MenuItem value="ja">Japanese</MenuItem>
+                  <MenuItem value="ko">Korean</MenuItem>
+                  <MenuItem value="ar">Arabic</MenuItem>
+                  <MenuItem value="hi">Hindi</MenuItem>
+                </QuizCraftTextInput>
+              </Grid>
+
               {/* Number of Questions */}
               <Grid item xs={12} sm={4}>
                 <QuizCraftTextInput
