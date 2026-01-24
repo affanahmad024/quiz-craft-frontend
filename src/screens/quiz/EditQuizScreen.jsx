@@ -151,6 +151,30 @@ function EditQuizScreen() {
     setAddQuestionsModalOpen(true);
   };
 
+  // Handle add single question with refresh
+  const handleAddQuestion = async (quizId, questionData) => {
+    const response = await addQuestion(quizId, questionData);
+
+    if (response.success) {
+      // Refresh quiz data to show new question
+      await getQuiz(id, true);
+    }
+
+    return response;
+  };
+
+  // Handle bulk add questions with refresh
+  const handleBulkAddQuestions = async (quizId, questionsData) => {
+    const response = await bulkAddQuestions(quizId, questionsData);
+
+    if (response.success) {
+      // Refresh quiz data to show new questions
+      await getQuiz(id, true);
+    }
+
+    return response;
+  };
+
   const handleEditQuestion = (question) => {
     setEditingQuestion(question);
     setQuestionFormData({
@@ -832,8 +856,8 @@ function EditQuizScreen() {
         open={addQuestionsModalOpen}
         onClose={() => setAddQuestionsModalOpen(false)}
         questions={currentQuiz?.questions || []}
-        onAddQuestion={addQuestion}
-        onBulkAddQuestions={bulkAddQuestions}
+        onAddQuestion={handleAddQuestion}
+        onBulkAddQuestions={handleBulkAddQuestions}
         quizId={id}
       />
 
