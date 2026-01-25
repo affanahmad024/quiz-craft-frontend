@@ -37,6 +37,7 @@ import { useAttempt } from '../../contexts/attempt/AttemptContextProvider';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
 import QuizCraftButton from '../../components/buttons/QuizCraftButton';
 import LoadingScreen from '../../components/screens/LoadingScreen';
+import QuestionImage from '../../components/quiz/QuestionImage';
 import { toast } from 'react-hot-toast';
 
 function QuizResultScreen() {
@@ -677,6 +678,15 @@ function QuizResultScreen() {
                     {/* Question Details (Collapsible) */}
                     <Collapse in={isExpanded}>
                       <Divider sx={{ my: 2 }} />
+
+                      {/* Question Image (if exists) */}
+                      {answer.question_meta?.image_url && (
+                        <QuestionImage
+                          imageUrl={answer.question_meta.image_url}
+                          alt={`Question ${index + 1} image`}
+                          sx={{ mb: 3 }}
+                        />
+                      )}
 
                       {/* Answer Details */}
                       <Box sx={{ mb: 2 }}>

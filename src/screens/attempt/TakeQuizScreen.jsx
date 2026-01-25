@@ -40,6 +40,7 @@ import { useAuth } from '../../contexts/auth/AuthContextProvider';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
 import QuizCraftButton from '../../components/buttons/QuizCraftButton';
 import LoadingScreen from '../../components/screens/LoadingScreen';
+import QuestionImage from '../../components/quiz/QuestionImage';
 import { toast } from 'react-hot-toast';
 
 function TakeQuizScreen() {
@@ -489,16 +490,27 @@ function TakeQuizScreen() {
                   Question {currentQuestionIndex + 1}:
                 </Typography>
 
-                <Typography
-                  variant="body1"
-                  sx={{
-                    mb: 3,
-                    lineHeight: 1.8,
-                    color: '#2D3436',
-                  }}
-                >
-                  {currentQuestion.question_text}
-                </Typography>
+                {/* Question Image (if exists) */}
+                {currentQuestion.meta?.image_url && (
+                  <QuestionImage
+                    imageUrl={currentQuestion.meta.image_url}
+                    alt={`Question ${currentQuestionIndex + 1} image`}
+                  />
+                )}
+
+                {/* Question Text (if exists) */}
+                {currentQuestion.question_text && (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      mb: 3,
+                      lineHeight: 1.8,
+                      color: '#2D3436',
+                    }}
+                  >
+                    {currentQuestion.question_text}
+                  </Typography>
+                )}
 
                 <Typography
                   variant="subtitle2"
