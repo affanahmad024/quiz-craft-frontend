@@ -39,48 +39,55 @@ function QuizFilters({ onSearch, onFilterChange }) {
 
   return (
     <Paper
-      elevation={2}
+      elevation={0}
       sx={{
         p: 3,
         mb: 3,
-        borderRadius: 2,
-        background: `linear-gradient(135deg, ${COLORS.PRIMARY} 0%, ${COLORS.PRIMARY_LIGHT} 100%)`,
-        color: COLORS.WHITE,
+        borderRadius: 3,
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E8E8E8',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        overflow: 'visible',
       }}
     >
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-        <FilterListIcon />
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          Filter Quizzes
+        <FilterListIcon sx={{ color: '#667eea' }} />
+        <Typography variant="h6" sx={{ fontWeight: 600, color: '#2D3436' }}>
+          Filter & Search
         </Typography>
       </Box>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2.5} sx={{ alignItems: 'flex-start' }}>
         {/* Search Input */}
-        <Grid item xs={12} md={6} lg={3}>
+        <Grid item xs={12} md={12} lg={12}>
           <QuizCraftTextInput
-            placeholder="Search quizzes..."
+            placeholder="Search by title, description, or tags..."
             onChange={handleSearchChange}
             fullWidth
-            size="small"
             sx={{
-              bgcolor: COLORS.WHITE,
-              borderRadius: 1,
               '& .MuiOutlinedInput-root': {
-                bgcolor: COLORS.WHITE,
+                backgroundColor: '#F8F9FA',
+                borderRadius: 2,
                 '&:hover': {
-                  bgcolor: COLORS.WHITE,
+                  backgroundColor: '#F8F9FA',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                  },
                 },
                 '&.Mui-focused': {
-                  bgcolor: COLORS.WHITE,
+                  backgroundColor: '#FFFFFF',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                    borderWidth: '2px',
+                  },
                 },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: COLORS.TEXT_SECONDARY }} />
+                  <SearchIcon sx={{ color: '#667eea' }} />
                 </InputAdornment>
               ),
             }}
@@ -88,24 +95,48 @@ function QuizFilters({ onSearch, onFilterChange }) {
         </Grid>
 
         {/* Difficulty Filter */}
-        <Grid item xs={12} sm={6} md={3} lg={2}>
+        <Grid item xs={6} sm={4} md={3} lg={3}>
           <QuizCraftTextInput
             select
             label="Difficulty"
             defaultValue=""
             onChange={handleFilterChange('difficulty')}
             fullWidth
-            size="small"
-            sx={{
-              bgcolor: COLORS.WHITE,
-              borderRadius: 1,
-              '& .MuiOutlinedInput-root': {
-                bgcolor: COLORS.WHITE,
-                '&:hover': {
-                  bgcolor: COLORS.WHITE,
+            SelectProps={{
+              MenuProps: {
+                disablePortal: false,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
                 },
-                '&.Mui-focused': {
-                  bgcolor: COLORS.WHITE,
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                PaperProps: {
+                  sx: {
+                    maxHeight: 300,
+                    mt: 0.5,
+                  },
+                },
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#F8F9FA',
+                borderRadius: 2,
+                minHeight: '56px',
+              },
+              '& .MuiSelect-select': {
+                py: 1.5,
+                minHeight: '24px',
+                display: 'flex',
+                alignItems: 'center',
+              },
+              '& .MuiInputLabel-root': {
+                transform: 'translate(14px, 16px) scale(1)',
+                '&.MuiInputLabel-shrink': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
                 },
               },
             }}
@@ -120,24 +151,48 @@ function QuizFilters({ onSearch, onFilterChange }) {
         </Grid>
 
         {/* Category Filter */}
-        <Grid item xs={12} sm={6} md={3} lg={3}>
+        <Grid item xs={6} sm={4} md={3} lg={3}>
           <QuizCraftTextInput
             select
             label="Category"
             defaultValue=""
             onChange={handleFilterChange('category')}
             fullWidth
-            size="small"
-            sx={{
-              bgcolor: COLORS.WHITE,
-              borderRadius: 1,
-              '& .MuiOutlinedInput-root': {
-                bgcolor: COLORS.WHITE,
-                '&:hover': {
-                  bgcolor: COLORS.WHITE,
+            SelectProps={{
+              MenuProps: {
+                disablePortal: false,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
                 },
-                '&.Mui-focused': {
-                  bgcolor: COLORS.WHITE,
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                PaperProps: {
+                  sx: {
+                    maxHeight: 300,
+                    mt: 0.5,
+                  },
+                },
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#F8F9FA',
+                borderRadius: 2,
+                minHeight: '56px',
+              },
+              '& .MuiSelect-select': {
+                py: 1.5,
+                minHeight: '24px',
+                display: 'flex',
+                alignItems: 'center',
+              },
+              '& .MuiInputLabel-root': {
+                transform: 'translate(14px, 16px) scale(1)',
+                '&.MuiInputLabel-shrink': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
                 },
               },
             }}
@@ -152,24 +207,48 @@ function QuizFilters({ onSearch, onFilterChange }) {
         </Grid>
 
         {/* Sort By Filter */}
-        <Grid item xs={12} sm={6} md={3} lg={2}>
+        <Grid item xs={6} sm={4} md={3} lg={3}>
           <QuizCraftTextInput
             select
             label="Sort By"
             defaultValue="newest"
             onChange={handleFilterChange('sortBy')}
             fullWidth
-            size="small"
-            sx={{
-              bgcolor: COLORS.WHITE,
-              borderRadius: 1,
-              '& .MuiOutlinedInput-root': {
-                bgcolor: COLORS.WHITE,
-                '&:hover': {
-                  bgcolor: COLORS.WHITE,
+            SelectProps={{
+              MenuProps: {
+                disablePortal: false,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
                 },
-                '&.Mui-focused': {
-                  bgcolor: COLORS.WHITE,
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                PaperProps: {
+                  sx: {
+                    maxHeight: 300,
+                    mt: 0.5,
+                  },
+                },
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#F8F9FA',
+                borderRadius: 2,
+                minHeight: '56px',
+              },
+              '& .MuiSelect-select': {
+                py: 1.5,
+                minHeight: '24px',
+                display: 'flex',
+                alignItems: 'center',
+              },
+              '& .MuiInputLabel-root': {
+                transform: 'translate(14px, 16px) scale(1)',
+                '&.MuiInputLabel-shrink': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
                 },
               },
             }}
@@ -183,24 +262,48 @@ function QuizFilters({ onSearch, onFilterChange }) {
         </Grid>
 
         {/* Status Filter */}
-        <Grid item xs={12} sm={6} md={3} lg={2}>
+        <Grid item xs={6} sm={4} md={3} lg={3}>
           <QuizCraftTextInput
             select
             label="Status"
             defaultValue=""
             onChange={handleFilterChange('status')}
             fullWidth
-            size="small"
-            sx={{
-              bgcolor: COLORS.WHITE,
-              borderRadius: 1,
-              '& .MuiOutlinedInput-root': {
-                bgcolor: COLORS.WHITE,
-                '&:hover': {
-                  bgcolor: COLORS.WHITE,
+            SelectProps={{
+              MenuProps: {
+                disablePortal: false,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
                 },
-                '&.Mui-focused': {
-                  bgcolor: COLORS.WHITE,
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                PaperProps: {
+                  sx: {
+                    maxHeight: 300,
+                    mt: 0.5,
+                  },
+                },
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#F8F9FA',
+                borderRadius: 2,
+                minHeight: '56px',
+              },
+              '& .MuiSelect-select': {
+                py: 1.5,
+                minHeight: '24px',
+                display: 'flex',
+                alignItems: 'center',
+              },
+              '& .MuiInputLabel-root': {
+                transform: 'translate(14px, 16px) scale(1)',
+                '&.MuiInputLabel-shrink': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
                 },
               },
             }}
@@ -211,13 +314,6 @@ function QuizFilters({ onSearch, onFilterChange }) {
           </QuizCraftTextInput>
         </Grid>
       </Grid>
-
-      {/* Filter Info Text */}
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="caption" sx={{ opacity: 0.9 }}>
-          Use filters to refine your quiz search and find exactly what you're looking for.
-        </Typography>
-      </Box>
     </Paper>
   );
 }

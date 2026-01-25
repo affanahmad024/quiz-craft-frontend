@@ -1,5 +1,5 @@
 // Take Quiz Screen
-// Interface for taking a quiz attempt
+// Interface for taking a quiz attempt (NTA Style)
 // Following Phoenix pattern
 
 import { useEffect, useState } from 'react';
@@ -10,71 +10,78 @@ import {
   Typography,
   Card,
   CardContent,
-  TextField,
-  Stack,
+  Grid,
+  Chip,
+  IconButton,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Paper,
+  Collapse,
+  Drawer,
+  Fab,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
-  NavigateNext as NavigateNextIcon,
-  NavigateBefore as NavigateBeforeIcon,
-  Send as SendIcon,
-  Check as CheckIcon,
+  KeyboardArrowLeft as KeyboardArrowLeftIcon,
+  KeyboardArrowRight as KeyboardArrowRightIcon,
+  KeyboardDoubleArrowUp as KeyboardDoubleArrowUpIcon,
+  KeyboardDoubleArrowDown as KeyboardDoubleArrowDownIcon,
 } from '@mui/icons-material';
 import { useAttempt } from '../../contexts/attempt/AttemptContextProvider';
 import { useQuiz } from '../../contexts/quiz/QuizContextProvider';
+import { useAuth } from '../../contexts/auth/AuthContextProvider';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
-import { COLORS } from '../../constants/ColorConstants';
-import QuizTimer from '../../components/attempt/QuizTimer';
-import ProgressIndicator from '../../components/attempt/ProgressIndicator';
-import AnswerOption from '../../components/attempt/AnswerOption';
 import QuizCraftButton from '../../components/buttons/QuizCraftButton';
 import LoadingScreen from '../../components/screens/LoadingScreen';
+import QuestionImage from '../../components/quiz/QuestionImage';
 import { toast } from 'react-hot-toast';
 
 function TakeQuizScreen() {
   const { id, attemptId } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
+  const { user } = useAuth();
   const {
     currentAttempt,
     userAnswers,
     isLoading,
-    startAttempt,
     getAttempt,
     submitAnswer,
     finishAttempt,
+    getAttemptResults,
   } = useAttempt();
   const { currentQuiz, getQuiz } = useQuiz();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [shortAnswerText, setShortAnswerText] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [markedForReview, setMarkedForReview] = useState({});
+  const [visitedQuestions, setVisitedQuestions] = useState({});
+  const [paletteCollapsed, setPaletteCollapsed] = useState(true);
+  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(null);
   const [isFinishing, setIsFinishing] = useState(false);
 
   // Initialize attempt on mount
   useEffect(() => {
     const initializeAttempt = async () => {
-      if (!attemptId) {
-        // Start new attempt
-        const response = await startAttempt(id);
-        if (response.success) {
-          toast.success('Quiz started!');
-        } else {
-          toast.error(response.error || 'Failed to start quiz');
-          navigate(buildRoute(ROUTES.QUIZ_DETAIL, { id }));
-        }
-      } else {
-        // Load existing attempt
-        const response = await getAttempt(attemptId);
-        if (!response.success) {
-          toast.error(response.error || 'Failed to load attempt');
-          navigate(ROUTES.ATTEMPT_LIST);
-        }
+      const response = await getAttempt(attemptId);
+      if (!response.success) {
+        toast.error(response.error || 'Failed to load attempt');
+        navigate(ROUTES.ATTEMPT_LIST);
       }
     };
 
     initializeAttempt();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, attemptId]);
+  }, [attemptId]);
 
   // Fetch full quiz details
   useEffect(() => {
@@ -105,59 +112,139 @@ function TakeQuizScreen() {
     }
   }, [userAnswers]);
 
+  // Mark current question as visited
+  useEffect(() => {
+    if (currentQuestion) {
+      setVisitedQuestions((prev) => ({
+        ...prev,
+        [currentQuestion.id]: true,
+      }));
+    }
+  }, [currentQuestionIndex]);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!currentAttempt?.expires_at) return;
+
+    const updateTimer = () => {
+      const now = new Date();
+      const expiresAt = new Date(currentAttempt.expires_at);
+      const diff = expiresAt - now;
+
+      if (diff <= 0) {
+        setTimeRemaining('00:00:00');
+        handleTimeExpire();
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeRemaining(
+          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        );
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentAttempt]);
+
   // Handle time expiration
   const handleTimeExpire = async () => {
     toast.error('Time expired! Submitting your quiz...');
     await handleFinishQuiz();
   };
 
+  // Get current question
+  const currentQuestion = currentQuiz?.questions?.[currentQuestionIndex] || null;
+
   // Handle answer selection
-  const handleAnswerSelect = async (questionId, answerId) => {
+  const handleAnswerSelect = (answerId) => {
+    if (!currentQuestion) return;
+
     setSelectedAnswers((prev) => ({
       ...prev,
-      [questionId]: answerId,
+      [currentQuestion.id]: answerId,
     }));
+  };
 
-    // Auto-save answer
-    setIsSubmitting(true);
-    const response = await submitAnswer(currentAttempt.id, questionId, answerId, null);
-    setIsSubmitting(false);
+  // Handle save and next
+  const handleSaveAndNext = async () => {
+    if (!currentQuestion) return;
+
+    const answerId = selectedAnswers[currentQuestion.id];
+    if (!answerId) {
+      toast.error('Please select an answer');
+      return;
+    }
+
+    // Save answer
+    const response = await submitAnswer(currentAttempt.id, currentQuestion.id, answerId, null);
 
     if (response.success) {
-      toast.success('Answer saved', { duration: 1000 });
+      // Move to next question
+      if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      }
     } else {
       toast.error(response.error || 'Failed to save answer');
     }
   };
 
-  // Handle short answer submission
-  const handleShortAnswerSubmit = async () => {
+  // Handle clear response
+  const handleClear = () => {
     if (!currentQuestion) return;
 
-    const questionId = currentQuestion.id;
+    setSelectedAnswers((prev) => {
+      const newAnswers = { ...prev };
+      delete newAnswers[currentQuestion.id];
+      return newAnswers;
+    });
+  };
 
-    if (!shortAnswerText.trim()) {
-      toast.error('Please enter an answer');
+  // Handle save and mark for review
+  const handleSaveAndMarkForReview = async () => {
+    if (!currentQuestion) return;
+
+    const answerId = selectedAnswers[currentQuestion.id];
+    if (!answerId) {
+      toast.error('Please select an answer before marking for review');
       return;
     }
 
-    setIsSubmitting(true);
-    const response = await submitAnswer(
-      currentAttempt.id,
-      questionId,
-      null,
-      shortAnswerText
-    );
-    setIsSubmitting(false);
+    // Save answer
+    const response = await submitAnswer(currentAttempt.id, currentQuestion.id, answerId, null);
 
     if (response.success) {
-      toast.success('Answer saved');
-      setSelectedAnswers((prev) => ({
+      // Mark for review
+      setMarkedForReview((prev) => ({
         ...prev,
-        [questionId]: 'answered',
+        [currentQuestion.id]: true,
       }));
+
+      // Move to next question
+      if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      }
     } else {
       toast.error(response.error || 'Failed to save answer');
+    }
+  };
+
+  // Handle mark for review and next
+  const handleMarkForReviewAndNext = () => {
+    if (!currentQuestion) return;
+
+    // Just mark for review without saving answer
+    setMarkedForReview((prev) => ({
+      ...prev,
+      [currentQuestion.id]: true,
+    }));
+
+    // Move to next question
+    if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
 
@@ -165,39 +252,133 @@ function TakeQuizScreen() {
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setShortAnswerText('');
     }
   };
 
   const handleNext = () => {
-    if (currentQuestion && currentQuiz.questions.length > currentQuestionIndex + 1) {
+    if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setShortAnswerText('');
     }
   };
 
-  // Handle finish quiz
+  // Handle direct question navigation
+  const handleQuestionClick = (index) => {
+    setCurrentQuestionIndex(index);
+  };
+
+  // Handle submit quiz
+  const handleSubmitClick = () => {
+    setSubmitDialogOpen(true);
+  };
+
   const handleFinishQuiz = async () => {
     if (!currentAttempt) return;
 
     setIsFinishing(true);
-    const response = await finishAttempt(currentAttempt.id);
-    setIsFinishing(false);
 
-    if (response.success) {
-      toast.success('Quiz submitted successfully!');
-      navigate(buildRoute(ROUTES.ATTEMPT_RESULTS, { id: currentAttempt.id }));
-    } else {
-      toast.error(response.error || 'Failed to submit quiz');
+    try {
+      console.log('[TakeQuizScreen] Finishing attempt:', currentAttempt.id);
+
+      // First, finish the attempt
+      const finishResponse = await finishAttempt(currentAttempt.id);
+
+      console.log('[TakeQuizScreen] Finish response:', {
+        success: finishResponse.success,
+        error: finishResponse.error
+      });
+
+      if (finishResponse.success) {
+        // Add a small delay to ensure backend has computed results
+        console.log('[TakeQuizScreen] Waiting 500ms for backend to compute results...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Now fetch the results
+        console.log('[TakeQuizScreen] Fetching results...');
+        const resultsResponse = await getAttemptResults(currentAttempt.id);
+
+        console.log('[TakeQuizScreen] Results response:', {
+          success: resultsResponse.success,
+          hasData: !!resultsResponse.data,
+          error: resultsResponse.error
+        });
+
+        setIsFinishing(false);
+
+        if (resultsResponse.success) {
+          toast.success('Quiz submitted successfully!');
+          console.log('[TakeQuizScreen] Navigating to results page');
+          navigate(buildRoute(ROUTES.ATTEMPT_RESULTS, { id: currentAttempt.id }));
+        } else {
+          console.error('[TakeQuizScreen] Failed to fetch results:', resultsResponse.error);
+          toast.error(resultsResponse.error || 'Failed to load results');
+          navigate(ROUTES.ATTEMPT_LIST);
+        }
+      } else {
+        setIsFinishing(false);
+        toast.error(finishResponse.error || 'Failed to submit quiz');
+      }
+    } catch (error) {
+      console.error('[TakeQuizScreen] Error in handleFinishQuiz:', error);
+      setIsFinishing(false);
+      toast.error('An error occurred while submitting the quiz');
     }
   };
 
-  // Get current question
-  const currentQuestion =
-    currentQuiz?.questions?.[currentQuestionIndex] || null;
+  // Get question status
+  const getQuestionStatus = (question) => {
+    const questionId = question.id;
+    const isVisited = visitedQuestions[questionId];
+    const isAnswered = selectedAnswers[questionId];
+    const isMarked = markedForReview[questionId];
 
-  // Calculate answered count
-  const answeredCount = Object.keys(selectedAnswers).length;
+    if (isAnswered && isMarked) {
+      return 'answered-marked';
+    } else if (isAnswered) {
+      return 'answered';
+    } else if (isMarked) {
+      return 'marked';
+    } else if (isVisited) {
+      return 'not-answered';
+    } else {
+      return 'not-visited';
+    }
+  };
+
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'not-visited':
+        return '#B0BEC5';
+      case 'not-answered':
+        return '#FF5722';
+      case 'answered':
+        return '#4CAF50';
+      case 'marked':
+        return '#9C27B0';
+      case 'answered-marked':
+        return '#9C27B0';
+      default:
+        return '#B0BEC5';
+    }
+  };
+
+  // Calculate stats
+  const totalQuestions = currentQuiz?.questions?.length || 0;
+  const notVisited = currentQuiz?.questions?.filter(
+    (q) => !visitedQuestions[q.id]
+  ).length || 0;
+  const notAnswered = currentQuiz?.questions?.filter(
+    (q) => visitedQuestions[q.id] && !selectedAnswers[q.id] && !markedForReview[q.id]
+  ).length || 0;
+  const answered = Object.keys(selectedAnswers).filter(
+    (qid) => !markedForReview[qid]
+  ).length;
+  const markedCount = Object.keys(markedForReview).filter(
+    (qid) => !selectedAnswers[qid]
+  ).length;
+  const answeredAndMarked = Object.keys(selectedAnswers).filter(
+    (qid) => markedForReview[qid]
+  ).length;
 
   // Show loading state
   if (isLoading || !currentAttempt || !currentQuiz) {
@@ -208,209 +389,741 @@ function TakeQuizScreen() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
-        py: 4,
+        backgroundColor: '#F5F5F5',
       }}
     >
-      <Container maxWidth="lg">
-        {/* Quiz Header */}
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              color: 'white',
-              fontWeight: 700,
-              mb: 1,
-            }}
-          >
-            {currentQuiz.title}
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'rgba(255, 255, 255, 0.9)',
-            }}
-          >
-            {currentQuiz.description}
-          </Typography>
-        </Box>
-
-        {/* Timer and Progress Row */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: currentQuiz.time_limit_minutes
-              ? { xs: '1fr', md: '2fr 1fr' }
-              : '1fr',
-            gap: 3,
-            mb: 3,
-          }}
-        >
-          {/* Progress Indicator */}
-          <ProgressIndicator
-            currentQuestion={currentQuestionIndex + 1}
-            totalQuestions={currentQuiz.questions?.length || 0}
-            answeredCount={answeredCount}
-          />
-
-          {/* Quiz Timer (if time limit exists) */}
-          {currentQuiz.time_limit_minutes && currentAttempt.expires_at && (
-            <QuizTimer
-              expiresAt={currentAttempt.expires_at}
-              onExpire={handleTimeExpire}
-            />
-          )}
-        </Box>
-
-        {/* Question Card */}
-        {currentQuestion && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent sx={{ p: 4 }}>
-              {/* Question Text */}
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 600,
-                  color: COLORS.TEXT_PRIMARY,
-                  mb: 1,
-                }}
-              >
-                Question {currentQuestionIndex + 1}
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 400,
-                  color: COLORS.TEXT_SECONDARY,
-                  mb: 3,
-                  lineHeight: 1.6,
-                }}
-              >
-                {currentQuestion.question_text}
-              </Typography>
-
-              {/* Answer Options */}
-              {currentQuestion.question_type === 'short_answer' ? (
-                // Short Answer Input
+      {/* Top Header */}
+      <Box
+        sx={{
+          backgroundColor: '#FFFFFF',
+          borderBottom: '2px solid #E0E0E0',
+          py: 2,
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: '50%',
+                    backgroundColor: '#E0E0E0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography variant="h6" sx={{ color: '#757575' }}>
+                    {user?.username?.charAt(0).toUpperCase() || 'U'}
+                  </Typography>
+                </Box>
                 <Box>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    variant="outlined"
-                    placeholder="Enter your answer here..."
-                    value={shortAnswerText}
-                    onChange={(e) => setShortAnswerText(e.target.value)}
-                    sx={{ mb: 2 }}
+                  <Typography variant="body2" sx={{ color: '#757575' }}>
+                    Candidate Name: <strong>{user?.username || '[Your Name]'}</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#757575' }}>
+                    Exam Name: <strong>{currentQuiz.title}</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#757575' }}>
+                    Subject Name: <strong>{currentQuiz.category}</strong>
+                  </Typography>
+                  {timeRemaining && (
+                    <Typography variant="body2" sx={{ color: '#757575' }}>
+                      Remaining Time:{' '}
+                      <Chip
+                        label={timeRemaining}
+                        size="small"
+                        sx={{
+                          backgroundColor: '#2196F3',
+                          color: '#FFFFFF',
+                          fontWeight: 600,
+                        }}
+                      />
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Main Content */}
+      <Container maxWidth="xl" sx={{ py: 2 }}>
+        <Grid container spacing={2}>
+          {/* Question Area */}
+          <Grid item xs={12} lg={8}>
+            {/* Scroll Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+              <IconButton
+                size="small"
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: 1,
+                  '&:hover': { backgroundColor: '#F5F5F5' },
+                }}
+              >
+                <KeyboardDoubleArrowUpIcon />
+              </IconButton>
+            </Box>
+
+            {/* Question Card */}
+            {currentQuestion && (
+              <Paper
+                sx={{
+                  p: 3,
+                  mb: 2,
+                  backgroundColor: '#FFFFFF',
+                  minHeight: '400px',
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    color: '#2D3436',
+                    mb: 3,
+                  }}
+                >
+                  Question {currentQuestionIndex + 1}:
+                </Typography>
+
+                {/* Question Image (if exists) */}
+                {currentQuestion.meta?.image_url && (
+                  <QuestionImage
+                    imageUrl={currentQuestion.meta.image_url}
+                    alt={`Question ${currentQuestionIndex + 1} image`}
                   />
-                  <QuizCraftButton
-                    variant="contained"
-                    onClick={handleShortAnswerSubmit}
-                    loading={isSubmitting}
-                    startIcon={<SendIcon />}
+                )}
+
+                {/* Question Text (if exists) */}
+                {currentQuestion.question_text && (
+                  <Typography
+                    variant="body1"
                     sx={{
-                      background:
-                        'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
-                      '&:hover': {
-                        background:
-                          'linear-gradient(135deg, #5F3DC4 0%, #6C5CE7 100%)',
-                      },
+                      mb: 3,
+                      lineHeight: 1.8,
+                      color: '#2D3436',
                     }}
                   >
-                    Submit Answer
-                  </QuizCraftButton>
-                </Box>
-              ) : (
-                // Multiple Choice / True False
-                <Stack spacing={2}>
-                  {currentQuestion.answers?.map((answer) => (
-                    <AnswerOption
+                    {currentQuestion.question_text}
+                  </Typography>
+                )}
+
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    mb: 2,
+                    color: '#757575',
+                  }}
+                >
+                  Options:
+                </Typography>
+
+                <RadioGroup
+                  value={selectedAnswers[currentQuestion.id] || ''}
+                  onChange={(e) => handleAnswerSelect(e.target.value)}
+                >
+                  {currentQuestion.answers?.map((answer, index) => (
+                    <FormControlLabel
                       key={answer.id}
-                      answer={answer}
-                      selected={
-                        selectedAnswers[currentQuestion.id] === answer.id
+                      value={answer.id}
+                      control={<Radio />}
+                      label={
+                        <Typography variant="body1">
+                          {index + 1}. {answer.answer_text}
+                        </Typography>
                       }
-                      onClick={() =>
-                        handleAnswerSelect(currentQuestion.id, answer.id)
-                      }
-                      showCorrect={false}
-                      questionType={currentQuestion.question_type}
+                      sx={{
+                        mb: 1,
+                        p: 1.5,
+                        borderRadius: 1,
+                        border: '1px solid #E0E0E0',
+                        '&:hover': {
+                          backgroundColor: '#F5F5F5',
+                        },
+                      }}
                     />
                   ))}
-                </Stack>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                </RadioGroup>
+              </Paper>
+            )}
 
-        {/* Navigation Buttons */}
-        <Box
+            {/* Scroll Down Button */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <IconButton
+                size="small"
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: 1,
+                  '&:hover': { backgroundColor: '#F5F5F5' },
+                }}
+              >
+                <KeyboardDoubleArrowDownIcon />
+              </IconButton>
+            </Box>
+
+            {/* Action Buttons */}
+            <Paper sx={{ p: 2, backgroundColor: '#FFFFFF' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                }}
+              >
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <QuizCraftButton
+                    variant="contained"
+                    onClick={handleSaveAndNext}
+                    sx={{
+                      backgroundColor: '#4CAF50',
+                      '&:hover': { backgroundColor: '#45A049' },
+                    }}
+                  >
+                    Save & Next
+                  </QuizCraftButton>
+
+                  <QuizCraftButton
+                    variant="contained"
+                    onClick={handleClear}
+                    sx={{
+                      backgroundColor: '#9E9E9E',
+                      '&:hover': { backgroundColor: '#757575' },
+                    }}
+                  >
+                    Clear
+                  </QuizCraftButton>
+
+                  <QuizCraftButton
+                    variant="contained"
+                    onClick={handleSaveAndMarkForReview}
+                    sx={{
+                      backgroundColor: '#FF9800',
+                      '&:hover': { backgroundColor: '#F57C00' },
+                    }}
+                  >
+                    Save & Mark for Review
+                  </QuizCraftButton>
+
+                  <QuizCraftButton
+                    variant="contained"
+                    onClick={handleMarkForReviewAndNext}
+                    sx={{
+                      backgroundColor: '#2196F3',
+                      '&:hover': { backgroundColor: '#1976D2' },
+                    }}
+                  >
+                    Mark for Review & Next
+                  </QuizCraftButton>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <QuizCraftButton
+                    variant="outlined"
+                    onClick={handlePrevious}
+                    disabled={currentQuestionIndex === 0}
+                    startIcon={<span>&lt;&lt;</span>}
+                  >
+                    Back
+                  </QuizCraftButton>
+
+                  <QuizCraftButton
+                    variant="outlined"
+                    onClick={handleNext}
+                    disabled={currentQuestionIndex === totalQuestions - 1}
+                    endIcon={<span>&gt;&gt;</span>}
+                  >
+                    Next
+                  </QuizCraftButton>
+
+                  <QuizCraftButton
+                    variant="contained"
+                    onClick={handleSubmitClick}
+                    sx={{
+                      backgroundColor: '#4CAF50',
+                      '&:hover': { backgroundColor: '#45A049' },
+                    }}
+                  >
+                    Submit
+                  </QuizCraftButton>
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Desktop Question Palette */}
+          {isDesktop && (
+            <Grid item lg={4}>
+              <Paper
+                sx={{
+                  position: 'sticky',
+                  top: 20,
+                  p: 2,
+                  backgroundColor: '#FFFFFF',
+                  maxHeight: 'calc(100vh - 40px)',
+                  overflowY: 'auto',
+                }}
+              >
+              {/* Status Legend */}
+              <Box sx={{ mb: 3 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: '4px',
+                      backgroundColor: '#B0BEC5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {notVisited}
+                  </Box>
+                  <Typography variant="caption">Not Visited</Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: '4px',
+                      backgroundColor: '#FF5722',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {notAnswered}
+                  </Box>
+                  <Typography variant="caption">Not Answered</Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: '4px',
+                      backgroundColor: '#4CAF50',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {answered}
+                  </Box>
+                  <Typography variant="caption">Answered</Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: '4px',
+                      backgroundColor: '#9C27B0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {markedCount}
+                  </Box>
+                  <Typography variant="caption">Marked for Review</Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: '50%',
+                      backgroundColor: '#9C27B0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {answeredAndMarked}
+                  </Box>
+                  <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+                    Answered & Marked for Review (will be considered for evaluation)
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Question Grid */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(6, 1fr)',
+                  gap: 1,
+                }}
+              >
+                {currentQuiz.questions?.map((question, index) => {
+                  const status = getQuestionStatus(question);
+                  const isCurrent = index === currentQuestionIndex;
+
+                  return (
+                    <Box
+                      key={question.id}
+                      onClick={() => handleQuestionClick(index)}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: status === 'answered-marked' ? '50%' : '4px',
+                        backgroundColor: getStatusColor(status),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#FFFFFF',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        border: isCurrent ? '3px solid #000' : 'none',
+                        '&:hover': {
+                          opacity: 0.8,
+                        },
+                      }}
+                    >
+                      {String(index + 1).padStart(2, '0')}
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Paper>
+          </Grid>
+          )}
+        </Grid>
+      </Container>
+
+      {/* Mobile Floating Action Button */}
+      {!isDesktop && (
+        <Fab
+          onClick={() => setPaletteCollapsed(!paletteCollapsed)}
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: 2,
-            flexWrap: 'wrap',
+            position: 'fixed',
+            right: 16,
+            bottom: 80,
+            backgroundColor: '#2196F3',
+            color: '#FFFFFF',
+            '&:hover': {
+              backgroundColor: '#1976D2',
+            },
           }}
         >
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <QuizCraftButton
-              variant="outlined"
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-              startIcon={<NavigateBeforeIcon />}
-              sx={{
-                bgcolor: 'white',
-                borderColor: COLORS.PRIMARY,
-                color: COLORS.PRIMARY,
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.9)',
-                  borderColor: COLORS.PRIMARY_DARK,
-                },
-              }}
-            >
-              Previous
-            </QuizCraftButton>
+          ☰
+        </Fab>
+      )}
 
-            <QuizCraftButton
-              variant="outlined"
-              onClick={handleNext}
-              disabled={
-                currentQuestionIndex ===
-                (currentQuiz.questions?.length || 0) - 1
-              }
-              endIcon={<NavigateNextIcon />}
-              sx={{
-                bgcolor: 'white',
-                borderColor: COLORS.PRIMARY,
-                color: COLORS.PRIMARY,
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.9)',
-                  borderColor: COLORS.PRIMARY_DARK,
-                },
-              }}
-            >
-              Next
-            </QuizCraftButton>
-          </Box>
-
-          <QuizCraftButton
-            variant="contained"
-            onClick={handleFinishQuiz}
-            loading={isFinishing}
-            startIcon={<CheckIcon />}
+      {/* Mobile Drawer for Question Palette */}
+      {!isDesktop && (
+        <Drawer
+          anchor="right"
+          open={!paletteCollapsed}
+          onClose={() => setPaletteCollapsed(true)}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: '100%',
+              maxWidth: 400,
+            },
+          }}
+        >
+        <Box sx={{ p: 2, height: '100%', overflowY: 'auto' }}>
+          {/* Mobile Header */}
+          <Box
             sx={{
-              bgcolor: COLORS.SUCCESS,
-              color: 'white',
-              fontWeight: 600,
-              '&:hover': {
-                bgcolor: COLORS.SECONDARY_DARK,
-              },
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+              pb: 2,
+              borderBottom: '1px solid #E0E0E0',
             }}
           >
-            Finish Quiz
-          </QuizCraftButton>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Question Palette
+            </Typography>
+            <IconButton size="small" onClick={() => setPaletteCollapsed(true)}>
+              <KeyboardArrowRightIcon />
+            </IconButton>
+          </Box>
+
+          {/* Status Legend */}
+          <Box sx={{ mb: 3 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#B0BEC5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {notVisited}
+              </Box>
+              <Typography variant="caption">Not Visited</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#FF5722',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {notAnswered}
+              </Box>
+              <Typography variant="caption">Not Answered</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#4CAF50',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {answered}
+              </Box>
+              <Typography variant="caption">Answered</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '4px',
+                  backgroundColor: '#9C27B0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {markedCount}
+              </Box>
+              <Typography variant="caption">Marked for Review</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '50%',
+                  backgroundColor: '#9C27B0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {answeredAndMarked}
+              </Box>
+              <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+                Answered & Marked for Review (will be considered for evaluation)
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Question Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(6, 1fr)',
+              gap: 1,
+            }}
+          >
+            {currentQuiz.questions?.map((question, index) => {
+              const status = getQuestionStatus(question);
+              const isCurrent = index === currentQuestionIndex;
+
+              return (
+                <Box
+                  key={question.id}
+                  onClick={() => {
+                    handleQuestionClick(index);
+                    setPaletteCollapsed(true);
+                  }}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: status === 'answered-marked' ? '50%' : '4px',
+                    backgroundColor: getStatusColor(status),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: isCurrent ? '3px solid #000' : 'none',
+                    '&:hover': {
+                      opacity: 0.8,
+                    },
+                  }}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </Box>
+              );
+            })}
+          </Box>
         </Box>
-      </Container>
+      </Drawer>
+      )}
+
+      {/* Submit Confirmation Dialog */}
+      <Dialog
+        open={submitDialogOpen}
+        onClose={() => setSubmitDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Submit Quiz?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to submit the quiz? Once submitted, you cannot change your answers.
+          </DialogContentText>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2">
+              <strong>Total Questions:</strong> {totalQuestions}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Answered:</strong> {answered + answeredAndMarked}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Not Answered:</strong> {totalQuestions - answered - answeredAndMarked}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <QuizCraftButton
+            onClick={() => setSubmitDialogOpen(false)}
+            variant="outlined"
+          >
+            Cancel
+          </QuizCraftButton>
+          <QuizCraftButton
+            onClick={handleFinishQuiz}
+            variant="contained"
+            loading={isFinishing}
+            sx={{
+              backgroundColor: '#4CAF50',
+              '&:hover': { backgroundColor: '#45A049' },
+            }}
+          >
+            Yes, Submit
+          </QuizCraftButton>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

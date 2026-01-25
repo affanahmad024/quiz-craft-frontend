@@ -60,11 +60,11 @@
 
   /* Typography */
   --font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
+  --font-size-xs: 0.7rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-md: 0.9375rem;
+  --font-size-lg: 1.0625rem;
+  --font-size-xl: 1.1875rem;
 
   /* Transitions */
   --transition-fast: 150ms ease-in-out;

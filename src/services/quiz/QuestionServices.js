@@ -12,16 +12,93 @@ import { fetchWithAbort } from '../CommonFetch';
  * @param {Object} params - { quizId, questionData }
  * @returns {Promise} Created question
  */
-export const addQuestion = (fetchData, abortContRef, { quizId, questionData }) =>
-  fetchWithAbort({
+export const addQuestion = (fetchData, abortContRef, { quizId, questionData }) => {
+  // Check if question has an image file
+  const hasImageFile = questionData.image_file instanceof File;
+
+  // If there's an image file, prepare FormData
+  let payload = questionData;
+  let isFormData = false;
+
+  if (hasImageFile) {
+    const formData = new FormData();
+
+    // Append the image file
+    formData.append('image', questionData.image_file);
+
+    // Append other question data as JSON string
+    const questionDataWithoutFile = { ...questionData };
+    delete questionDataWithoutFile.image_file;
+    formData.append('question_data', JSON.stringify(questionDataWithoutFile));
+
+    payload = formData;
+    isFormData = true;
+  }
+
+  return fetchWithAbort({
     fetchData,
     abortContRef,
     endpoint: QUESTION_ENDPOINTS.ADD_QUESTION,
     urlKeys: { id: quizId },
-    payload: questionData,
+    payload,
     authRequired: true,
     defaultErrorMsg: "Couldn't add question.",
+    isFormData,
   });
+};
+
+/**
+ * Bulk add questions to quiz
+ * @param {Function} fetchData - Network request function
+ * @param {Object} abortContRef - AbortController reference
+ * @param {Object} params - { quizId, questions }
+ * @returns {Promise} Created questions
+ */
+export const bulkAddQuestions = (fetchData, abortContRef, { quizId, questions }) => {
+  // Check if any question has an image file
+  const hasAnyImageFile = questions.some(q => q.image_file instanceof File);
+
+  let payload = { questions };
+  let isFormData = false;
+
+  if (hasAnyImageFile) {
+    const formData = new FormData();
+
+    // Prepare questions data and append image files
+    const questionsDataArray = questions.map((q, index) => {
+      const questionData = { ...q };
+
+      // If this question has an image file, append it with a unique key
+      if (q.image_file instanceof File) {
+        formData.append(`image_${index}`, q.image_file);
+        // Mark the question with the image index
+        questionData.image_index = index;
+        delete questionData.image_file;
+      } else {
+        delete questionData.image_file;
+      }
+
+      return questionData;
+    });
+
+    // Append questions data as JSON
+    formData.append('questions_data', JSON.stringify(questionsDataArray));
+
+    payload = formData;
+    isFormData = true;
+  }
+
+  return fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.BULK_ADD_QUESTIONS,
+    urlKeys: { id: quizId },
+    payload,
+    authRequired: true,
+    defaultErrorMsg: "Couldn't add questions.",
+    isFormData,
+  });
+};
 
 /**
  * Get question by ID
@@ -47,16 +124,39 @@ export const getQuestion = (fetchData, abortContRef, { questionId }) =>
  * @param {Object} params - { questionId, updates }
  * @returns {Promise} Updated question
  */
-export const updateQuestion = (fetchData, abortContRef, { questionId, updates }) =>
-  fetchWithAbort({
+export const updateQuestion = (fetchData, abortContRef, { questionId, updates }) => {
+  // Check if updates include an image file
+  const hasImageFile = updates.image_file instanceof File;
+
+  let payload = updates;
+  let isFormData = false;
+
+  if (hasImageFile) {
+    const formData = new FormData();
+
+    // Append the image file
+    formData.append('image', updates.image_file);
+
+    // Append other update data as JSON string
+    const updatesWithoutFile = { ...updates };
+    delete updatesWithoutFile.image_file;
+    formData.append('question_data', JSON.stringify(updatesWithoutFile));
+
+    payload = formData;
+    isFormData = true;
+  }
+
+  return fetchWithAbort({
     fetchData,
     abortContRef,
     endpoint: QUESTION_ENDPOINTS.UPDATE_QUESTION,
     urlKeys: { qid: questionId },
-    payload: updates,
+    payload,
     authRequired: true,
     defaultErrorMsg: "Couldn't update question.",
+    isFormData,
   });
+};
 
 /**
  * Delete question

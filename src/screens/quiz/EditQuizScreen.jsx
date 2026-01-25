@@ -10,8 +10,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Tabs,
-  Tab,
   Grid,
   MenuItem,
   FormControlLabel,
@@ -27,11 +25,25 @@ import {
   RadioGroup,
   FormControl,
   FormLabel,
+  Chip,
+  Button,
+  Divider,
+  TextField,
+  Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
+  Edit as EditIcon,
+  AutoAwesome as AIIcon,
+  Create as ManualIcon,
+  Upload as UploadIcon,
+  CheckCircle as CheckCircleIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import { useQuiz } from '../../contexts/quiz/QuizContextProvider';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
@@ -39,8 +51,11 @@ import QuizCraftTextInput from '../../components/inputs/QuizCraftTextInput';
 import QuizCraftButton from '../../components/buttons/QuizCraftButton';
 import QuestionCard from '../../components/quiz/QuestionCard';
 import LoadingScreen from '../../components/screens/LoadingScreen';
+import EditQuizDetailsModal from '../../components/modals/EditQuizDetailsModal';
+import AddQuestionsModal from '../../components/modals/AddQuestionsModal';
+import AddAIQuestionsModal from '../../components/modals/AddAIQuestionsModal';
+import { COLORS } from '../../constants/ColorConstants';
 import {
-  QUIZ_CATEGORIES,
   DIFFICULTY_LABELS,
   QUIZ_VALIDATION,
   QUESTION_TYPE_LABELS,
@@ -58,30 +73,21 @@ function EditQuizScreen() {
     getQuiz,
     updateQuiz,
     addQuestion,
+    bulkAddQuestions,
     updateQuestion,
     deleteQuestion,
   } = useQuiz();
 
-  const [activeTab, setActiveTab] = useState(0);
-  const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
+  const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
+  const [addQuestionsModalOpen, setAddQuestionsModalOpen] = useState(false);
+  const [addAIQuestionsModalOpen, setAddAIQuestionsModalOpen] = useState(false);
+  const [addMode, setAddMode] = useState(null); // 'manual' | 'ai' | null
   const [editingQuestion, setEditingQuestion] = useState(null);
-  const [deleteQuestionDialogOpen, setDeleteQuestionDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState(null);
+  const [expandedQuestions, setExpandedQuestions] = useState({});
 
-  // Quiz Details Form
-  const [quizFormData, setQuizFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    difficulty: '',
-    time_limit_minutes: '',
-    passing_score: '',
-    is_public: false,
-    tags: '',
-  });
-  const [quizErrors, setQuizErrors] = useState({});
-
-  // Question Form
+  // Manual question form
   const [questionFormData, setQuestionFormData] = useState({
     question_text: '',
     question_type: 'multiple_choice',
@@ -93,6 +99,16 @@ function EditQuizScreen() {
     ],
   });
   const [questionErrors, setQuestionErrors] = useState({});
+
+  // AI generation form
+  const [aiFormData, setAIFormData] = useState({
+    source_type: 'text',
+    text_content: '',
+    file_id: '',
+    num_questions: '5',
+    difficulty: 'medium',
+    question_type: 'multiple_choice',
+  });
 
   // Fetch quiz on mount
   useEffect(() => {
@@ -107,143 +123,58 @@ function EditQuizScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // Populate form when quiz loads
-  useEffect(() => {
-    if (currentQuiz) {
-      setQuizFormData({
-        title: currentQuiz.title || '',
-        description: currentQuiz.description || '',
-        category: currentQuiz.category || '',
-        difficulty: currentQuiz.difficulty || '',
-        time_limit_minutes: currentQuiz.time_limit_minutes?.toString() || '',
-        passing_score: currentQuiz.passing_score?.toString() || '',
-        is_public: currentQuiz.is_public || false,
-        tags: currentQuiz.tags?.join(', ') || '',
-      });
-    }
-  }, [currentQuiz]);
-
-  // Handle tab change
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
-
-  // Validate quiz form
-  const validateQuizForm = () => {
-    const newErrors = {};
-
-    if (!quizFormData.title.trim()) {
-      newErrors.title = 'Title is required';
-    } else if (quizFormData.title.length < QUIZ_VALIDATION.TITLE_MIN_LENGTH) {
-      newErrors.title = `Title must be at least ${QUIZ_VALIDATION.TITLE_MIN_LENGTH} characters`;
-    } else if (quizFormData.title.length > QUIZ_VALIDATION.TITLE_MAX_LENGTH) {
-      newErrors.title = `Title must not exceed ${QUIZ_VALIDATION.TITLE_MAX_LENGTH} characters`;
-    }
-
-    if (!quizFormData.category) {
-      newErrors.category = 'Category is required';
-    }
-
-    if (!quizFormData.difficulty) {
-      newErrors.difficulty = 'Difficulty is required';
-    }
-
-    if (quizFormData.time_limit_minutes) {
-      const timeLimit = parseInt(quizFormData.time_limit_minutes);
-      if (
-        isNaN(timeLimit) ||
-        timeLimit < QUIZ_VALIDATION.MIN_TIME_LIMIT ||
-        timeLimit > QUIZ_VALIDATION.MAX_TIME_LIMIT
-      ) {
-        newErrors.time_limit_minutes = `Time limit must be between ${QUIZ_VALIDATION.MIN_TIME_LIMIT} and ${QUIZ_VALIDATION.MAX_TIME_LIMIT} minutes`;
-      }
-    }
-
-    if (quizFormData.passing_score) {
-      const passingScore = parseInt(quizFormData.passing_score);
-      if (
-        isNaN(passingScore) ||
-        passingScore < QUIZ_VALIDATION.MIN_PASSING_SCORE ||
-        passingScore > QUIZ_VALIDATION.MAX_PASSING_SCORE
-      ) {
-        newErrors.passing_score = `Passing score must be between ${QUIZ_VALIDATION.MIN_PASSING_SCORE} and ${QUIZ_VALIDATION.MAX_PASSING_SCORE}`;
-      }
-    }
-
-    setQuizErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Handle quiz form change
-  const handleQuizFormChange = (field) => (e) => {
-    const value = field === 'is_public' ? e.target.checked : e.target.value;
-    setQuizFormData((prev) => ({ ...prev, [field]: value }));
-
-    if (quizErrors[field]) {
-      setQuizErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
-
-  // Handle quiz form submit
-  const handleQuizFormSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateQuizForm()) {
-      toast.error('Please fix the errors in the form');
-      return;
-    }
-
-    const updates = {
-      title: quizFormData.title.trim(),
-      description: quizFormData.description.trim() || null,
-      category: quizFormData.category,
-      difficulty: quizFormData.difficulty,
-      time_limit_minutes: quizFormData.time_limit_minutes
-        ? parseInt(quizFormData.time_limit_minutes)
-        : null,
-      passing_score: quizFormData.passing_score
-        ? parseInt(quizFormData.passing_score)
-        : null,
-      is_public: quizFormData.is_public,
-      tags: quizFormData.tags
-        ? quizFormData.tags
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter((tag) => tag.length > 0)
-        : [],
-    };
-
+  // Handle save quiz details
+  const handleSaveQuizDetails = async (updates) => {
     const response = await updateQuiz(id, updates);
 
     if (response.success) {
-      toast.success('Quiz updated successfully');
+      toast.success('Quiz details updated successfully');
+      setEditDetailsModalOpen(false);
     } else {
       toast.error(response.error || 'Failed to update quiz');
     }
   };
 
-  // Open question dialog for add
-  const handleAddQuestion = () => {
-    setEditingQuestion(null);
-    setQuestionFormData({
-      question_text: '',
-      question_type: 'multiple_choice',
-      points: '1',
-      explanation: '',
-      answers: [
-        { answer_text: '', is_correct: false },
-        { answer_text: '', is_correct: false },
-      ],
-    });
-    setQuestionErrors({});
-    setQuestionDialogOpen(true);
+  // Get difficulty color
+  const getDifficultyColor = (difficulty) => {
+    const colors = {
+      easy: '#43e97b',
+      medium: '#fa8231',
+      hard: '#f5576c',
+    };
+    return colors[difficulty] || '#667eea';
   };
 
-  // Open question dialog for edit
+  // === MANUAL QUESTION FUNCTIONS ===
+
+  const handleStartManualAdd = () => {
+    setAddQuestionsModalOpen(true);
+  };
+
+  // Handle add single question with refresh
+  const handleAddQuestion = async (quizId, questionData) => {
+    const response = await addQuestion(quizId, questionData);
+
+    if (response.success) {
+      // Refresh quiz data to show new question
+      await getQuiz(id, true);
+    }
+
+    return response;
+  };
+
+  // Handle bulk add questions with refresh
+  const handleBulkAddQuestions = async (quizId, questionsData) => {
+    const response = await bulkAddQuestions(quizId, questionsData);
+
+    if (response.success) {
+      // Refresh quiz data to show new questions
+      await getQuiz(id, true);
+    }
+
+    return response;
+  };
+
   const handleEditQuestion = (question) => {
     setEditingQuestion(question);
     setQuestionFormData({
@@ -263,28 +194,7 @@ function EditQuizScreen() {
           ],
     });
     setQuestionErrors({});
-    setQuestionDialogOpen(true);
-  };
-
-  // Handle delete question
-  const handleDeleteQuestion = (question) => {
-    setQuestionToDelete(question);
-    setDeleteQuestionDialogOpen(true);
-  };
-
-  // Confirm delete question
-  const confirmDeleteQuestion = async () => {
-    if (!questionToDelete) return;
-
-    const response = await deleteQuestion(questionToDelete.id);
-
-    if (response.success) {
-      toast.success('Question deleted successfully');
-      setDeleteQuestionDialogOpen(false);
-      setQuestionToDelete(null);
-    } else {
-      toast.error(response.error || 'Failed to delete question');
-    }
+    setAddMode('manual');
   };
 
   // Handle question type change
@@ -417,8 +327,7 @@ function EditQuizScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit question
-  const handleQuestionSubmit = async () => {
+  const handleSubmitManualQuestion = async () => {
     if (!validateQuestionForm()) {
       toast.error('Please fix the errors in the form');
       return;
@@ -451,10 +360,56 @@ function EditQuizScreen() {
           ? 'Question updated successfully'
           : 'Question added successfully'
       );
-      setQuestionDialogOpen(false);
+      setAddMode(null);
       setEditingQuestion(null);
     } else {
       toast.error(response.error || 'Failed to save question');
+    }
+  };
+
+  // === AI GENERATION FUNCTIONS ===
+
+  const handleStartAIGeneration = () => {
+    // Open modal to add AI questions to this quiz
+    setAddAIQuestionsModalOpen(true);
+  };
+
+  const handleStartAIGenerationOld = () => {
+    setAIFormData({
+      source_type: 'text',
+      text_content: '',
+      file_id: '',
+      num_questions: '5',
+      difficulty: currentQuiz?.difficulty || 'medium',
+      question_type: 'multiple_choice',
+    });
+    setAddMode('ai');
+  };
+
+  const handleAIGenerate = async () => {
+    // TODO: Implement AI generation API call
+    toast.info('AI generation feature coming soon!');
+    setAddMode(null);
+  };
+
+  // === DELETE FUNCTIONS ===
+
+  const handleDeleteQuestion = (question) => {
+    setQuestionToDelete(question);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteQuestion = async () => {
+    if (!questionToDelete) return;
+
+    const response = await deleteQuestion(questionToDelete.id);
+
+    if (response.success) {
+      toast.success('Question deleted successfully');
+      setDeleteDialogOpen(false);
+      setQuestionToDelete(null);
+    } else {
+      toast.error(response.error || 'Failed to delete question');
     }
   };
 
@@ -466,445 +421,400 @@ function EditQuizScreen() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
+        backgroundColor: '#F8F9FA',
         py: 4,
       }}
     >
-      <Container maxWidth="lg">
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              color: 'white',
-              fontWeight: 700,
-              mb: 1,
-            }}
-          >
-            Edit Quiz
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'rgba(255, 255, 255, 0.9)',
-            }}
-          >
-            {currentQuiz.title}
-          </Typography>
-        </Box>
-
-        {/* Tabs Card */}
-        <Card>
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            sx={{
-              borderBottom: 1,
-              borderColor: 'divider',
-              px: 2,
-            }}
-          >
-            <Tab label="Quiz Details" />
-            <Tab label="Questions" />
-          </Tabs>
-
+      <Container maxWidth="xl">
+        {/* Quiz Info Header */}
+        <Card
+          sx={{
+            mb: 4,
+            borderRadius: 3,
+            border: '1px solid #E8E8E8',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          }}
+        >
           <CardContent sx={{ p: 4 }}>
-            {/* Quiz Details Tab */}
-            {activeTab === 0 && (
-              <form onSubmit={handleQuizFormSubmit}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <QuizCraftTextInput
-                      label="Quiz Title"
-                      value={quizFormData.title}
-                      onChange={handleQuizFormChange('title')}
-                      error={Boolean(quizErrors.title)}
-                      helperText={quizErrors.title}
-                      required
-                      fullWidth
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <QuizCraftTextInput
-                      label="Description"
-                      value={quizFormData.description}
-                      onChange={handleQuizFormChange('description')}
-                      error={Boolean(quizErrors.description)}
-                      helperText={quizErrors.description}
-                      fullWidth
-                      multiline
-                      rows={4}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <QuizCraftTextInput
-                      select
-                      label="Category"
-                      value={quizFormData.category}
-                      onChange={handleQuizFormChange('category')}
-                      error={Boolean(quizErrors.category)}
-                      helperText={quizErrors.category}
-                      required
-                      fullWidth
-                    >
-                      {QUIZ_CATEGORIES.map((category) => (
-                        <MenuItem key={category} value={category}>
-                          {category}
-                        </MenuItem>
-                      ))}
-                    </QuizCraftTextInput>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <QuizCraftTextInput
-                      select
-                      label="Difficulty"
-                      value={quizFormData.difficulty}
-                      onChange={handleQuizFormChange('difficulty')}
-                      error={Boolean(quizErrors.difficulty)}
-                      helperText={quizErrors.difficulty}
-                      required
-                      fullWidth
-                    >
-                      {Object.entries(DIFFICULTY_LABELS).map(([key, label]) => (
-                        <MenuItem key={key} value={key}>
-                          {label}
-                        </MenuItem>
-                      ))}
-                    </QuizCraftTextInput>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <QuizCraftTextInput
-                      label="Time Limit (minutes)"
-                      type="number"
-                      value={quizFormData.time_limit_minutes}
-                      onChange={handleQuizFormChange('time_limit_minutes')}
-                      error={Boolean(quizErrors.time_limit_minutes)}
-                      helperText={quizErrors.time_limit_minutes}
-                      fullWidth
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <QuizCraftTextInput
-                      label="Passing Score (%)"
-                      type="number"
-                      value={quizFormData.passing_score}
-                      onChange={handleQuizFormChange('passing_score')}
-                      error={Boolean(quizErrors.passing_score)}
-                      helperText={quizErrors.passing_score}
-                      fullWidth
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <QuizCraftTextInput
-                      label="Tags"
-                      value={quizFormData.tags}
-                      onChange={handleQuizFormChange('tags')}
-                      fullWidth
-                      placeholder="Enter tags separated by commas"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={quizFormData.is_public}
-                          onChange={handleQuizFormChange('is_public')}
-                        />
-                      }
-                      label="Make this quiz publicly searchable"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                      <QuizCraftButton
-                        variant="outlined"
-                        onClick={() => navigate(buildRoute(ROUTES.QUIZ_DETAIL, { id }))}
-                      >
-                        Cancel
-                      </QuizCraftButton>
-                      <QuizCraftButton
-                        type="submit"
-                        variant="contained"
-                        loading={isLoading}
-                        sx={{
-                          background:
-                            'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
-                        }}
-                      >
-                        Save Changes
-                      </QuizCraftButton>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </form>
-            )}
-
-            {/* Questions Tab */}
-            {activeTab === 1 && (
-              <Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 3,
-                  }}
-                >
-                  <Typography variant="h6">
-                    Questions ({currentQuiz.questions?.length || 0})
-                  </Typography>
-                  <QuizCraftButton
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={handleAddQuestion}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <Typography
+                    variant="h4"
                     sx={{
-                      background:
-                        'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
+                      fontWeight: 700,
+                      color: '#2D3436',
                     }}
                   >
-                    Add Question
-                  </QuizCraftButton>
+                    {currentQuiz.title}
+                  </Typography>
+                  <IconButton
+                    onClick={() => setEditDetailsModalOpen(true)}
+                    sx={{
+                      color: '#667eea',
+                      backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                      },
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
                 </Box>
 
-                {currentQuiz.questions && currentQuiz.questions.length > 0 ? (
-                  <Stack spacing={3}>
-                    {currentQuiz.questions.map((question, index) => (
-                      <Box key={question.id}>
-                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                          Question {index + 1}
-                        </Typography>
+                {currentQuiz.description && (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: '#636E72',
+                      mb: 3,
+                    }}
+                  >
+                    {currentQuiz.description}
+                  </Typography>
+                )}
+
+                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                  <Chip
+                    label={currentQuiz.category}
+                    sx={{
+                      backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                      color: '#667eea',
+                      fontWeight: 600,
+                    }}
+                  />
+                  <Chip
+                    label={DIFFICULTY_LABELS[currentQuiz.difficulty]}
+                    sx={{
+                      backgroundColor: `${getDifficultyColor(currentQuiz.difficulty)}20`,
+                      color: getDifficultyColor(currentQuiz.difficulty),
+                      fontWeight: 600,
+                    }}
+                  />
+                  {currentQuiz.is_published && (
+                    <Chip
+                      label="Published"
+                      color="success"
+                      icon={<CheckCircleIcon />}
+                      sx={{ fontWeight: 600 }}
+                    />
+                  )}
+                  <Chip
+                    label={`${currentQuiz.questions?.length || 0} Questions`}
+                    variant="outlined"
+                  />
+                  {currentQuiz.time_limit_minutes && (
+                    <Chip
+                      label={`${currentQuiz.time_limit_minutes} min`}
+                      variant="outlined"
+                    />
+                  )}
+                  {currentQuiz.passing_score && (
+                    <Chip
+                      label={`${currentQuiz.passing_score}% to pass`}
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
+              </Box>
+
+              <QuizCraftButton
+                variant="outlined"
+                onClick={() => navigate(buildRoute(ROUTES.QUIZ_DETAIL, { id }))}
+                sx={{
+                  borderColor: '#DFE6E9',
+                  color: '#636E72',
+                }}
+              >
+                Preview Quiz
+              </QuizCraftButton>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Questions Section */}
+        <Card
+          sx={{
+            borderRadius: 3,
+            border: '1px solid #E8E8E8',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          }}
+        >
+          <CardContent sx={{ p: 4 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, color: '#2D3436' }}>
+              Quiz Questions
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+              Add questions manually or generate them using AI
+            </Typography>
+
+            {/* Add Question Options */}
+            {!addMode && (
+              <Grid container spacing={3} sx={{ mb: 4 }}>
+                {/* Manual Entry Card */}
+                <Grid item xs={12} md={6}>
+                  <Card
+                    sx={{
+                      height: '100%',
+                      cursor: 'pointer',
+                      border: '2px solid #E8E8E8',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        borderColor: '#667eea',
+                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.15)',
+                        transform: 'translateY(-2px)',
+                      },
+                    }}
+                    onClick={handleStartManualAdd}
+                  >
+                    <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                      <Box
+                        sx={{
+                          width: 64,
+                          height: 64,
+                          borderRadius: '50%',
+                          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          mx: 'auto',
+                          mb: 2,
+                        }}
+                      >
+                        <ManualIcon sx={{ fontSize: 32, color: '#667eea' }} />
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                        Add Questions Manually
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Create questions one by one with full control over content and answers
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* AI Generation Card */}
+                <Grid item xs={12} md={6}>
+                  <Card
+                    sx={{
+                      height: '100%',
+                      cursor: 'pointer',
+                      border: '2px solid #E8E8E8',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        borderColor: '#764ba2',
+                        boxShadow: '0 4px 12px rgba(118, 75, 162, 0.15)',
+                        transform: 'translateY(-2px)',
+                      },
+                    }}
+                    onClick={handleStartAIGeneration}
+                  >
+                    <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                      <Box
+                        sx={{
+                          width: 64,
+                          height: 64,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          mx: 'auto',
+                          mb: 2,
+                        }}
+                      >
+                        <AIIcon sx={{ fontSize: 32, color: 'white' }} />
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                        Generate with AI
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Automatically create questions from text, documents, or images using AI
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            )}
+
+            {/* Existing Questions List */}
+            {!addMode && currentQuiz.questions && currentQuiz.questions.length > 0 && (
+              <Box>
+                <Divider sx={{ my: 4 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6">
+                    Existing Questions ({currentQuiz.questions.length})
+                  </Typography>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      const allExpanded = currentQuiz.questions.every(q => expandedQuestions[q.id]);
+                      const newExpanded = {};
+                      if (!allExpanded) {
+                        currentQuiz.questions.forEach(q => {
+                          newExpanded[q.id] = true;
+                        });
+                      }
+                      setExpandedQuestions(newExpanded);
+                    }}
+                    sx={{ textTransform: 'none', color: COLORS.PRIMARY }}
+                  >
+                    {currentQuiz.questions.every(q => expandedQuestions[q.id]) ? 'Collapse All' : 'Expand All'}
+                  </Button>
+                </Box>
+                <Stack spacing={2}>
+                  {currentQuiz.questions.map((question, index) => (
+                    <Accordion
+                      key={question.id}
+                      expanded={expandedQuestions[question.id] || false}
+                      onChange={() => {
+                        setExpandedQuestions(prev => ({
+                          ...prev,
+                          [question.id]: !prev[question.id]
+                        }));
+                      }}
+                      sx={{
+                        borderRadius: '12px !important',
+                        border: '1px solid #E8E8E8',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                        '&:before': {
+                          display: 'none',
+                        },
+                        '&.Mui-expanded': {
+                          margin: '0 0 16px 0 !important',
+                        },
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        sx={{
+                          px: 3,
+                          py: 1.5,
+                          backgroundColor: '#FAFBFC',
+                          borderRadius: '12px',
+                          '&.Mui-expanded': {
+                            borderBottomLeftRadius: 0,
+                            borderBottomRightRadius: 0,
+                          },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, pr: 2 }}>
+                          <Chip
+                            label={`Q${index + 1}`}
+                            size="small"
+                            sx={{
+                              backgroundColor: COLORS.PRIMARY,
+                              color: '#FFFFFF',
+                              fontWeight: 600,
+                              minWidth: 45,
+                            }}
+                          />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: 600,
+                                color: '#2D3436',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {question.question_text}
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                              <Chip
+                                label={QUESTION_TYPE_LABELS[question.question_type]}
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.7rem',
+                                  backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                  color: COLORS.PRIMARY,
+                                }}
+                              />
+                              <Chip
+                                label={`${question.points || 1} pts`}
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.7rem',
+                                  backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                                  color: '#FF9800',
+                                }}
+                              />
+                              {question.meta?.image_url && (
+                                <Chip
+                                  label="Has Image"
+                                  size="small"
+                                  sx={{
+                                    height: 20,
+                                    fontSize: '0.7rem',
+                                    backgroundColor: 'rgba(67, 233, 123, 0.1)',
+                                    color: '#43e97b',
+                                  }}
+                                />
+                              )}
+                            </Box>
+                          </Box>
+                          <Box
+                            sx={{ display: 'flex', gap: 0.5 }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditQuestion(question);
+                              }}
+                              sx={{
+                                color: COLORS.INFO,
+                                '&:hover': {
+                                  backgroundColor: 'rgba(116, 185, 255, 0.1)',
+                                },
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteQuestion(question);
+                              }}
+                              sx={{
+                                color: COLORS.ERROR,
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                },
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: 3, backgroundColor: '#FFFFFF' }}>
                         <QuestionCard
                           question={question}
-                          editable={true}
+                          editable={false}
                           onEdit={handleEditQuestion}
                           onDelete={handleDeleteQuestion}
                         />
-                      </Box>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <Typography variant="h6" gutterBottom>
-                      No Questions Yet
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      Click &quot;Add Question&quot; to create your first question
-                    </Typography>
-                  </Box>
-                )}
+                      </AccordionDetails>
+                    </Accordion>
+                  ))}
+                </Stack>
               </Box>
             )}
           </CardContent>
         </Card>
       </Container>
 
-      {/* Add/Edit Question Dialog */}
-      <Dialog
-        open={questionDialogOpen}
-        onClose={() => setQuestionDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6">
-              {editingQuestion ? 'Edit Question' : 'Add Question'}
-            </Typography>
-            <IconButton onClick={() => setQuestionDialogOpen(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <QuizCraftTextInput
-                label="Question Text"
-                value={questionFormData.question_text}
-                onChange={(e) =>
-                  setQuestionFormData((prev) => ({
-                    ...prev,
-                    question_text: e.target.value,
-                  }))
-                }
-                error={Boolean(questionErrors.question_text)}
-                helperText={questionErrors.question_text}
-                required
-                fullWidth
-                multiline
-                rows={3}
-              />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <QuizCraftTextInput
-                select
-                label="Question Type"
-                value={questionFormData.question_type}
-                onChange={handleQuestionTypeChange}
-                fullWidth
-              >
-                {Object.entries(QUESTION_TYPE_LABELS).map(([key, label]) => (
-                  <MenuItem key={key} value={key}>
-                    {label}
-                  </MenuItem>
-                ))}
-              </QuizCraftTextInput>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <QuizCraftTextInput
-                label="Points"
-                type="number"
-                value={questionFormData.points}
-                onChange={(e) =>
-                  setQuestionFormData((prev) => ({
-                    ...prev,
-                    points: e.target.value,
-                  }))
-                }
-                error={Boolean(questionErrors.points)}
-                helperText={questionErrors.points}
-                required
-                fullWidth
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <QuizCraftTextInput
-                label="Explanation (Optional)"
-                value={questionFormData.explanation}
-                onChange={(e) =>
-                  setQuestionFormData((prev) => ({
-                    ...prev,
-                    explanation: e.target.value,
-                  }))
-                }
-                fullWidth
-                multiline
-                rows={2}
-                placeholder="Provide an explanation for the correct answer"
-              />
-            </Grid>
-
-            {/* Answers Section */}
-            {questionFormData.question_type !== 'short_answer' && (
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="subtitle1">Answers</Typography>
-                  {questionFormData.question_type === 'multiple_choice' && (
-                    <QuizCraftButton
-                      size="small"
-                      variant="outlined"
-                      startIcon={<AddIcon />}
-                      onClick={handleAddAnswer}
-                      disabled={
-                        questionFormData.answers.length >=
-                        MAX_ANSWERS_ALLOWED[questionFormData.question_type]
-                      }
-                    >
-                      Add Answer
-                    </QuizCraftButton>
-                  )}
-                </Box>
-
-                {questionErrors.answers && (
-                  <Typography variant="caption" color="error" sx={{ mb: 1, display: 'block' }}>
-                    {questionErrors.answers}
-                  </Typography>
-                )}
-
-                {questionFormData.question_type === 'true_false' ? (
-                  <FormControl component="fieldset">
-                    <RadioGroup
-                      value={
-                        questionFormData.answers.findIndex((a) => a.is_correct)
-                      }
-                      onChange={(e) => handleAnswerRadioChange(parseInt(e.target.value))}
-                    >
-                      {questionFormData.answers.map((answer, index) => (
-                        <FormControlLabel
-                          key={index}
-                          value={index}
-                          control={<Radio />}
-                          label={answer.answer_text}
-                        />
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                ) : (
-                  <Stack spacing={2}>
-                    {questionFormData.answers.map((answer, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: 'flex',
-                          gap: 1,
-                          alignItems: 'flex-start',
-                        }}
-                      >
-                        <Checkbox
-                          checked={answer.is_correct}
-                          onChange={handleAnswerChange(index, 'is_correct')}
-                          sx={{ mt: 1 }}
-                        />
-                        <QuizCraftTextInput
-                          placeholder={`Answer ${index + 1}`}
-                          value={answer.answer_text}
-                          onChange={handleAnswerChange(index, 'answer_text')}
-                          fullWidth
-                          size="small"
-                        />
-                        {questionFormData.answers.length >
-                          MIN_ANSWERS_REQUIRED[questionFormData.question_type] && (
-                          <IconButton
-                            size="small"
-                            onClick={() => handleRemoveAnswer(index)}
-                            sx={{ mt: 1 }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        )}
-                      </Box>
-                    ))}
-                  </Stack>
-                )}
-              </Grid>
-            )}
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <QuizCraftButton
-            variant="outlined"
-            onClick={() => setQuestionDialogOpen(false)}
-          >
-            Cancel
-          </QuizCraftButton>
-          <QuizCraftButton
-            variant="contained"
-            onClick={handleQuestionSubmit}
-            loading={isLoading}
-            sx={{
-              background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
-            }}
-          >
-            {editingQuestion ? 'Update Question' : 'Add Question'}
-          </QuizCraftButton>
-        </DialogActions>
-      </Dialog>
-
       {/* Delete Question Dialog */}
       <Dialog
-        open={deleteQuestionDialogOpen}
-        onClose={() => setDeleteQuestionDialogOpen(false)}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
         maxWidth="sm"
         fullWidth
       >
@@ -931,6 +841,33 @@ function EditQuizScreen() {
           </QuizCraftButton>
         </DialogActions>
       </Dialog>
+
+      {/* Edit Quiz Details Modal */}
+      <EditQuizDetailsModal
+        open={editDetailsModalOpen}
+        onClose={() => setEditDetailsModalOpen(false)}
+        quiz={currentQuiz}
+        onSave={handleSaveQuizDetails}
+        isLoading={isLoading}
+      />
+
+      {/* Add Questions Modal */}
+      <AddQuestionsModal
+        open={addQuestionsModalOpen}
+        onClose={() => setAddQuestionsModalOpen(false)}
+        questions={currentQuiz?.questions || []}
+        onAddQuestion={handleAddQuestion}
+        onBulkAddQuestions={handleBulkAddQuestions}
+        quizId={id}
+      />
+
+      {/* Add AI Questions Modal */}
+      <AddAIQuestionsModal
+        open={addAIQuestionsModalOpen}
+        onClose={() => setAddAIQuestionsModalOpen(false)}
+        quizId={id}
+        quizTitle={currentQuiz?.title || 'Loading...'}
+      />
     </Box>
   );
 }

@@ -44,13 +44,21 @@ function DiscoveryContextProvider({ children }) {
     const response = await searchQuizzes(fetchData, abortContRef, searchParams);
     setIsLoading(false);
 
+    console.log('Search Response:', response);
+    console.log('Response Data:', response.data);
+
     if (response.success) {
-      setSearchResults(response.data?.data || response.data.quizzes);
+      // Handle both response.data and response.data.data structures
+      const data = response.data?.data || response.data;
+      console.log('Extracted Data:', data);
+      console.log('Quizzes:', data?.quizzes);
+
+      setSearchResults(data?.quizzes || []);
       setSearchMeta({
-        total: response.data?.data || response.data.total,
-        page: response.data?.data || response.data.page,
-        limit: response.data?.data || response.data.limit,
-        totalPages: response.data?.data || response.data.total_pages,
+        total: data?.total || 0,
+        page: data?.page || 1,
+        limit: data?.limit || 20,
+        totalPages: data?.total_pages || 0,
       });
     }
 

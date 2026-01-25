@@ -2,6 +2,7 @@
 /* Following Phoenix pattern */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import './animations.css';
 
 * {
   margin: 0;
@@ -10,7 +11,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -224,7 +225,7 @@ input, textarea, select {
 /* Tablet optimization */
 @media (min-width: 769px) and (max-width: 1024px) {
   html {
-    font-size: 15px;
+    font-size: 13px;
   }
 }
 

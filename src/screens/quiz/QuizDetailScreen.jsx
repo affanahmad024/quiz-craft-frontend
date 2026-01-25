@@ -19,6 +19,15 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Collapse,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -31,9 +40,13 @@ import {
   EmojiEvents as EmojiEventsIcon,
   Visibility as VisibilityIcon,
   Share as ShareIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
 } from '@mui/icons-material';
 import { useQuiz } from '../../contexts/quiz/QuizContextProvider';
 import { useAuth } from '../../contexts/auth/AuthContextProvider';
+import useNetReq from '../../hooks/NetworkRequest';
+import { listMyAttempts } from '../../services/attempt/AttemptServices';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
 import { COLORS } from '../../constants/ColorConstants';
 import { DIFFICULTY_LABELS, DIFFICULTY_COLORS } from '../../constants/QuizConstants';
@@ -47,11 +60,16 @@ function QuizDetailScreen() {
   const navigate = useNavigate();
   const { currentQuiz, isLoading, getQuiz, deleteQuiz, publishQuiz, unpublishQuiz } = useQuiz();
   const { user } = useAuth();
+  const { fetchData } = useNetReq();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [showQuestionsDialogOpen, setShowQuestionsDialogOpen] = useState(false);
+  const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
+  const [attempts, setAttempts] = useState([]);
+  const [attemptsLoading, setAttemptsLoading] = useState(false);
 
-  // Fetch quiz on mount
+  // Fetch quiz and attempts on mount
   useEffect(() => {
     const fetchQuiz = async () => {
       const response = await getQuiz(id, true);
@@ -61,6 +79,19 @@ function QuizDetailScreen() {
       }
     };
     fetchQuiz();
+
+    // Fetch attempts for this quiz
+    const fetchAttempts = async () => {
+      setAttemptsLoading(true);
+      const abortRef = { current: null };
+      const response = await listMyAttempts(fetchData, abortRef, { quizId: id });
+      setAttemptsLoading(false);
+
+      if (response.success && response.data?.data?.attempts) {
+        setAttempts(response.data.data.attempts);
+      }
+    };
+    fetchAttempts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -118,6 +149,9 @@ function QuizDetailScreen() {
           : 'Quiz published successfully'
       );
       setPublishDialogOpen(false);
+
+      // Refresh quiz data to show updated information
+      await getQuiz(id, true);
     } else {
       toast.error(response.error || 'Failed to update quiz status');
       setPublishDialogOpen(false);
@@ -129,6 +163,34 @@ function QuizDetailScreen() {
     setPublishDialogOpen(false);
   };
 
+  // Handle show questions button click
+  const handleShowQuestionsClick = () => {
+    setShowQuestionsDialogOpen(true);
+  };
+
+  // Confirm show questions
+  const confirmShowQuestions = () => {
+    setShowQuestionsDialogOpen(false);
+    setQuestionsModalOpen(true);
+  };
+
+  // Cancel show questions
+  const cancelShowQuestions = () => {
+    setShowQuestionsDialogOpen(false);
+  };
+
+  // Close questions modal
+  const handleCloseQuestionsModal = () => {
+    setQuestionsModalOpen(false);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  };
+
   if (isLoading || !currentQuiz) {
     return <LoadingScreen message="Loading quiz details..." />;
   }
@@ -137,13 +199,20 @@ function QuizDetailScreen() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
+        backgroundColor: '#F8F9FA',
         py: 4,
       }}
     >
       <Container maxWidth="lg">
         {/* Header Card */}
-        <Card sx={{ mb: 3 }}>
+        <Card
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            border: '1px solid #E8E8E8',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          }}
+        >
           <CardContent sx={{ p: 4 }}>
             {/* Title and Status */}
             <Box
@@ -358,55 +427,122 @@ function QuizDetailScreen() {
           </CardContent>
         </Card>
 
-        {/* Questions Section */}
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            variant="h5"
+        {/* My Attempts Section */}
+        {attempts.length > 0 && (
+          <Card
             sx={{
-              color: 'white',
-              fontWeight: 600,
-              mb: 2,
+              mb: 3,
+              borderRadius: 3,
+              border: '1px solid #E8E8E8',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
             }}
           >
-            Questions ({currentQuiz.questions?.length || 0})
-          </Typography>
-        </Box>
+            <CardContent sx={{ p: 3 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  color: '#2D3436',
+                  mb: 3,
+                }}
+              >
+                My Attempts ({attempts.length})
+              </Typography>
 
-        {/* Questions List */}
-        {currentQuiz.questions && currentQuiz.questions.length > 0 ? (
-          <Stack spacing={3}>
-            {currentQuiz.questions.map((question, index) => (
-              <Box key={question.id}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    color: 'white',
-                    mb: 1,
-                    fontWeight: 500,
-                  }}
-                >
-                  Question {index + 1}
-                </Typography>
-                <QuestionCard question={question} editable={false} />
-              </Box>
-            ))}
-          </Stack>
-        ) : (
-          <Card>
-            <CardContent sx={{ p: 4, textAlign: 'center' }}>
-              <QuestionAnswerIcon
-                sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }}
-              />
-              <Typography variant="h6" gutterBottom>
-                No Questions Yet
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {isCreator
-                  ? 'This quiz doesn\'t have any questions yet. Click "Edit" to add questions.'
-                  : 'This quiz doesn\'t have any questions yet.'}
-              </Typography>
+              <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#F8F9FA' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Score</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Percentage</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Result</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {attempts.map((attempt) => (
+                      <TableRow
+                        key={attempt.id}
+                        sx={{
+                          '&:hover': { bgcolor: '#F8F9FA' },
+                        }}
+                      >
+                        <TableCell>
+                          {formatDate(attempt.submitted_at || attempt.started_at)}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={attempt.status}
+                            size="small"
+                            sx={{
+                              bgcolor:
+                                attempt.status === 'submitted'
+                                  ? 'rgba(102, 126, 234, 0.1)'
+                                  : 'rgba(158, 158, 158, 0.1)',
+                              color:
+                                attempt.status === 'submitted' ? '#667eea' : '#636E72',
+                              fontWeight: 500,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {attempt.score !== null && attempt.score !== undefined
+                            ? `${attempt.score} pts`
+                            : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {attempt.percentage !== null && attempt.percentage !== undefined
+                            ? `${attempt.percentage.toFixed(1)}%`
+                            : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {attempt.passed !== null && attempt.passed !== undefined ? (
+                            <Chip
+                              label={attempt.passed ? 'Passed' : 'Failed'}
+                              size="small"
+                              sx={{
+                                bgcolor: attempt.passed
+                                  ? 'rgba(67, 233, 123, 0.1)'
+                                  : 'rgba(245, 87, 108, 0.1)',
+                                color: attempt.passed ? '#43e97b' : '#f5576c',
+                                fontWeight: 600,
+                              }}
+                            />
+                          ) : (
+                            'N/A'
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </CardContent>
           </Card>
+        )}
+
+        {/* Show Questions Button */}
+        {currentQuiz.questions && currentQuiz.questions.length > 0 && (
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <QuizCraftButton
+              variant="contained"
+              size="large"
+              startIcon={<QuestionAnswerIcon />}
+              onClick={handleShowQuestionsClick}
+              sx={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                fontWeight: 600,
+                px: 4,
+                py: 1.5,
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #5568d3 0%, #63408e 100%)',
+                },
+              }}
+            >
+              Show Questions ({currentQuiz.questions.length})
+            </QuizCraftButton>
+          </Box>
         )}
       </Container>
 
@@ -476,6 +612,192 @@ function QuizDetailScreen() {
             loading={isLoading}
           >
             {currentQuiz?.is_published ? 'Unpublish' : 'Publish'}
+          </QuizCraftButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* Show Questions Confirmation Dialog */}
+      <Dialog
+        open={showQuestionsDialogOpen}
+        onClose={cancelShowQuestions}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Show Questions?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to view the questions? This will reveal all quiz questions.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <QuizCraftButton
+            onClick={cancelShowQuestions}
+            variant="outlined"
+            color="primary"
+          >
+            Cancel
+          </QuizCraftButton>
+          <QuizCraftButton
+            onClick={confirmShowQuestions}
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            }}
+          >
+            Yes, Show Questions
+          </QuizCraftButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* Questions Modal */}
+      <Dialog
+        open={questionsModalOpen}
+        onClose={handleCloseQuestionsModal}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxHeight: '90vh',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            fontWeight: 600,
+          }}
+        >
+          Quiz Questions ({currentQuiz?.questions?.length || 0})
+        </DialogTitle>
+        <DialogContent sx={{ p: 3, mt: 2 }}>
+          {currentQuiz?.questions && currentQuiz.questions.length > 0 ? (
+            <Stack spacing={3}>
+              {currentQuiz.questions.map((question, index) => (
+                <Box key={question.id}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      mb: 1,
+                      color: COLORS.TEXT_SECONDARY,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Question {index + 1}
+                  </Typography>
+                  <Card
+                    sx={{
+                      borderRadius: 2,
+                      border: '1px solid #E8E8E8',
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          mb: 2,
+                          fontWeight: 600,
+                          color: COLORS.TEXT_PRIMARY,
+                        }}
+                      >
+                        {question.question_text}
+                      </Typography>
+
+                      {question.explanation && (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mb: 2,
+                            color: COLORS.TEXT_SECONDARY,
+                            fontStyle: 'italic',
+                          }}
+                        >
+                          Explanation: {question.explanation}
+                        </Typography>
+                      )}
+
+                      <Divider sx={{ my: 2 }} />
+
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          mb: 1.5,
+                          color: COLORS.TEXT_SECONDARY,
+                          fontWeight: 600,
+                        }}
+                      >
+                        Answer Options:
+                      </Typography>
+
+                      {question.answers && question.answers.length > 0 ? (
+                        <Stack spacing={1}>
+                          {question.answers.map((answer, answerIndex) => (
+                            <Box
+                              key={answer.id}
+                              sx={{
+                                p: 1.5,
+                                borderRadius: 1,
+                                border: '1px solid #E8E8E8',
+                                backgroundColor: '#F8F9FA',
+                              }}
+                            >
+                              <Typography variant="body2">
+                                {String.fromCharCode(65 + answerIndex)}. {answer.answer_text}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Stack>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No answers available
+                        </Typography>
+                      )}
+
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                        <Chip
+                          label={`${question.points || 1} point${question.points !== 1 ? 's' : ''}`}
+                          size="small"
+                          sx={{
+                            bgcolor: 'rgba(102, 126, 234, 0.1)',
+                            color: '#667eea',
+                          }}
+                        />
+                        <Chip
+                          label={question.question_type}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            borderColor: '#667eea',
+                            color: '#667eea',
+                          }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Box>
+              ))}
+            </Stack>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <QuestionAnswerIcon
+                sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }}
+              />
+              <Typography variant="h6" gutterBottom>
+                No Questions Available
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <QuizCraftButton
+            onClick={handleCloseQuestionsModal}
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            }}
+          >
+            Close
           </QuizCraftButton>
         </DialogActions>
       </Dialog>

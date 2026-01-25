@@ -30,7 +30,7 @@ function AuthContextProvider({ children }) {
   /**
    * Login function
    * @param {object} credentials - Email and password
-   * @returns {Promise<boolean>} - Success status
+   * @returns {Promise<object>} - { success: boolean, error?: object }
    */
   const login = async (credentials) => {
     try {
@@ -50,13 +50,20 @@ function AuthContextProvider({ children }) {
         saveToLS(LS_CONSTS.LS_REFRESH_TOKEN, refresh_token);
 
         toast.success('Login successful!');
-        return true;
+        return { success: true };
       }
 
-      return false;
+      // Return error information from backend
+      return {
+        success: false,
+        error: response.error || { code: 'unknown-error', message: 'Login failed' },
+      };
     } catch (error) {
       console.error('Login error:', error);
-      return false;
+      return {
+        success: false,
+        error: { code: 'unknown-error', message: error.message || 'Login failed' },
+      };
     }
   };
 

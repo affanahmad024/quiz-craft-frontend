@@ -21,6 +21,7 @@ import {
 } from '../../services/quiz/QuizServices';
 import {
   addQuestion,
+  bulkAddQuestions,
   updateQuestion,
   deleteQuestion,
   addAnswer,
@@ -50,6 +51,7 @@ function QuizContextProvider({ children }) {
   const shareQuizAbortRef = useRef(null);
   const searchQuizzesAbortRef = useRef(null);
   const addQuestionAbortRef = useRef(null);
+  const bulkAddQuestionsAbortRef = useRef(null);
   const updateQuestionAbortRef = useRef(null);
   const deleteQuestionAbortRef = useRef(null);
   const addAnswerAbortRef = useRef(null);
@@ -278,6 +280,27 @@ function QuizContextProvider({ children }) {
   };
 
   /**
+   * Bulk add questions to quiz
+   */
+  const handleBulkAddQuestions = async (quizId, questions) => {
+    setIsLoading(true);
+    const response = await bulkAddQuestions(fetchData, bulkAddQuestionsAbortRef, { quizId, questions });
+    setIsLoading(false);
+
+    if (response.success && currentQuiz) {
+      // Handle nested data structure: response.data.data contains the array of questions
+      const newQuestions = response.data?.data || response.data;
+      // Add questions to current quiz
+      setCurrentQuiz((prev) => ({
+        ...prev,
+        questions: [...(prev.questions || []), ...(Array.isArray(newQuestions) ? newQuestions : [])],
+      }));
+    }
+
+    return response;
+  };
+
+  /**
    * Update question
    */
   const handleUpdateQuestion = async (questionId, updates) => {
@@ -414,6 +437,7 @@ function QuizContextProvider({ children }) {
     shareQuiz: handleShareQuiz,
     searchQuizzes: handleSearchQuizzes,
     addQuestion: handleAddQuestion,
+    bulkAddQuestions: handleBulkAddQuestions,
     updateQuestion: handleUpdateQuestion,
     deleteQuestion: handleDeleteQuestion,
     addAnswer: handleAddAnswer,

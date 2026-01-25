@@ -75,8 +75,13 @@ function ProfileContextProvider({ children }) {
     const response = await getUserStatistics(fetchData, abortContRef);
     setIsLoading(false);
 
+    console.log('Statistics Response:', response);
+    console.log('Response Data:', response.data);
+
     if (response.success) {
-      setStatistics(response.data?.data || response.data);
+      const data = response.data?.data || response.data;
+      console.log('Extracted Statistics:', data);
+      setStatistics(data);
     }
 
     return response;

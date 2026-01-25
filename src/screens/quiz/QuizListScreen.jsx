@@ -8,7 +8,6 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -27,6 +26,7 @@ import QuizFilters from '../../components/quiz/QuizFilters';
 import QuizCraftButton from '../../components/buttons/QuizCraftButton';
 import LoadingScreen from '../../components/screens/LoadingScreen';
 import EmptyState from '../../components/screens/EmptyState';
+import CreateQuizModal from '../../components/modals/CreateQuizModal';
 import { toast } from 'react-hot-toast';
 
 function QuizListScreen() {
@@ -45,6 +45,7 @@ function QuizListScreen() {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   // Fetch quizzes on mount
   useEffect(() => {
@@ -170,7 +171,7 @@ function QuizListScreen() {
 
   // Handle create new quiz
   const handleCreateQuiz = () => {
-    navigate(ROUTES.QUIZ_CREATE);
+    setCreateModalOpen(true);
   };
 
   // Handle view attempts
@@ -186,11 +187,11 @@ function QuizListScreen() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
+        backgroundColor: '#F8F9FA',
         py: 4,
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="xl">
         {/* Header */}
         <Box
           sx={{
@@ -204,9 +205,9 @@ function QuizListScreen() {
             <Typography
               variant="h4"
               sx={{
-                color: 'white',
+                color: '#2D3436',
                 fontWeight: 700,
-                mb: 1,
+                mb: 0.5,
               }}
             >
               My Quizzes
@@ -214,7 +215,7 @@ function QuizListScreen() {
             <Typography
               variant="body1"
               sx={{
-                color: 'rgba(255, 255, 255, 0.9)',
+                color: '#636E72',
               }}
             >
               Create, manage, and share your quizzes
@@ -228,13 +229,13 @@ function QuizListScreen() {
               startIcon={<AssessmentIcon />}
               onClick={handleViewAttempts}
               sx={{
-                bgcolor: 'white',
-                color: '#6C5CE7',
-                borderColor: 'white',
+                borderColor: '#DFE6E9',
+                color: '#636E72',
                 fontWeight: 600,
                 '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.9)',
-                  borderColor: 'white',
+                  borderColor: '#667eea',
+                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                  color: '#667eea',
                 },
               }}
             >
@@ -247,11 +248,10 @@ function QuizListScreen() {
               startIcon={<AddIcon />}
               onClick={handleCreateQuiz}
               sx={{
-                bgcolor: 'white',
-                color: '#6C5CE7',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 fontWeight: 600,
                 '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                  background: 'linear-gradient(135deg, #5568d3 0%, #63408e 100%)',
                 },
               }}
             >
@@ -268,8 +268,9 @@ function QuizListScreen() {
           <Box
             sx={{
               bgcolor: 'white',
-              borderRadius: 2,
+              borderRadius: 3,
               p: 4,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
             }}
           >
             <EmptyState
@@ -288,7 +289,7 @@ function QuizListScreen() {
                     startIcon={<AddIcon />}
                     onClick={handleCreateQuiz}
                     sx={{
-                      background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     }}
                   >
                     Create Your First Quiz
@@ -298,18 +299,28 @@ function QuizListScreen() {
             />
           </Box>
         ) : (
-          <Grid container spacing={3}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(4, 1fr)',
+              },
+              gap: 3,
+            }}
+          >
             {filteredQuizzes.map((quiz) => (
-              <Grid item xs={12} sm={6} md={4} key={quiz.id}>
+              <Box key={quiz.id} sx={{ display: 'flex', width: '100%' }}>
                 <QuizCard
                   quiz={quiz}
                   onView={handleViewQuiz}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
                 />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         )}
       </Container>
 
@@ -346,6 +357,12 @@ function QuizListScreen() {
           </QuizCraftButton>
         </DialogActions>
       </Dialog>
+
+      {/* Create Quiz Modal */}
+      <CreateQuizModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
     </Box>
   );
 }

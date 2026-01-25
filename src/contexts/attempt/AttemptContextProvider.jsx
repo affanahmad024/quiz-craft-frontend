@@ -115,14 +115,31 @@ function AttemptContextProvider({ children }) {
    * Get attempt results
    */
   const handleGetAttemptResults = async (attemptId) => {
+    console.log('[AttemptContext] Getting results for attempt:', attemptId);
     setIsLoading(true);
     const response = await getAttemptResults(fetchData, abortContRef, { attemptId });
     setIsLoading(false);
 
+    console.log('[AttemptContext] Results API response:', {
+      success: response.success,
+      hasData: !!response.data,
+      dataStructure: response.data ? Object.keys(response.data) : []
+    });
+
     if (response.success) {
       // Handle nested data structure: response.data.data contains the actual results
       const results = response.data?.data || response.data;
+
+      console.log('[AttemptContext] Setting current results:', {
+        id: results.id,
+        score: results.score,
+        maxScore: results.max_score,
+        answersCount: results.answers?.length || 0
+      });
+
       setCurrentResults(results);
+    } else {
+      console.error('[AttemptContext] Failed to get results:', response.error);
     }
 
     return response;
