@@ -537,9 +537,33 @@ function LandingPage() {
           </Typography>
         </Box>
 
-        <Grid container spacing={2} justifyContent="center" alignItems="stretch" sx={{ flexWrap: 'nowrap' }}>
+        <Grid
+          container
+          spacing={2}
+          justifyContent="center"
+          alignItems="stretch"
+          sx={{
+            flexWrap: 'nowrap',
+            '@media (max-width: 650px)': {
+              flexWrap: 'wrap'
+            }
+          }}
+        >
           {features.map((feature, index) => (
-            <Grid item xs={12} sm={12} md={4} lg={4} key={index} sx={{ display: 'flex', flex: '1 1 0', minWidth: 0 }}>
+            <Grid
+              item
+              xs={12}
+              key={index}
+              sx={{
+                display: 'flex',
+                flex: '1 1 0',
+                minWidth: 0,
+                '@media (max-width: 650px)': {
+                  flex: 'none',
+                  width: '100%'
+                }
+              }}
+            >
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
