@@ -311,16 +311,7 @@ function LandingPage() {
             </Grid>
             
             <Grid item xs={12} md={6} sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-               <motion.div
-                 variants={floatAnimation}
-                 animate="animate"
-                 style={{
-                   width: '100%',
-                   display: 'flex',
-                   justifyContent: 'center',
-                   transform: `translateY(${scrollY * 0.15}px)` // Parallax effect
-                 }}
-               >
+               <motion.div variants={floatAnimation} animate="animate" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                    {/* Centered Box for Floating Elements */}
                    <Box sx={{
                        position: 'relative',
@@ -329,35 +320,17 @@ function LandingPage() {
                        p: { md: 2, lg: 4 },
                        pt: { md: 4, lg: 8 }
                    }}>
-                       {/* Main Floating Card with 3D hover effect */}
-                       <motion.div
-                         whileHover={{
-                           scale: 1.02,
-                           rotateY: 5,
-                           transition: { duration: 0.3 }
-                         }}
-                         style={{
-                           perspective: 1000,
-                           transformStyle: 'preserve-3d'
-                         }}
-                       >
-                         <Card sx={{
-                             position: 'relative',
-                             zIndex: 2,
-                             borderRadius: 5,
-                             boxShadow: isDarkMode ? '0 40px 100px -20px rgba(0,0,0,0.5)' : '0 50px 120px -30px rgba(50,50,93,0.3)',
-                             background: isDarkMode ? '#1e1e1e' : '#fff',
-                             border: '1px solid',
-                             borderColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                             overflow: 'hidden',
-                             transition: 'all 0.3s ease',
-                             '&:hover': {
-                               boxShadow: isDarkMode
-                                 ? '0 50px 120px -20px rgba(108,92,231,0.4)'
-                                 : '0 60px 140px -30px rgba(108,92,231,0.3)',
-                               borderColor: 'primary.main',
-                             }
-                         }}>
+                       {/* Main Floating Card */}
+                       <Card sx={{ 
+                           position: 'relative', 
+                           zIndex: 2, 
+                           borderRadius: 5, 
+                           boxShadow: isDarkMode ? '0 40px 100px -20px rgba(0,0,0,0.5)' : '0 50px 120px -30px rgba(50,50,93,0.3)',
+                           background: isDarkMode ? '#1e1e1e' : '#fff',
+                           border: '1px solid',
+                           borderColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                           overflow: 'hidden'
+                       }}>
                            <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', p: 2, display: 'flex', gap: 1.5, bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}>
                                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ff5f57', boxShadow: '0 2px 4px rgba(255,95,87,0.3)' }} />
                                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#febc2e', boxShadow: '0 2px 4px rgba(254,188,46,0.3)' }} />
@@ -382,122 +355,66 @@ function LandingPage() {
                                </Stack>
                            </CardContent>
                        </Card>
-                       </motion.div>
 
-                       {/* Decorative floating cards with 3D transforms */}
-                        <motion.div
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            right: -30,
-                            zIndex: 3,
-                            display: 'none',
-                            '@media (min-width: 900px)': {
-                              display: 'block'
-                            }
-                          }}
-                          animate={{
-                            y: [0, -10, 0],
-                            rotate: [6, 8, 6],
-                          }}
-                          transition={{
-                            duration: 4,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                          whileHover={{
-                            scale: 1.05,
-                            rotate: 0,
-                            transition: { duration: 0.3 }
-                          }}
-                        >
-                          <Card sx={{
-                             width: 240,
-                             p: 2.5, borderRadius: 4,
-                             boxShadow: '0 20px 40px -15px rgba(0, 184, 148, 0.4)',
-                             background: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
-                             color: 'white',
-                             display: { xs: 'none', md: 'block' },
-                             transition: 'all 0.3s ease',
-                             '&:hover': {
-                               boxShadow: '0 30px 60px -15px rgba(0, 184, 148, 0.6)',
-                             }
-                          }}>
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                  <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>Current Streak</Typography>
-                                  <Typography variant="h5">🔥</Typography>
-                              </Box>
-                              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                                  <Typography variant="h3" sx={{ fontWeight: 800 }}>12</Typography>
-                                  <Typography variant="h6" sx={{ opacity: 0.9 }}>Days</Typography>
-                              </Box>
-                          </Card>
-                        </motion.div>
+                       {/* Decorative floating cards - Better positioned */}
+                        <Card sx={{
+                           position: 'absolute', top: { md: 0, lg: -10 }, right: { md: -10, lg: -30 },
+                           zIndex: 3, width: 240,
+                           p: 2.5, borderRadius: 4,
+                           boxShadow: '0 20px 40px -15px rgba(0, 184, 148, 0.4)',
+                           background: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
+                           color: 'white',
+                           transform: 'rotate(6deg)',
+                           display: { xs: 'none', md: 'block' }
+                       }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>Current Streak</Typography>
+                                <Typography variant="h5">🔥</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                                <Typography variant="h3" sx={{ fontWeight: 800 }}>12</Typography>
+                                <Typography variant="h6" sx={{ opacity: 0.9 }}>Days</Typography>
+                            </Box>
+                       </Card>
 
-                       <motion.div
-                         style={{
-                           position: 'absolute',
-                           bottom: -20,
-                           left: -30,
-                           zIndex: 3,
-                         }}
-                         animate={{
-                           y: [0, 10, 0],
-                           rotate: [-3, -5, -3],
-                         }}
-                         transition={{
-                           duration: 5,
-                           repeat: Infinity,
-                           ease: "easeInOut"
-                         }}
-                         whileHover={{
-                           scale: 1.05,
-                           rotate: 0,
-                           transition: { duration: 0.3 }
-                         }}
-                       >
-                         <Card sx={{
-                             width: 220,
-                             p: 2.5, borderRadius: 4,
-                             boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.15)',
-                             background: isDarkMode ? '#2d3436' : '#fff',
-                             border: '1px solid',
-                             borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                             display: { xs: 'none', md: 'block' },
-                             transition: 'all 0.3s ease',
-                             '&:hover': {
-                               boxShadow: '0 30px 60px -15px rgba(108, 92, 231, 0.3)',
-                               borderColor: 'primary.main',
-                             }
-                         }}>
-                             <Stack direction="row" spacing={2} alignItems="center">
-                                 <Box sx={{
-                                     p: 1.5,
-                                     bgcolor: 'rgba(108, 92, 231, 0.1)',
-                                     borderRadius: 3,
-                                     color: 'primary.main'
-                                 }}>
-                                     <BoltIcon fontSize="large" />
-                                 </Box>
-                                 <Box>
-                                     <Typography
-                                         variant="caption"
-                                         color="text.secondary"
-                                         sx={{
-                                             fontWeight: 600,
-                                             textTransform: 'uppercase',
-                                             letterSpacing: 1
-                                         }}
-                                     >
-                                         Accuracy
-                                     </Typography>
-                                     <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main' }}>
-                                         94%
-                                     </Typography>
-                                 </Box>
-                             </Stack>
-                         </Card>
-                       </motion.div>
+                       <Card sx={{
+                           position: 'absolute', bottom: { md: -10, lg: -20 }, left: { md: -10, lg: -30 },
+                           zIndex: 3, width: 220,
+                           p: 2.5, borderRadius: 4,
+                           boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.15)',
+                           background: isDarkMode ? '#2d3436' : '#fff',
+                           border: '1px solid',
+                           borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                           transform: 'rotate(-3deg)',
+                           display: { xs: 'none', md: 'block' }
+                       }}>
+                           <Stack direction="row" spacing={2} alignItems="center">
+                               <Box sx={{
+                                   p: 1.5,
+                                   bgcolor: 'rgba(108, 92, 231, 0.1)',
+                                   borderRadius: 3,
+                                   color: 'primary.main'
+                               }}>
+                                   <BoltIcon fontSize="large" />
+                               </Box>
+                               <Box>
+                                   <Typography
+                                       variant="caption"
+                                       color="text.secondary"
+                                       sx={{
+                                           fontWeight: 600,
+                                           textTransform: 'uppercase',
+                                           letterSpacing: 1
+                                       }}
+                                   >
+                                       Accuracy
+                                   </Typography>
+                                   <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main' }}>
+                                       94%
+                                   </Typography>
+                               </Box>
+                           </Stack>
+                       </Card>
                    </Box>
                </motion.div>
             </Grid>
@@ -506,45 +423,96 @@ function LandingPage() {
       </Box>
 
       {/* How it Works Section */}
-      <Box sx={{ py: 12, bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : 'grey.50' }}>
+      <Box sx={{
+        minHeight: { xs: 'auto', md: '100vh' },
+        display: 'flex',
+        alignItems: 'center',
+        py: { xs: 8, md: 0 },
+        bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : 'grey.50'
+      }}>
          <Container maxWidth="lg">
-             <Box sx={{ textAlign: 'center', mb: 8 }}>
-                <Typography variant="overline" color="primary" sx={{ fontWeight: 700, letterSpacing: 1.5 }}>
+             <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
+                <Typography variant="overline" color="primary" sx={{ fontWeight: 700, letterSpacing: 1.5, fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
                     SIMPLE WORKFLOW
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: 800, mt: 1, mb: 2 }}>
+                <Typography variant="h3" sx={{
+                  fontWeight: 800,
+                  mt: 1,
+                  mb: { xs: 1, md: 2 },
+                  fontSize: { xs: '1.75rem', md: '2.5rem', lg: '3rem' }
+                }}>
                     From Chaos to Structured Knowledge
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
+                <Typography variant="body1" color="text.secondary" sx={{
+                  maxWidth: 600,
+                  mx: 'auto',
+                  fontSize: { xs: '0.9rem', md: '1rem' }
+                }}>
                     Stop wasting time manually creating flashcards. Let our AI do the heavy lifting while you focus on learning.
                 </Typography>
              </Box>
 
-             <Grid container spacing={4} justifyContent="center">
+             <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center" alignItems="stretch">
                  {[
                      { step: '01', title: 'Upload or Paste', desc: 'Paste your notes or upload any PDF/Doc file directly to the platform.' },
                      { step: '02', title: 'AI Generation', desc: 'Our advanced AI analyzes your content and generates relevant questions instantly.' },
                      { step: '03', title: 'Master It', desc: 'Take the quiz, review explanations, and track your progress over time.' }
                  ].map((item, index) => (
-                     <Grid item xs={12} md={4} key={index}>
-                         <Box sx={{ p: 4, height: '100%', position: 'relative' }}>
+                     <Grid item xs={12} md={4} key={index} sx={{ display: 'flex' }}>
+                         <Box sx={{
+                             p: { xs: 3, md: 3, lg: 4 },
+                             width: '100%',
+                             position: 'relative',
+                             display: 'flex',
+                             flexDirection: 'column'
+                         }}>
                              <Typography variant="h1" sx={{
                                  position: 'absolute', top: 0, right: 20,
-                                 opacity: 0.05, fontSize: '8rem', fontWeight: 900,
+                                 opacity: 0.05,
+                                 fontSize: { xs: '5rem', md: '6rem', lg: '8rem' },
+                                 fontWeight: 900,
                                  pointerEvents: 'none'
                              }}>
                                  {item.step}
                              </Typography>
                              <Box sx={{
-                                 width: 60, height: 60, borderRadius: '20px',
-                                 bgcolor: 'primary.main', display: 'flex', alignItems: 'center',
-                                 justifyContent: 'center', color: 'white', fontWeight: 700, mb: 3,
-                                 boxShadow: '0 10px 20px rgba(108, 92, 231, 0.3)'
+                                 width: { xs: 50, md: 55, lg: 60 },
+                                 height: { xs: 50, md: 55, lg: 60 },
+                                 borderRadius: '20px',
+                                 bgcolor: 'primary.main',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 color: 'white',
+                                 fontWeight: 700,
+                                 mb: { xs: 2, md: 2.5, lg: 3 },
+                                 boxShadow: '0 10px 20px rgba(108, 92, 231, 0.3)',
+                                 position: 'relative',
+                                 zIndex: 1,
+                                 flexShrink: 0,
+                                 fontSize: { xs: '1.1rem', md: '1.2rem' }
                              }}>
                                  {parseInt(item.step)}
                              </Box>
-                             <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>{item.title}</Typography>
-                             <Typography color="text.secondary">{item.desc}</Typography>
+                             <Typography variant="h5" sx={{
+                               fontWeight: 700,
+                               mb: { xs: 1.5, md: 2 },
+                               position: 'relative',
+                               zIndex: 1,
+                               flexShrink: 0,
+                               fontSize: { xs: '1.1rem', md: '1.25rem', lg: '1.5rem' }
+                             }}>
+                               {item.title}
+                             </Typography>
+                             <Typography color="text.secondary" sx={{
+                               position: 'relative',
+                               zIndex: 1,
+                               flexGrow: 1,
+                               fontSize: { xs: '0.875rem', md: '0.95rem', lg: '1rem' },
+                               lineHeight: { xs: 1.5, md: 1.6 }
+                             }}>
+                               {item.desc}
+                             </Typography>
                          </Box>
                      </Grid>
                  ))}
