@@ -689,14 +689,39 @@ function LandingPage() {
              <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 800, mb: 8 }}>
                  Loved by Learners
              </Typography>
-             
-             <Grid container spacing={4} justifyContent="center">
+
+             <Grid
+               container
+               spacing={4}
+               justifyContent="center"
+               alignItems="stretch"
+               sx={{
+                 flexWrap: 'nowrap',
+                 '@media (max-width: 650px)': {
+                   flexWrap: 'wrap'
+                 }
+               }}
+             >
                  {testimonials.map((t, i) => (
-                     <Grid item xs={12} md={4} key={i}>
-                         <Card elevation={0} sx={{ 
+                     <Grid
+                       item
+                       xs={12}
+                       key={i}
+                       sx={{
+                         display: 'flex',
+                         flex: '1 1 0',
+                         minWidth: 0,
+                         '@media (max-width: 650px)': {
+                           flex: 'none',
+                           width: '100%'
+                         }
+                       }}
+                     >
+                         <Card elevation={0} sx={{
                              p: 3, height: '100%', borderRadius: 4,
                              bgcolor: 'background.paper',
-                             boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+                             boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                             width: '100%'
                          }}>
                              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                                  {[1,2,3,4,5].map(s => <Box key={s} sx={{ color: '#fdcb6e' }}>★</Box>)}
