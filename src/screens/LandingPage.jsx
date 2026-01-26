@@ -271,9 +271,9 @@ function LandingPage() {
                 </Stack>
                 
                 {/* Animated Metrics */}
-                <Box sx={{ mt: 8 }}>
-                  <Grid container spacing={3} sx={{ maxWidth: 600 }}>
-                    <Grid item xs={6} sm={3}>
+                <Box sx={{ mt: 8, mx: 'auto', maxWidth: 800 }}>
+                  <Grid container spacing={3} justifyContent="center">
+                    <Grid item xs={3}>
                       <AnimatedCounter
                         end={10000}
                         suffix="+"
@@ -281,7 +281,7 @@ function LandingPage() {
                         icon="👥"
                       />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={3}>
                       <AnimatedCounter
                         end={50000}
                         suffix="+"
@@ -289,7 +289,7 @@ function LandingPage() {
                         icon="📝"
                       />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={3}>
                       <AnimatedCounter
                         end={99.9}
                         suffix="%"
@@ -297,7 +297,7 @@ function LandingPage() {
                         icon="⚡"
                       />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={3}>
                       <AnimatedCounter
                         end={5}
                         suffix="/5"
