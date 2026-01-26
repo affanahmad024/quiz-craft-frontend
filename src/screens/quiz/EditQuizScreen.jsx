@@ -54,6 +54,7 @@ import LoadingScreen from '../../components/screens/LoadingScreen';
 import EditQuizDetailsModal from '../../components/modals/EditQuizDetailsModal';
 import AddQuestionsModal from '../../components/modals/AddQuestionsModal';
 import AddAIQuestionsModal from '../../components/modals/AddAIQuestionsModal';
+import QuestionFormSingle from '../../components/question/QuestionFormSingle';
 import { COLORS } from '../../constants/ColorConstants';
 import {
   DIFFICULTY_LABELS,
@@ -81,34 +82,11 @@ function EditQuizScreen() {
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
   const [addQuestionsModalOpen, setAddQuestionsModalOpen] = useState(false);
   const [addAIQuestionsModalOpen, setAddAIQuestionsModalOpen] = useState(false);
-  const [addMode, setAddMode] = useState(null); // 'manual' | 'ai' | null
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const [editQuestionModalOpen, setEditQuestionModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState(null);
   const [expandedQuestions, setExpandedQuestions] = useState({});
-
-  // Manual question form
-  const [questionFormData, setQuestionFormData] = useState({
-    question_text: '',
-    question_type: 'multiple_choice',
-    points: '1',
-    explanation: '',
-    answers: [
-      { answer_text: '', is_correct: false },
-      { answer_text: '', is_correct: false },
-    ],
-  });
-  const [questionErrors, setQuestionErrors] = useState({});
-
-  // AI generation form
-  const [aiFormData, setAIFormData] = useState({
-    source_type: 'text',
-    text_content: '',
-    file_id: '',
-    num_questions: '5',
-    difficulty: 'medium',
-    question_type: 'multiple_choice',
-  });
 
   // Fetch quiz on mount
   useEffect(() => {
@@ -177,195 +155,23 @@ function EditQuizScreen() {
 
   const handleEditQuestion = (question) => {
     setEditingQuestion(question);
-    setQuestionFormData({
-      question_text: question.question_text || '',
-      question_type: question.question_type || 'multiple_choice',
-      points: question.points?.toString() || '1',
-      explanation: question.explanation || '',
-      answers: question.answers?.length
-        ? question.answers.map((a) => ({
-            id: a.id,
-            answer_text: a.answer_text || '',
-            is_correct: a.is_correct || false,
-          }))
-        : [
-            { answer_text: '', is_correct: false },
-            { answer_text: '', is_correct: false },
-          ],
-    });
-    setQuestionErrors({});
-    setAddMode('manual');
-    setAddQuestionsModalOpen(true); // Open the modal
+    setEditQuestionModalOpen(true);
   };
 
-  // Handle question type change
-  const handleQuestionTypeChange = (e) => {
-    const newType = e.target.value;
-    setQuestionFormData((prev) => {
-      let newAnswers = prev.answers;
+  const handleUpdateQuestion = async (questionData) => {
+    if (!editingQuestion) return;
 
-      // Adjust answers based on type
-      if (newType === 'true_false') {
-        newAnswers = [
-          { answer_text: 'True', is_correct: false },
-          { answer_text: 'False', is_correct: false },
-        ];
-      } else if (newType === 'short_answer') {
-        newAnswers = [];
-      } else if (newType === 'multiple_choice' && prev.answers.length < 2) {
-        newAnswers = [
-          { answer_text: '', is_correct: false },
-          { answer_text: '', is_correct: false },
-        ];
-      }
-
-      return {
-        ...prev,
-        question_type: newType,
-        answers: newAnswers,
-      };
-    });
-  };
-
-  // Handle answer change
-  const handleAnswerChange = (index, field) => (e) => {
-    const value = field === 'is_correct' ? e.target.checked : e.target.value;
-    setQuestionFormData((prev) => {
-      const newAnswers = [...prev.answers];
-      newAnswers[index] = { ...newAnswers[index], [field]: value };
-
-      // For true_false and single correct, uncheck others
-      if (
-        field === 'is_correct' &&
-        value &&
-        (prev.question_type === 'true_false')
-      ) {
-        newAnswers.forEach((ans, i) => {
-          if (i !== index) ans.is_correct = false;
-        });
-      }
-
-      return { ...prev, answers: newAnswers };
-    });
-  };
-
-  // Handle answer radio change (for true_false)
-  const handleAnswerRadioChange = (index) => {
-    setQuestionFormData((prev) => {
-      const newAnswers = prev.answers.map((ans, i) => ({
-        ...ans,
-        is_correct: i === index,
-      }));
-      return { ...prev, answers: newAnswers };
-    });
-  };
-
-  // Add answer
-  const handleAddAnswer = () => {
-    if (
-      questionFormData.answers.length >=
-      MAX_ANSWERS_ALLOWED[questionFormData.question_type]
-    ) {
-      toast.error(`Maximum ${MAX_ANSWERS_ALLOWED[questionFormData.question_type]} answers allowed`);
-      return;
-    }
-
-    setQuestionFormData((prev) => ({
-      ...prev,
-      answers: [...prev.answers, { answer_text: '', is_correct: false }],
-    }));
-  };
-
-  // Remove answer
-  const handleRemoveAnswer = (index) => {
-    if (
-      questionFormData.answers.length <=
-      MIN_ANSWERS_REQUIRED[questionFormData.question_type]
-    ) {
-      toast.error(`Minimum ${MIN_ANSWERS_REQUIRED[questionFormData.question_type]} answers required`);
-      return;
-    }
-
-    setQuestionFormData((prev) => ({
-      ...prev,
-      answers: prev.answers.filter((_, i) => i !== index),
-    }));
-  };
-
-  // Validate question form
-  const validateQuestionForm = () => {
-    const newErrors = {};
-
-    if (!questionFormData.question_text.trim()) {
-      newErrors.question_text = 'Question text is required';
-    }
-
-    const points = parseInt(questionFormData.points);
-    if (
-      isNaN(points) ||
-      points < QUIZ_VALIDATION.MIN_POINTS ||
-      points > QUIZ_VALIDATION.MAX_POINTS
-    ) {
-      newErrors.points = `Points must be between ${QUIZ_VALIDATION.MIN_POINTS} and ${QUIZ_VALIDATION.MAX_POINTS}`;
-    }
-
-    // Validate answers
-    if (questionFormData.question_type !== 'short_answer') {
-      const hasCorrectAnswer = questionFormData.answers.some((a) => a.is_correct);
-      if (!hasCorrectAnswer) {
-        newErrors.answers = 'At least one answer must be marked as correct';
-      }
-
-      const hasEmptyAnswer = questionFormData.answers.some(
-        (a) => !a.answer_text.trim()
-      );
-      if (hasEmptyAnswer) {
-        newErrors.answers = 'All answer fields must be filled';
-      }
-    }
-
-    setQuestionErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmitManualQuestion = async () => {
-    if (!validateQuestionForm()) {
-      toast.error('Please fix the errors in the form');
-      return;
-    }
-
-    const questionData = {
-      question_text: questionFormData.question_text.trim(),
-      question_type: questionFormData.question_type,
-      points: parseInt(questionFormData.points),
-      explanation: questionFormData.explanation.trim() || null,
-      answers:
-        questionFormData.question_type !== 'short_answer'
-          ? questionFormData.answers.map((a) => ({
-              answer_text: a.answer_text.trim(),
-              is_correct: a.is_correct,
-            }))
-          : [],
-    };
-
-    let response;
-    if (editingQuestion) {
-      response = await updateQuestion(editingQuestion.id, questionData);
-    } else {
-      response = await addQuestion(id, questionData);
-    }
+    const response = await updateQuestion(editingQuestion.id, questionData);
 
     if (response.success) {
-      toast.success(
-        editingQuestion
-          ? 'Question updated successfully'
-          : 'Question added successfully'
-      );
-      setAddMode(null);
+      toast.success('Question updated successfully');
+      setEditQuestionModalOpen(false);
       setEditingQuestion(null);
-    } else {
-      toast.error(response.error || 'Failed to save question');
+      // Refresh quiz data to show updated question
+      await getQuiz(id, true);
     }
+
+    return response;
   };
 
   // === AI GENERATION FUNCTIONS ===
@@ -373,24 +179,6 @@ function EditQuizScreen() {
   const handleStartAIGeneration = () => {
     // Open modal to add AI questions to this quiz
     setAddAIQuestionsModalOpen(true);
-  };
-
-  const handleStartAIGenerationOld = () => {
-    setAIFormData({
-      source_type: 'text',
-      text_content: '',
-      file_id: '',
-      num_questions: '5',
-      difficulty: currentQuiz?.difficulty || 'medium',
-      question_type: 'multiple_choice',
-    });
-    setAddMode('ai');
-  };
-
-  const handleAIGenerate = async () => {
-    // TODO: Implement AI generation API call
-    toast.info('AI generation feature coming soon!');
-    setAddMode(null);
   };
 
   // === DELETE FUNCTIONS ===
@@ -551,96 +339,94 @@ function EditQuizScreen() {
             </Typography>
 
             {/* Add Question Options */}
-            {!addMode && (
-              <Grid container spacing={3} sx={{ mb: 4 }}>
-                {/* Manual Entry Card */}
-                <Grid item xs={12} md={6}>
-                  <Card
-                    sx={{
-                      height: '100%',
-                      cursor: 'pointer',
-                      border: '2px solid #E8E8E8',
-                      transition: 'all 0.3s',
-                      '&:hover': {
-                        borderColor: '#667eea',
-                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.15)',
-                        transform: 'translateY(-2px)',
-                      },
-                    }}
-                    onClick={handleStartManualAdd}
-                  >
-                    <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                      <Box
-                        sx={{
-                          width: 64,
-                          height: 64,
-                          borderRadius: '50%',
-                          backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          mx: 'auto',
-                          mb: 2,
-                        }}
-                      >
-                        <ManualIcon sx={{ fontSize: 32, color: '#667eea' }} />
-                      </Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                        Add Questions Manually
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Create questions one by one with full control over content and answers
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                {/* AI Generation Card */}
-                <Grid item xs={12} md={6}>
-                  <Card
-                    sx={{
-                      height: '100%',
-                      cursor: 'pointer',
-                      border: '2px solid #E8E8E8',
-                      transition: 'all 0.3s',
-                      '&:hover': {
-                        borderColor: '#764ba2',
-                        boxShadow: '0 4px 12px rgba(118, 75, 162, 0.15)',
-                        transform: 'translateY(-2px)',
-                      },
-                    }}
-                    onClick={handleStartAIGeneration}
-                  >
-                    <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                      <Box
-                        sx={{
-                          width: 64,
-                          height: 64,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          mx: 'auto',
-                          mb: 2,
-                        }}
-                      >
-                        <AIIcon sx={{ fontSize: 32, color: 'white' }} />
-                      </Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                        Generate with AI
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Automatically create questions from text, documents, or images using AI
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              {/* Manual Entry Card */}
+              <Grid item xs={12} md={6}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    cursor: 'pointer',
+                    border: '2px solid #E8E8E8',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      borderColor: '#667eea',
+                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.15)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                  onClick={handleStartManualAdd}
+                >
+                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                    <Box
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mx: 'auto',
+                        mb: 2,
+                      }}
+                    >
+                      <ManualIcon sx={{ fontSize: 32, color: '#667eea' }} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                      Add Questions Manually
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Create questions one by one with full control over content and answers
+                    </Typography>
+                  </CardContent>
+                </Card>
               </Grid>
-            )}
+
+              {/* AI Generation Card */}
+              <Grid item xs={12} md={6}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    cursor: 'pointer',
+                    border: '2px solid #E8E8E8',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      borderColor: '#764ba2',
+                      boxShadow: '0 4px 12px rgba(118, 75, 162, 0.15)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                  onClick={handleStartAIGeneration}
+                >
+                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                    <Box
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mx: 'auto',
+                        mb: 2,
+                      }}
+                    >
+                      <AIIcon sx={{ fontSize: 32, color: 'white' }} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                      Generate with AI
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Automatically create questions from text, documents, or images using AI
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
 
             {/* Existing Questions List */}
-            {!addMode && currentQuiz.questions && currentQuiz.questions.length > 0 && (
+            {currentQuiz.questions && currentQuiz.questions.length > 0 && (
               <Box>
                 <Divider sx={{ my: 4 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -829,7 +615,7 @@ function EditQuizScreen() {
         <DialogActions sx={{ p: 2 }}>
           <QuizCraftButton
             variant="outlined"
-            onClick={() => setDeleteQuestionDialogOpen(false)}
+            onClick={() => setDeleteDialogOpen(false)}
           >
             Cancel
           </QuizCraftButton>
@@ -858,14 +644,10 @@ function EditQuizScreen() {
         open={addQuestionsModalOpen}
         onClose={() => {
           setAddQuestionsModalOpen(false);
-          setEditingQuestion(null);
-          setAddMode(null);
         }}
         questions={currentQuiz?.questions || []}
         onAddQuestion={handleAddQuestion}
         onBulkAddQuestions={handleBulkAddQuestions}
-        onUpdateQuestion={updateQuestion}
-        editingQuestion={editingQuestion}
         quizId={id}
       />
 
@@ -876,6 +658,21 @@ function EditQuizScreen() {
         quizId={id}
         quizTitle={currentQuiz?.title || 'Loading...'}
       />
+
+      {/* Edit Question Modal - Direct form without type selection */}
+      {editingQuestion && (
+        <QuestionFormSingle
+          open={editQuestionModalOpen}
+          onClose={() => {
+            setEditQuestionModalOpen(false);
+            setEditingQuestion(null);
+          }}
+          onSubmit={handleUpdateQuestion}
+          questionType={editingQuestion.question_type}
+          initialData={editingQuestion}
+          isLoading={isLoading}
+        />
+      )}
     </Box>
   );
 }
