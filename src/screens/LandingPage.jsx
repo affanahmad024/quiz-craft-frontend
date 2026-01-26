@@ -524,8 +524,8 @@ function LandingPage() {
       <InteractiveDemoQuiz />
 
       {/* Features Grid - Three Pillars */}
-      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 15 } }}>
-        <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 10 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+        <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
           <Typography variant="overline" color="primary" sx={{ fontWeight: 700, letterSpacing: 1.5, mb: 1 }}>
             BUILT FOR EVERYONE
           </Typography>
@@ -537,42 +537,43 @@ function LandingPage() {
           </Typography>
         </Box>
 
-        <Grid container spacing={4} justifyContent="center">
+        <Grid container spacing={2} justifyContent="center" alignItems="stretch" sx={{ flexWrap: 'nowrap' }}>
           {features.map((feature, index) => (
-            <Grid item xs={12} md={4} key={index}>
+            <Grid item xs={12} sm={12} md={4} lg={4} key={index} sx={{ display: 'flex', flex: '1 1 0', minWidth: 0 }}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
+                style={{ width: '100%', display: 'flex' }}
               >
                 <Card
                   elevation={0}
                   sx={{
-                    height: '100%',
+                    width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     border: '1px solid',
                     borderColor: 'divider',
-                    borderRadius: 4,
+                    borderRadius: 3,
                     bgcolor: 'background.paper',
                     position: 'relative',
                     overflow: 'hidden',
                     '&:hover': {
-                      transform: 'translateY(-12px) scale(1.02)',
-                      boxShadow: `0 30px 60px -20px ${feature.color}50`,
+                      transform: 'translateY(-8px)',
+                      boxShadow: `0 20px 40px -15px ${feature.color}50`,
                       borderColor: feature.color,
                       bgcolor: feature.bg,
                       '& .feature-icon': {
-                        transform: 'scale(1.15) rotate(5deg)',
+                        transform: 'scale(1.1) rotate(3deg)',
                         bgcolor: feature.color,
                         color: 'white',
-                        boxShadow: `0 10px 30px ${feature.color}40`
+                        boxShadow: `0 8px 20px ${feature.color}40`
                       },
                       '& .feature-bg-blur': {
-                        opacity: 0.6,
-                        transform: 'scale(1.2)'
+                        opacity: 0.5,
+                        transform: 'scale(1.15)'
                       }
                     },
                   }}
@@ -584,59 +585,72 @@ function LandingPage() {
                       position: 'absolute',
                       top: -50,
                       right: -50,
-                      width: 200,
-                      height: 200,
+                      width: 180,
+                      height: 180,
                       borderRadius: '50%',
                       background: feature.color,
                       opacity: 0,
-                      filter: 'blur(60px)',
-                      transition: 'all 0.6s ease',
+                      filter: 'blur(50px)',
+                      transition: 'all 0.5s ease',
                       pointerEvents: 'none',
                     }}
                   />
 
-                  <CardContent sx={{ p: 4, position: 'relative', zIndex: 1 }}>
-                    <Box
-                      className="feature-icon"
-                      sx={{
-                        color: feature.color,
-                        bgcolor: feature.bg,
-                        width: 80,
-                        height: 80,
-                        borderRadius: 4,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mb: 3,
-                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                      }}
-                    >
-                      {feature.icon}
+                  <CardContent sx={{
+                    p: 2.5,
+                    position: 'relative',
+                    zIndex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexGrow: 1
+                  }}>
+                    {/* Icon and Title Section */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+                      <Box
+                        className="feature-icon"
+                        sx={{
+                          color: feature.color,
+                          bgcolor: feature.bg,
+                          width: 56,
+                          height: 56,
+                          borderRadius: 2.5,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                      >
+                        {feature.icon}
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.1rem' }}>
+                        {feature.title}
+                      </Typography>
                     </Box>
-                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-                      {feature.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 3 }}>
+
+                    {/* Description */}
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 2, fontSize: '0.875rem' }}>
                       {feature.description}
                     </Typography>
 
-                    {/* Highlights */}
-                    <Stack spacing={1}>
-                      {feature.highlights.map((highlight, idx) => (
-                        <Box
-                          key={idx}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
-                          }}
-                        >
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {/* Highlights - Push to bottom */}
+                    <Box sx={{ mt: 'auto', pt: 1 }}>
+                      <Stack spacing={0.75}>
+                        {feature.highlights.map((highlight, idx) => (
+                          <Typography
+                            key={idx}
+                            variant="body2"
+                            sx={{
+                              fontWeight: 500,
+                              fontSize: '0.8125rem',
+                              color: 'text.secondary'
+                            }}
+                          >
                             {highlight}
                           </Typography>
-                        </Box>
-                      ))}
-                    </Stack>
+                        ))}
+                      </Stack>
+                    </Box>
                   </CardContent>
                 </Card>
               </motion.div>
