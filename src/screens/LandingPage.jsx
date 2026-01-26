@@ -2,7 +2,8 @@
 // Production-ready home page for QuizCraft
 // Modern, high-conversion design
 
-import { Box, Container, Typography, Button, Grid, Card, CardContent, useTheme, Avatar, Chip, Stack } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Container, Typography, Button, Grid, Card, CardContent, Chip, Stack, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
   Quiz as QuizIcon,
@@ -22,20 +23,14 @@ import { motion } from 'framer-motion';
 import { ROUTES } from '../constants/RouteConstants';
 import { useAuth } from '../contexts/auth/AuthContextProvider';
 import { useThemeMode } from '../contexts/theme/ThemeModeContext';
+import InteractiveDemoQuiz from '../components/landing/InteractiveDemoQuiz';
+import AnimatedCounter from '../components/landing/AnimatedCounter';
 
 // Animation variants
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6 },
-};
-
-const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
 };
 
 const floatAnimation = {
@@ -51,42 +46,61 @@ const floatAnimation = {
 
 function LandingPage() {
   const navigate = useNavigate();
-  const theme = useTheme();
   const { user } = useAuth();
   const { isDarkMode } = useThemeMode();
 
+  // Parallax effect
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleGetStarted = () => navigate(user ? ROUTES.DASHBOARD : ROUTES.SIGNUP);
   const handleExplore = () => navigate(ROUTES.DISCOVER);
-  const handleLogin = () => navigate(ROUTES.LOGIN);
 
+  // Three Pillars - Feature categories for different user types
   const features = [
     {
-      icon: <QuizIcon sx={{ fontSize: 32 }} />,
-      title: 'AI-Powered Creation',
-      description: 'Generate comprehensive quizzes in seconds using advanced AI. Just paste your text or upload a file.',
+      icon: <QuizIcon sx={{ fontSize: 40 }} />,
+      title: 'For Quiz Creators',
+      description: 'AI-powered quiz generation from text or files. Create, edit, and share quizzes with multiple question types. Drag-and-drop reordering makes building quizzes effortless.',
       color: '#6C5CE7',
       bg: 'rgba(108, 92, 231, 0.1)',
+      highlights: [
+        '🤖 AI Quiz Generation',
+        '📝 Multiple Question Types',
+        '🔗 Share via Code',
+        '🎯 Drag-Drop Reordering'
+      ]
     },
     {
-      icon: <BrainIcon sx={{ fontSize: 32 }} />,
-      title: 'Smart Learning Logic',
-      description: 'Adaptive algorithms that identify your weak spots and help you focus on what matters most.',
+      icon: <BrainIcon sx={{ fontSize: 40 }} />,
+      title: 'For Learners',
+      description: 'Take interactive quizzes with real-time feedback. Track your progress, view detailed results, and review your attempt history with beautiful animations.',
       color: '#00cec9',
       bg: 'rgba(0, 206, 201, 0.1)',
+      highlights: [
+        '⚡ Real-time Feedback',
+        '📊 Progress Tracking',
+        '🎨 Beautiful Animations',
+        '📈 Detailed Results'
+      ]
     },
     {
-      icon: <TrophyIcon sx={{ fontSize: 32 }} />,
-      title: 'Gamified Experience',
-      description: 'Earn badges, climb leaderboards, and maintain streaks to keep your motivation high.',
-      color: '#fdcb6e',
-      bg: 'rgba(253, 203, 110, 0.1)',
-    },
-    {
-        icon: <GroupIcon sx={{ fontSize: 32 }} />,
-        title: 'Collaborative Groups',
-        description: 'Study with friends, share quizzes, and challenge each other in real-time battles.',
-        color: '#ff7675',
-        bg: 'rgba(255, 118, 117, 0.1)',
+      icon: <SecurityIcon sx={{ fontSize: 40 }} />,
+      title: 'For Admins & Educators',
+      description: 'Comprehensive admin panel for user management, quiz moderation, and platform statistics. Monitor performance and moderate content with ease.',
+      color: '#ff7675',
+      bg: 'rgba(255, 118, 117, 0.1)',
+      highlights: [
+        '👥 User Management',
+        '🛡️ Quiz Moderation',
+        '📊 Platform Statistics',
+        '🎯 Performance Monitoring'
+      ]
     },
   ];
 
@@ -255,46 +269,57 @@ function LandingPage() {
                   </Button>
                 </Stack>
                 
-                <Box sx={{
-                    mt: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    justifyContent: { xs: 'center', md: 'flex-start' },
-                    flexWrap: { xs: 'wrap', sm: 'nowrap' }
-                }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                       {[1,2,3,4].map((i) => (
-                           <Avatar
-                               key={i}
-                               sx={{
-                                   width: 44,
-                                   height: 44,
-                                   ml: i === 1 ? 0 : -1.5,
-                                   border: '3px solid',
-                                   borderColor: 'background.default',
-                                   fontSize: 14,
-                                   bgcolor: `hsl(${i * 90}, 60%, 50%)`
-                               }}
-                           >
-                               U{i}
-                           </Avatar>
-                       ))}
-                    </Box>
-                    <Box sx={{ textAlign: { xs: 'center', md: 'left' }, width: { xs: '100%', sm: 'auto' } }}>
-                         <Box sx={{ display: 'flex', gap: 0.5, color: '#F1C40F', mb: 0.5, justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                            {'★★★★★'}
-                         </Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-                            Trusted by 10,000+ learners worldwide
-                        </Typography>
-                    </Box>
+                {/* Animated Metrics */}
+                <Box sx={{ mt: 8 }}>
+                  <Grid container spacing={3} sx={{ maxWidth: 600 }}>
+                    <Grid item xs={6} sm={3}>
+                      <AnimatedCounter
+                        end={10000}
+                        suffix="+"
+                        label="Active Users"
+                        icon="👥"
+                      />
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <AnimatedCounter
+                        end={50000}
+                        suffix="+"
+                        label="Quizzes Created"
+                        icon="📝"
+                      />
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <AnimatedCounter
+                        end={99.9}
+                        suffix="%"
+                        label="Uptime"
+                        icon="⚡"
+                      />
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <AnimatedCounter
+                        end={5}
+                        suffix="/5"
+                        label="User Rating"
+                        icon="⭐"
+                      />
+                    </Grid>
+                  </Grid>
                 </Box>
               </motion.div>
             </Grid>
             
             <Grid item xs={12} md={6} sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-               <motion.div variants={floatAnimation} animate="animate" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+               <motion.div
+                 variants={floatAnimation}
+                 animate="animate"
+                 style={{
+                   width: '100%',
+                   display: 'flex',
+                   justifyContent: 'center',
+                   transform: `translateY(${scrollY * 0.15}px)` // Parallax effect
+                 }}
+               >
                    {/* Centered Box for Floating Elements */}
                    <Box sx={{
                        position: 'relative',
@@ -303,17 +328,35 @@ function LandingPage() {
                        p: { md: 2, lg: 4 },
                        pt: { md: 4, lg: 8 }
                    }}>
-                       {/* Main Floating Card */}
-                       <Card sx={{ 
-                           position: 'relative', 
-                           zIndex: 2, 
-                           borderRadius: 5, 
-                           boxShadow: isDarkMode ? '0 40px 100px -20px rgba(0,0,0,0.5)' : '0 50px 120px -30px rgba(50,50,93,0.3)',
-                           background: isDarkMode ? '#1e1e1e' : '#fff',
-                           border: '1px solid',
-                           borderColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                           overflow: 'hidden'
-                       }}>
+                       {/* Main Floating Card with 3D hover effect */}
+                       <motion.div
+                         whileHover={{
+                           scale: 1.02,
+                           rotateY: 5,
+                           transition: { duration: 0.3 }
+                         }}
+                         style={{
+                           perspective: 1000,
+                           transformStyle: 'preserve-3d'
+                         }}
+                       >
+                         <Card sx={{
+                             position: 'relative',
+                             zIndex: 2,
+                             borderRadius: 5,
+                             boxShadow: isDarkMode ? '0 40px 100px -20px rgba(0,0,0,0.5)' : '0 50px 120px -30px rgba(50,50,93,0.3)',
+                             background: isDarkMode ? '#1e1e1e' : '#fff',
+                             border: '1px solid',
+                             borderColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                             overflow: 'hidden',
+                             transition: 'all 0.3s ease',
+                             '&:hover': {
+                               boxShadow: isDarkMode
+                                 ? '0 50px 120px -20px rgba(108,92,231,0.4)'
+                                 : '0 60px 140px -30px rgba(108,92,231,0.3)',
+                               borderColor: 'primary.main',
+                             }
+                         }}>
                            <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', p: 2, display: 'flex', gap: 1.5, bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}>
                                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ff5f57', boxShadow: '0 2px 4px rgba(255,95,87,0.3)' }} />
                                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#febc2e', boxShadow: '0 2px 4px rgba(254,188,46,0.3)' }} />
@@ -338,66 +381,122 @@ function LandingPage() {
                                </Stack>
                            </CardContent>
                        </Card>
+                       </motion.div>
 
-                       {/* Decorative floating cards - Better positioned */}
-                        <Card sx={{
-                           position: 'absolute', top: { md: 0, lg: -10 }, right: { md: -10, lg: -30 },
-                           zIndex: 3, width: 240,
-                           p: 2.5, borderRadius: 4,
-                           boxShadow: '0 20px 40px -15px rgba(0, 184, 148, 0.4)',
-                           background: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
-                           color: 'white',
-                           transform: 'rotate(6deg)',
-                           display: { xs: 'none', md: 'block' }
-                       }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>Current Streak</Typography>
-                                <Typography variant="h5">🔥</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                                <Typography variant="h3" sx={{ fontWeight: 800 }}>12</Typography>
-                                <Typography variant="h6" sx={{ opacity: 0.9 }}>Days</Typography>
-                            </Box>
-                       </Card>
+                       {/* Decorative floating cards with 3D transforms */}
+                        <motion.div
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            right: -30,
+                            zIndex: 3,
+                            display: 'none',
+                            '@media (min-width: 900px)': {
+                              display: 'block'
+                            }
+                          }}
+                          animate={{
+                            y: [0, -10, 0],
+                            rotate: [6, 8, 6],
+                          }}
+                          transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          whileHover={{
+                            scale: 1.05,
+                            rotate: 0,
+                            transition: { duration: 0.3 }
+                          }}
+                        >
+                          <Card sx={{
+                             width: 240,
+                             p: 2.5, borderRadius: 4,
+                             boxShadow: '0 20px 40px -15px rgba(0, 184, 148, 0.4)',
+                             background: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
+                             color: 'white',
+                             display: { xs: 'none', md: 'block' },
+                             transition: 'all 0.3s ease',
+                             '&:hover': {
+                               boxShadow: '0 30px 60px -15px rgba(0, 184, 148, 0.6)',
+                             }
+                          }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>Current Streak</Typography>
+                                  <Typography variant="h5">🔥</Typography>
+                              </Box>
+                              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                                  <Typography variant="h3" sx={{ fontWeight: 800 }}>12</Typography>
+                                  <Typography variant="h6" sx={{ opacity: 0.9 }}>Days</Typography>
+                              </Box>
+                          </Card>
+                        </motion.div>
 
-                       <Card sx={{
-                           position: 'absolute', bottom: { md: -10, lg: -20 }, left: { md: -10, lg: -30 },
-                           zIndex: 3, width: 220,
-                           p: 2.5, borderRadius: 4,
-                           boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.15)',
-                           background: isDarkMode ? '#2d3436' : '#fff',
-                           border: '1px solid',
-                           borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                           transform: 'rotate(-3deg)',
-                           display: { xs: 'none', md: 'block' }
-                       }}>
-                           <Stack direction="row" spacing={2} alignItems="center">
-                               <Box sx={{
-                                   p: 1.5,
-                                   bgcolor: 'rgba(108, 92, 231, 0.1)',
-                                   borderRadius: 3,
-                                   color: 'primary.main'
-                               }}>
-                                   <BoltIcon fontSize="large" />
-                               </Box>
-                               <Box>
-                                   <Typography
-                                       variant="caption"
-                                       color="text.secondary"
-                                       sx={{
-                                           fontWeight: 600,
-                                           textTransform: 'uppercase',
-                                           letterSpacing: 1
-                                       }}
-                                   >
-                                       Accuracy
-                                   </Typography>
-                                   <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main' }}>
-                                       94%
-                                   </Typography>
-                               </Box>
-                           </Stack>
-                       </Card>
+                       <motion.div
+                         style={{
+                           position: 'absolute',
+                           bottom: -20,
+                           left: -30,
+                           zIndex: 3,
+                         }}
+                         animate={{
+                           y: [0, 10, 0],
+                           rotate: [-3, -5, -3],
+                         }}
+                         transition={{
+                           duration: 5,
+                           repeat: Infinity,
+                           ease: "easeInOut"
+                         }}
+                         whileHover={{
+                           scale: 1.05,
+                           rotate: 0,
+                           transition: { duration: 0.3 }
+                         }}
+                       >
+                         <Card sx={{
+                             width: 220,
+                             p: 2.5, borderRadius: 4,
+                             boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.15)',
+                             background: isDarkMode ? '#2d3436' : '#fff',
+                             border: '1px solid',
+                             borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                             display: { xs: 'none', md: 'block' },
+                             transition: 'all 0.3s ease',
+                             '&:hover': {
+                               boxShadow: '0 30px 60px -15px rgba(108, 92, 231, 0.3)',
+                               borderColor: 'primary.main',
+                             }
+                         }}>
+                             <Stack direction="row" spacing={2} alignItems="center">
+                                 <Box sx={{
+                                     p: 1.5,
+                                     bgcolor: 'rgba(108, 92, 231, 0.1)',
+                                     borderRadius: 3,
+                                     color: 'primary.main'
+                                 }}>
+                                     <BoltIcon fontSize="large" />
+                                 </Box>
+                                 <Box>
+                                     <Typography
+                                         variant="caption"
+                                         color="text.secondary"
+                                         sx={{
+                                             fontWeight: 600,
+                                             textTransform: 'uppercase',
+                                             letterSpacing: 1
+                                         }}
+                                     >
+                                         Accuracy
+                                     </Typography>
+                                     <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main' }}>
+                                         94%
+                                     </Typography>
+                                 </Box>
+                             </Stack>
+                         </Card>
+                       </motion.div>
                    </Box>
                </motion.div>
             </Grid>
@@ -452,23 +551,26 @@ function LandingPage() {
          </Container>
       </Box>
 
-      {/* Features Grid */}
+      {/* Interactive Demo Quiz */}
+      <InteractiveDemoQuiz />
+
+      {/* Features Grid - Three Pillars */}
       <Container maxWidth="lg" sx={{ py: { xs: 8, md: 15 } }}>
         <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 10 } }}>
           <Typography variant="overline" color="primary" sx={{ fontWeight: 700, letterSpacing: 1.5, mb: 1 }}>
-            POWERFUL FEATURES
+            BUILT FOR EVERYONE
           </Typography>
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2 }}>
-            Everything You Need to Excel
+            Powerful Features for Every User
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
-            From AI-powered quiz generation to detailed analytics, we've got you covered.
+          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto' }}>
+            Whether you're creating quizzes, learning new topics, or managing a platform - QuizCraft has you covered with AI-powered tools.
           </Typography>
         </Box>
 
         <Grid container spacing={4} justifyContent="center">
           {features.map((feature, index) => (
-            <Grid item xs={12} sm={6} md={6} lg={6} key={index}>
+            <Grid item xs={12} md={4} key={index}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -481,48 +583,91 @@ function LandingPage() {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    transition: 'all 0.3s ease',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     border: '1px solid',
                     borderColor: 'divider',
                     borderRadius: 4,
                     bgcolor: 'background.paper',
+                    position: 'relative',
+                    overflow: 'hidden',
                     '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: `0 20px 40px -15px ${feature.color}40`,
+                      transform: 'translateY(-12px) scale(1.02)',
+                      boxShadow: `0 30px 60px -20px ${feature.color}50`,
                       borderColor: feature.color,
                       bgcolor: feature.bg,
                       '& .feature-icon': {
-                        transform: 'scale(1.1) rotate(5deg)',
+                        transform: 'scale(1.15) rotate(5deg)',
                         bgcolor: feature.color,
-                        color: 'white'
+                        color: 'white',
+                        boxShadow: `0 10px 30px ${feature.color}40`
+                      },
+                      '& .feature-bg-blur': {
+                        opacity: 0.6,
+                        transform: 'scale(1.2)'
                       }
                     },
                   }}
                 >
-                  <CardContent sx={{ p: 4 }}>
+                  {/* Background blur effect */}
+                  <Box
+                    className="feature-bg-blur"
+                    sx={{
+                      position: 'absolute',
+                      top: -50,
+                      right: -50,
+                      width: 200,
+                      height: 200,
+                      borderRadius: '50%',
+                      background: feature.color,
+                      opacity: 0,
+                      filter: 'blur(60px)',
+                      transition: 'all 0.6s ease',
+                      pointerEvents: 'none',
+                    }}
+                  />
+
+                  <CardContent sx={{ p: 4, position: 'relative', zIndex: 1 }}>
                     <Box
                       className="feature-icon"
                       sx={{
                         color: feature.color,
                         bgcolor: feature.bg,
-                        width: 60,
-                        height: 60,
-                        borderRadius: 3,
+                        width: 80,
+                        height: 80,
+                        borderRadius: 4,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         mb: 3,
-                        transition: 'all 0.3s ease',
+                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       }}
                     >
                       {feature.icon}
                     </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                       {feature.title}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 3 }}>
                       {feature.description}
                     </Typography>
+
+                    {/* Highlights */}
+                    <Stack spacing={1}>
+                      {feature.highlights.map((highlight, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                          }}
+                        >
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {highlight}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
                   </CardContent>
                 </Card>
               </motion.div>
