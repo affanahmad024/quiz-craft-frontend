@@ -2,7 +2,7 @@
 
 **Create Engaging Quizzes, Learn & Grow**
 
-QuizCraft is a modern quiz creation and management platform built with React, Material-UI, and following enterprise-grade architectural patterns from the Phoenix application.
+QuizCraft is a modern quiz creation and management platform built with React, Material-UI, and following enterprise-grade architectural patterns.
 
 ---
 
