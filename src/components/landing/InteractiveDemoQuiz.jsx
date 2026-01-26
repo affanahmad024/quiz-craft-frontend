@@ -144,20 +144,20 @@ function InteractiveDemoQuiz() {
     return (
       <Box
         sx={{
-          py: { xs: 8, md: 12 },
+          py: { xs: 4, md: 6 },
           background: isDarkMode
             ? 'linear-gradient(180deg, rgba(108, 92, 231, 0.05) 0%, rgba(0, 0, 0, 0) 100%)'
             : 'linear-gradient(180deg, rgba(108, 92, 231, 0.03) 0%, rgba(255, 255, 255, 0) 100%)',
         }}
       >
-        <Container maxWidth="md">
+        <Container maxWidth="lg">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             {/* Results Header */}
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -165,8 +165,8 @@ function InteractiveDemoQuiz() {
               >
                 <Box
                   sx={{
-                    width: 120,
-                    height: 120,
+                    width: 100,
+                    height: 100,
                     borderRadius: '50%',
                     background: `conic-gradient(#6C5CE7 ${percentage}%, ${
                       isDarkMode ? '#2d3436' : '#dfe6e9'
@@ -175,7 +175,7 @@ function InteractiveDemoQuiz() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     margin: '0 auto',
-                    mb: 3,
+                    mb: 2,
                     position: 'relative',
                     '&::before': {
                       content: '""',
@@ -187,23 +187,23 @@ function InteractiveDemoQuiz() {
                   }}
                 >
                   <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-                    <Typography variant="h3" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 800, color: 'primary.main' }}>
                       {percentage}%
                     </Typography>
                   </Box>
                 </Box>
               </motion.div>
 
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
                 Quiz Complete! 🎉
               </Typography>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body2" color="text.secondary">
                 You scored {score} out of {DEMO_QUESTIONS.length}
               </Typography>
             </Box>
 
             {/* Results Breakdown */}
-            <Stack spacing={3} sx={{ mb: 4 }}>
+            <Stack spacing={2} sx={{ mb: 3 }}>
               {DEMO_QUESTIONS.map((q, index) => {
                 const userAnswer = answers[index];
                 const isCorrect = userAnswer === q.correctAnswer;
@@ -224,26 +224,26 @@ function InteractiveDemoQuiz() {
                         bgcolor: isCorrect
                           ? alpha(theme.palette.success.main, 0.05)
                           : alpha(theme.palette.error.main, 0.05),
-                        borderRadius: 3,
+                        borderRadius: 2,
                         overflow: 'hidden',
                       }}
                     >
-                      <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
+                      <CardContent sx={{ p: 2.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.5 }}>
                           {isCorrect ? (
-                            <CheckIcon sx={{ color: 'success.main', fontSize: 28 }} />
+                            <CheckIcon sx={{ color: 'success.main', fontSize: 24 }} />
                           ) : (
-                            <WrongIcon sx={{ color: 'error.main', fontSize: 28 }} />
+                            <WrongIcon sx={{ color: 'error.main', fontSize: 24 }} />
                           )}
                           <Box sx={{ flex: 1 }}>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
                               Question {index + 1}
                             </Typography>
-                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5 }}>
                               {q.question}
                             </Typography>
 
-                            <Box sx={{ mb: 2 }}>
+                            <Box sx={{ mb: 1.5 }}>
                               <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
                                 Your answer:{' '}
                                 <span style={{ color: isCorrect ? theme.palette.success.main : theme.palette.error.main }}>
@@ -259,8 +259,8 @@ function InteractiveDemoQuiz() {
 
                             <Box
                               sx={{
-                                p: 2,
-                                borderRadius: 2,
+                                p: 1.5,
+                                borderRadius: 1.5,
                                 bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
                               }}
                             >
@@ -281,19 +281,18 @@ function InteractiveDemoQuiz() {
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
               <Button
                 variant="contained"
-                size="large"
                 onClick={() => setShowSignupModal(true)}
                 endIcon={<ArrowForwardIcon />}
                 sx={{
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: 3,
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
                   background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
-                  fontWeight: 700,
-                  boxShadow: '0 10px 30px rgba(108, 92, 231, 0.3)',
+                  fontWeight: 600,
+                  boxShadow: '0 8px 20px rgba(108, 92, 231, 0.25)',
                   '&:hover': {
                     transform: 'translateY(-2px)',
-                    boxShadow: '0 15px 40px rgba(108, 92, 231, 0.4)',
+                    boxShadow: '0 12px 30px rgba(108, 92, 231, 0.35)',
                   },
                 }}
               >
@@ -301,15 +300,14 @@ function InteractiveDemoQuiz() {
               </Button>
               <Button
                 variant="outlined"
-                size="large"
                 onClick={handleRestart}
                 startIcon={<ReplayIcon />}
                 sx={{
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: 3,
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
                   borderWidth: 2,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   '&:hover': { borderWidth: 2 },
                 }}
               >
@@ -323,35 +321,34 @@ function InteractiveDemoQuiz() {
         <Dialog
           open={showSignupModal}
           onClose={() => setShowSignupModal(false)}
-          maxWidth="sm"
+          maxWidth="xs"
           fullWidth
           PaperProps={{
             sx: {
-              borderRadius: 4,
+              borderRadius: 3,
               background: isDarkMode
                 ? 'linear-gradient(135deg, #2d3436 0%, #1e1e1e 100%)'
                 : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
             },
           }}
         >
-          <DialogContent sx={{ p: 4, textAlign: 'center' }}>
-            <TrophyIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
+          <DialogContent sx={{ p: 3, textAlign: 'center' }}>
+            <TrophyIcon sx={{ fontSize: 60, color: 'primary.main', mb: 1.5 }} />
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1.5 }}>
               Ready to Create Your Own?
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
               Sign up now to create unlimited quizzes with AI, track your progress, and compete with friends!
             </Typography>
-            <Stack direction="column" spacing={2}>
+            <Stack direction="column" spacing={1.5}>
               <Button
                 variant="contained"
-                size="large"
                 onClick={() => navigate(ROUTES.SIGNUP)}
                 sx={{
-                  py: 1.5,
-                  borderRadius: 3,
+                  py: 1,
+                  borderRadius: 2,
                   background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
-                  fontWeight: 700,
+                  fontWeight: 600,
                 }}
               >
                 Sign Up Free
@@ -370,19 +367,19 @@ function InteractiveDemoQuiz() {
   return (
     <Box
       sx={{
-        py: { xs: 8, md: 12 },
+        py: { xs: 4, md: 6 },
         background: isDarkMode
           ? 'radial-gradient(circle at 50% 0%, rgba(108, 92, 231, 0.1), transparent 50%)'
           : 'radial-gradient(circle at 50% 0%, rgba(108, 92, 231, 0.05), transparent 50%)',
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Chip
             label="🎮 Interactive Demo"
             sx={{
-              mb: 2,
+              mb: 1.5,
               px: 2,
               py: 0.5,
               fontWeight: 700,
@@ -391,16 +388,16 @@ function InteractiveDemoQuiz() {
               fontSize: '0.875rem',
             }}
           />
-          <Typography variant="h3" sx={{ fontWeight: 800, mb: 2 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
             Try It Yourself
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body2" color="text.secondary">
             Experience QuizCraft in action - no signup required
           </Typography>
         </Box>
 
         {/* Progress Bar */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
               Question {currentQuestion + 1} of {DEMO_QUESTIONS.length}
@@ -413,11 +410,11 @@ function InteractiveDemoQuiz() {
             variant="determinate"
             value={progress}
             sx={{
-              height: 8,
-              borderRadius: 4,
+              height: 6,
+              borderRadius: 3,
               bgcolor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
               '& .MuiLinearProgress-bar': {
-                borderRadius: 4,
+                borderRadius: 3,
                 background: 'linear-gradient(90deg, #6C5CE7 0%, #a29bfe 100%)',
               },
             }}
@@ -439,35 +436,34 @@ function InteractiveDemoQuiz() {
               sx={{
                 border: '1px solid',
                 borderColor: 'divider',
-                borderRadius: 4,
+                borderRadius: 3,
                 overflow: 'hidden',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
                 transform: 'translateZ(0)',
                 perspective: 1000,
               }}
             >
-              <CardContent sx={{ p: { xs: 3, md: 5 } }}>
+              <CardContent sx={{ p: 3 }}>
                 <Chip
                   label={currentQuestionData.type === 'mcq' ? 'Multiple Choice' : 'True/False'}
                   size="small"
                   color="primary"
-                  sx={{ mb: 3, fontWeight: 600 }}
+                  sx={{ mb: 2, fontWeight: 600 }}
                 />
 
                 <Typography
-                  variant="h5"
+                  variant="h6"
                   sx={{
-                    fontWeight: 700,
-                    mb: 4,
+                    fontWeight: 600,
+                    mb: 3,
                     lineHeight: 1.4,
-                    fontSize: { xs: '1.25rem', md: '1.5rem' },
                   }}
                 >
                   {currentQuestionData.question}
                 </Typography>
 
                 <RadioGroup value={selectedAnswer} onChange={(e) => handleAnswerSelect(Number(e.target.value))}>
-                  <Stack spacing={2}>
+                  <Stack spacing={1.5}>
                     {currentQuestionData.options.map((option, index) => (
                       <motion.div
                         key={index}
@@ -476,9 +472,9 @@ function InteractiveDemoQuiz() {
                       >
                         <Box
                           sx={{
-                            p: 2.5,
-                            borderRadius: 3,
-                            border: '2px solid',
+                            p: 1.5,
+                            borderRadius: 2,
+                            border: '1px solid',
                             borderColor: selectedAnswer === index ? 'primary.main' : 'divider',
                             bgcolor:
                               selectedAnswer === index
@@ -502,13 +498,13 @@ function InteractiveDemoQuiz() {
                               <Radio
                                 sx={{
                                   '& .MuiSvgIcon-root': {
-                                    fontSize: 24,
+                                    fontSize: 20,
                                   },
                                 }}
                               />
                             }
                             label={
-                              <Typography sx={{ fontWeight: selectedAnswer === index ? 600 : 400 }}>
+                              <Typography variant="body2" sx={{ fontWeight: selectedAnswer === index ? 600 : 400 }}>
                                 {option}
                               </Typography>
                             }
@@ -523,7 +519,7 @@ function InteractiveDemoQuiz() {
 
               <Box
                 sx={{
-                  p: { xs: 3, md: 4 },
+                  p: 2,
                   bgcolor: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
                   display: 'flex',
                   justifyContent: 'flex-end',
@@ -531,20 +527,19 @@ function InteractiveDemoQuiz() {
               >
                 <Button
                   variant="contained"
-                  size="large"
                   onClick={handleNext}
                   disabled={selectedAnswer === null}
                   endIcon={<ArrowForwardIcon />}
                   sx={{
-                    px: 4,
-                    py: 1.5,
-                    borderRadius: 3,
-                    fontWeight: 700,
+                    px: 3,
+                    py: 1,
+                    borderRadius: 2,
+                    fontWeight: 600,
                     background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
-                    boxShadow: '0 10px 20px rgba(108, 92, 231, 0.3)',
+                    boxShadow: '0 8px 16px rgba(108, 92, 231, 0.25)',
                     '&:hover': {
                       transform: 'translateY(-2px)',
-                      boxShadow: '0 15px 30px rgba(108, 92, 231, 0.4)',
+                      boxShadow: '0 12px 24px rgba(108, 92, 231, 0.35)',
                     },
                     '&:disabled': {
                       background: 'grey.300',
