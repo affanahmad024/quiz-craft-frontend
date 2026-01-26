@@ -202,7 +202,8 @@ function LandingPage() {
                     fontWeight: 400,
                     lineHeight: 1.6,
                     maxWidth: { xs: '100%', md: 600 },
-                    mx: { xs: 'auto', md: 0 }
+                    mx: 'auto',
+                    textAlign: 'center'
                   }}
                 >
                   Create, share, and play quizzes that adapt to your learning style. Join 10,000+ learners achieving their goals faster.
@@ -212,7 +213,7 @@ function LandingPage() {
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={2.5}
                   sx={{
-                    justifyContent: { xs: 'center', md: 'flex-start' },
+                    justifyContent: 'center',
                     alignItems: 'center'
                   }}
                 >
