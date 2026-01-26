@@ -171,10 +171,11 @@ function DiscoverScreen() {
               {/* Category Filter */}
               <Grid item xs={12} sm={6} md={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Category</InputLabel>
+                  <InputLabel shrink>Category</InputLabel>
                   <Select
                     value={filters.category}
                     label="Category"
+                    displayEmpty
                     onChange={(e) =>
                       setFilters((prev) => ({ ...prev, category: e.target.value }))
                     }
@@ -185,6 +186,10 @@ function DiscoverScreen() {
                       },
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: '#667eea',
+                      },
+                      '& .MuiInputLabel-root': {
+                        backgroundColor: '#FFFFFF',
+                        padding: '0 4px',
                       },
                     }}
                   >
@@ -201,10 +206,11 @@ function DiscoverScreen() {
               {/* Difficulty Filter */}
               <Grid item xs={12} sm={6} md={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Difficulty</InputLabel>
+                  <InputLabel shrink>Difficulty</InputLabel>
                   <Select
                     value={filters.difficulty}
                     label="Difficulty"
+                    displayEmpty
                     onChange={(e) =>
                       setFilters((prev) => ({ ...prev, difficulty: e.target.value }))
                     }
@@ -215,6 +221,10 @@ function DiscoverScreen() {
                       },
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: '#667eea',
+                      },
+                      '& .MuiInputLabel-root': {
+                        backgroundColor: '#FFFFFF',
+                        padding: '0 4px',
                       },
                     }}
                   >
@@ -229,10 +239,11 @@ function DiscoverScreen() {
               {/* Sort By */}
               <Grid item xs={12} sm={6} md={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Sort By</InputLabel>
+                  <InputLabel shrink>Sort By</InputLabel>
                   <Select
                     value={filters.sortBy}
                     label="Sort By"
+                    displayEmpty
                     onChange={(e) =>
                       setFilters((prev) => ({ ...prev, sortBy: e.target.value }))
                     }
@@ -243,6 +254,10 @@ function DiscoverScreen() {
                       },
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: '#667eea',
+                      },
+                      '& .MuiInputLabel-root': {
+                        backgroundColor: '#FFFFFF',
+                        padding: '0 4px',
                       },
                     }}
                   >

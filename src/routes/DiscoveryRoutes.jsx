@@ -25,7 +25,7 @@ export const discoveryRoutes = (
       }
     >
       <Route path={ROUTES.DISCOVER} element={<DiscoverScreen />} />
-      <Route path={ROUTES.SEARCH} element={<SearchScreen />} />
+      {/* <Route path={ROUTES.SEARCH} element={<SearchScreen />} /> */}
     </Route>
 
     {/* Share Quiz - Can be accessed without auth initially */}

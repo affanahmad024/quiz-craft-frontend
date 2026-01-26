@@ -102,7 +102,11 @@ function QuizFilters({ onSearch, onFilterChange }) {
             defaultValue=""
             onChange={handleFilterChange('difficulty')}
             fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
             SelectProps={{
+              displayEmpty: true,
               MenuProps: {
                 disablePortal: false,
                 anchorOrigin: {
@@ -125,19 +129,34 @@ function QuizFilters({ onSearch, onFilterChange }) {
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#F8F9FA',
                 borderRadius: 2,
-                minHeight: '56px',
-              },
-              '& .MuiSelect-select': {
-                py: 1.5,
-                minHeight: '24px',
-                display: 'flex',
-                alignItems: 'center',
+                '&:hover': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                  },
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#FFFFFF',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                    borderWidth: '2px',
+                  },
+                },
               },
               '& .MuiInputLabel-root': {
-                transform: 'translate(14px, 16px) scale(1)',
+                backgroundColor: '#FFFFFF',
+                padding: '0 4px',
+                fontSize: '0.875rem',
                 '&.MuiInputLabel-shrink': {
-                  transform: 'translate(14px, -9px) scale(0.75)',
+                  backgroundColor: '#FFFFFF',
+                  padding: '0 4px',
+                  fontSize: '0.75rem',
                 },
+                '&.Mui-focused': {
+                  color: '#667eea',
+                },
+              },
+              '& .MuiOutlinedInput-notchedOutline legend': {
+                maxWidth: '100%',
               },
             }}
           >
@@ -158,7 +177,11 @@ function QuizFilters({ onSearch, onFilterChange }) {
             defaultValue=""
             onChange={handleFilterChange('category')}
             fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
             SelectProps={{
+              displayEmpty: true,
               MenuProps: {
                 disablePortal: false,
                 anchorOrigin: {
@@ -181,19 +204,34 @@ function QuizFilters({ onSearch, onFilterChange }) {
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#F8F9FA',
                 borderRadius: 2,
-                minHeight: '56px',
-              },
-              '& .MuiSelect-select': {
-                py: 1.5,
-                minHeight: '24px',
-                display: 'flex',
-                alignItems: 'center',
+                '&:hover': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                  },
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#FFFFFF',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                    borderWidth: '2px',
+                  },
+                },
               },
               '& .MuiInputLabel-root': {
-                transform: 'translate(14px, 16px) scale(1)',
+                backgroundColor: '#FFFFFF',
+                padding: '0 4px',
+                fontSize: '0.875rem',
                 '&.MuiInputLabel-shrink': {
-                  transform: 'translate(14px, -9px) scale(0.75)',
+                  backgroundColor: '#FFFFFF',
+                  padding: '0 4px',
+                  fontSize: '0.75rem',
                 },
+                '&.Mui-focused': {
+                  color: '#667eea',
+                },
+              },
+              '& .MuiOutlinedInput-notchedOutline legend': {
+                maxWidth: '100%',
               },
             }}
           >
@@ -214,7 +252,11 @@ function QuizFilters({ onSearch, onFilterChange }) {
             defaultValue="newest"
             onChange={handleFilterChange('sortBy')}
             fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
             SelectProps={{
+              displayEmpty: true,
               MenuProps: {
                 disablePortal: false,
                 anchorOrigin: {
@@ -237,19 +279,34 @@ function QuizFilters({ onSearch, onFilterChange }) {
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#F8F9FA',
                 borderRadius: 2,
-                minHeight: '56px',
-              },
-              '& .MuiSelect-select': {
-                py: 1.5,
-                minHeight: '24px',
-                display: 'flex',
-                alignItems: 'center',
+                '&:hover': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                  },
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#FFFFFF',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                    borderWidth: '2px',
+                  },
+                },
               },
               '& .MuiInputLabel-root': {
-                transform: 'translate(14px, 16px) scale(1)',
+                backgroundColor: '#FFFFFF',
+                padding: '0 4px',
+                fontSize: '0.875rem',
                 '&.MuiInputLabel-shrink': {
-                  transform: 'translate(14px, -9px) scale(0.75)',
+                  backgroundColor: '#FFFFFF',
+                  padding: '0 4px',
+                  fontSize: '0.75rem',
                 },
+                '&.Mui-focused': {
+                  color: '#667eea',
+                },
+              },
+              '& .MuiOutlinedInput-notchedOutline legend': {
+                maxWidth: '100%',
               },
             }}
           >
@@ -269,7 +326,11 @@ function QuizFilters({ onSearch, onFilterChange }) {
             defaultValue=""
             onChange={handleFilterChange('status')}
             fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
             SelectProps={{
+              displayEmpty: true,
               MenuProps: {
                 disablePortal: false,
                 anchorOrigin: {
@@ -292,19 +353,34 @@ function QuizFilters({ onSearch, onFilterChange }) {
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#F8F9FA',
                 borderRadius: 2,
-                minHeight: '56px',
-              },
-              '& .MuiSelect-select': {
-                py: 1.5,
-                minHeight: '24px',
-                display: 'flex',
-                alignItems: 'center',
+                '&:hover': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                  },
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#FFFFFF',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#667eea',
+                    borderWidth: '2px',
+                  },
+                },
               },
               '& .MuiInputLabel-root': {
-                transform: 'translate(14px, 16px) scale(1)',
+                backgroundColor: '#FFFFFF',
+                padding: '0 4px',
+                fontSize: '0.875rem',
                 '&.MuiInputLabel-shrink': {
-                  transform: 'translate(14px, -9px) scale(0.75)',
+                  backgroundColor: '#FFFFFF',
+                  padding: '0 4px',
+                  fontSize: '0.75rem',
                 },
+                '&.Mui-focused': {
+                  color: '#667eea',
+                },
+              },
+              '& .MuiOutlinedInput-notchedOutline legend': {
+                maxWidth: '100%',
               },
             }}
           >

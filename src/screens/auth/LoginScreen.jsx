@@ -185,7 +185,7 @@ function LoginScreen() {
                           fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
                         }}
                       >
-                        Manage Your Learning With -
+                        Manage Your Learning With Quiz Craft
                       </Typography>
 
                       {/* Features List */}
