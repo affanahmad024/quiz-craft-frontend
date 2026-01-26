@@ -307,6 +307,7 @@ function QuizDetailScreen() {
                   color: COLORS.TEXT_SECONDARY,
                   mb: 3,
                   lineHeight: 1.6,
+                  whiteSpace: 'pre-line',
                 }}
               >
                 {currentQuiz.description}

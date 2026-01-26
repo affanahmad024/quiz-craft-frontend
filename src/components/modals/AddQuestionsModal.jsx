@@ -2,7 +2,7 @@
 // Full-screen modal for managing questions organized by type
 // Following Phoenix pattern
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Dialog,
@@ -37,6 +37,8 @@ import { toast } from 'react-hot-toast';
  * @param {array} questions - Existing questions
  * @param {function} onAddQuestion - Callback to add single question
  * @param {function} onBulkAddQuestions - Callback to bulk add questions
+ * @param {function} onUpdateQuestion - Callback to update existing question
+ * @param {object} editingQuestion - Question being edited (if any)
  * @param {string} quizId - Quiz ID
  */
 function AddQuestionsModal({
@@ -45,12 +47,22 @@ function AddQuestionsModal({
   questions,
   onAddQuestion,
   onBulkAddQuestions,
+  onUpdateQuestion,
+  editingQuestion,
   quizId,
 }) {
   const [singleFormOpen, setSingleFormOpen] = useState(false);
   const [bulkFormOpen, setBulkFormOpen] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update form state when editingQuestion changes
+  useEffect(() => {
+    if (editingQuestion && open) {
+      setSelectedType(editingQuestion.question_type);
+      setSingleFormOpen(true);
+    }
+  }, [editingQuestion, open]);
 
   // Group questions by type
   const questionsByType = {
@@ -74,12 +86,22 @@ function AddQuestionsModal({
   // Handle single question submit
   const handleSingleSubmit = async (questionData) => {
     setIsLoading(true);
-    const response = await onAddQuestion(quizId, questionData);
+    let response;
+
+    if (editingQuestion) {
+      // Update existing question
+      response = await onUpdateQuestion(editingQuestion.id, questionData);
+    } else {
+      // Add new question
+      response = await onAddQuestion(quizId, questionData);
+    }
+
     setIsLoading(false);
 
     if (response.success) {
-      toast.success('Question added successfully');
+      toast.success(editingQuestion ? 'Question updated successfully' : 'Question added successfully');
       setSingleFormOpen(false);
+      onClose(); // Close the modal after saving
     }
   };
 
@@ -254,6 +276,8 @@ function AddQuestionsModal({
 
   return (
     <>
+      {/* Hide type selection dialog when editing */}
+      {!singleFormOpen && !bulkFormOpen && (
       <Dialog fullScreen open={open} onClose={onClose}>
         <AppBar
           position="sticky"
@@ -333,6 +357,7 @@ function AddQuestionsModal({
           </Box>
         </Box>
       </Dialog>
+      )}
 
       {/* Single Question Form */}
       {singleFormOpen && selectedType && (
@@ -341,6 +366,7 @@ function AddQuestionsModal({
           onClose={handleCloseSingleForm}
           onSubmit={handleSingleSubmit}
           questionType={selectedType}
+          initialData={editingQuestion}
           isLoading={isLoading}
         />
       )}
@@ -366,6 +392,8 @@ AddQuestionsModal.propTypes = {
   questions: PropTypes.array.isRequired,
   onAddQuestion: PropTypes.func.isRequired,
   onBulkAddQuestions: PropTypes.func.isRequired,
+  onUpdateQuestion: PropTypes.func,
+  editingQuestion: PropTypes.object,
   quizId: PropTypes.string.isRequired,
 };
 

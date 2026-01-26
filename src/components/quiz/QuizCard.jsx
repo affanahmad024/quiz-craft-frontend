@@ -86,6 +86,7 @@ function QuizCard({ quiz, onView, onEdit, onDelete }) {
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
             minHeight: '3em',
+            whiteSpace: 'pre-line',
           }}
         >
           {quiz.description || 'No description provided'}

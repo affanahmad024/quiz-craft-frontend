@@ -195,6 +195,7 @@ function EditQuizScreen() {
     });
     setQuestionErrors({});
     setAddMode('manual');
+    setAddQuestionsModalOpen(true); // Open the modal
   };
 
   // Handle question type change
@@ -468,6 +469,7 @@ function EditQuizScreen() {
                     sx={{
                       color: '#636E72',
                       mb: 3,
+                      whiteSpace: 'pre-line',
                     }}
                   >
                     {currentQuiz.description}
@@ -854,10 +856,16 @@ function EditQuizScreen() {
       {/* Add Questions Modal */}
       <AddQuestionsModal
         open={addQuestionsModalOpen}
-        onClose={() => setAddQuestionsModalOpen(false)}
+        onClose={() => {
+          setAddQuestionsModalOpen(false);
+          setEditingQuestion(null);
+          setAddMode(null);
+        }}
         questions={currentQuiz?.questions || []}
         onAddQuestion={handleAddQuestion}
         onBulkAddQuestions={handleBulkAddQuestions}
+        onUpdateQuestion={updateQuestion}
+        editingQuestion={editingQuestion}
         quizId={id}
       />
 
