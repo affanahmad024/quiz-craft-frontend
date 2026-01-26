@@ -8,9 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Quiz as QuizIcon,
   Psychology as BrainIcon,
-  EmojiEvents as TrophyIcon,
   Groups as GroupIcon,
-  Speed as SpeedIcon,
   Security as SecurityIcon,
   AutoAwesome as SparkleIcon,
   ArrowForward as ArrowForwardIcon,
@@ -744,73 +742,183 @@ function LandingPage() {
       </Box>
 
       {/* CTA Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%)',
-            borderRadius: { xs: 4, md: 8 },
-            p: { xs: 4, sm: 6, md: 8 },
-            textAlign: 'center',
-            color: 'white',
             position: 'relative',
             overflow: 'hidden',
-            boxShadow: '0 20px 60px -10px rgba(108, 92, 231, 0.5)',
+            borderRadius: { xs: 4, md: 6 },
           }}
         >
+          {/* Main Card */}
           <Box
             sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage: 'radial-gradient(circle at 20px 20px, rgba(255,255,255,0.2) 2px, transparent 0)',
-              backgroundSize: '40px 40px',
-              opacity: 0.3,
+              background: 'linear-gradient(135deg, #6C5CE7 0%, #5f4dd1 50%, #a29bfe 100%)',
+              p: { xs: 5, sm: 6, md: 8 },
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: isDarkMode
+                ? '0 30px 80px -15px rgba(108, 92, 231, 0.6)'
+                : '0 30px 80px -15px rgba(108, 92, 231, 0.5)',
             }}
-          />
-          
-          <Box sx={{ position: 'relative', zIndex: 1 }}>
-              <Typography variant="h3" sx={{ fontWeight: 800, mb: 3, fontSize: { xs: '1.75rem', md: '3rem' } }}>
-                Ready to Boost Your Learning?
+          >
+            {/* Decorative Elements */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -150,
+                right: -150,
+                width: 400,
+                height: 400,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: -100,
+                left: -100,
+                width: 300,
+                height: 300,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '150%',
+                height: '150%',
+                backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)',
+                backgroundSize: '50px 50px',
+                opacity: 0.3,
+                pointerEvents: 'none',
+              }}
+            />
+
+            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+              {/* Badge */}
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 2.5,
+                  py: 1,
+                  borderRadius: 10,
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  mb: 3,
+                }}
+              >
+                <SparkleIcon sx={{ fontSize: 18, color: 'white' }} />
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 700, fontSize: '0.875rem' }}>
+                  Join 10,000+ Active Users
+                </Typography>
+              </Box>
+
+              {/* Main Heading */}
+              <Typography
+                variant="h2"
+                sx={{
+                  fontWeight: 800,
+                  color: 'white',
+                  mb: 2.5,
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3.5rem' },
+                  lineHeight: 1.1,
+                  textShadow: '0 2px 20px rgba(0,0,0,0.1)',
+                }}
+              >
+                Start Creating Smarter<br />Quizzes Today
               </Typography>
+
+              {/* Subheading */}
               <Typography
                 variant="h6"
                 sx={{
+                  color: 'rgba(255, 255, 255, 0.95)',
                   mb: 5,
-                  opacity: 0.9,
+                  fontSize: { xs: '1rem', md: '1.15rem' },
                   fontWeight: 400,
                   maxWidth: 600,
                   mx: 'auto',
-                  fontSize: { xs: '1rem', md: '1.25rem' }
+                  lineHeight: 1.6,
                 }}
               >
-                Join thousands of learners. Start creating impactful quizzes today.
+                AI-powered quiz generation, real-time feedback, and advanced analytics. Everything you need to master any subject.
               </Typography>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={handleGetStarted}
-                endIcon={<ArrowForwardIcon />}
-                sx={{
-                  bgcolor: 'white',
-                  color: 'primary.main',
-                  px: { xs: 4, md: 6 },
-                  py: { xs: 1.5, md: 2 },
-                  fontSize: { xs: '1rem', md: '1.2rem' },
-                  fontWeight: 700,
-                  borderRadius: 3,
-                  boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.95)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 15px 30px rgba(0,0,0,0.2)',
-                  },
-                }}
+
+              {/* CTA Buttons */}
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={2.5}
+                justifyContent="center"
+                alignItems="center"
+                sx={{ mb: 4 }}
               >
-                {user ? 'Go to Dashboard' : 'Get Started for Free'}
-              </Button>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleGetStarted}
+                  endIcon={<ArrowForwardIcon />}
+                  sx={{
+                    bgcolor: 'white',
+                    color: '#6C5CE7',
+                    px: 5,
+                    py: 2,
+                    fontSize: { xs: '1.05rem', md: '1.15rem' },
+                    fontWeight: 700,
+                    borderRadius: 2.5,
+                    boxShadow: '0 12px 35px rgba(0,0,0,0.2)',
+                    textTransform: 'none',
+                    minWidth: { xs: '100%', sm: 220 },
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&:hover': {
+                      bgcolor: 'rgba(255, 255, 255, 0.95)',
+                      transform: 'translateY(-4px) scale(1.02)',
+                      boxShadow: '0 16px 45px rgba(0,0,0,0.25)',
+                    },
+                  }}
+                >
+                  {user ? 'Go to Dashboard' : 'Get Started Free'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={handleExplore}
+                  startIcon={<PlayIcon />}
+                  sx={{
+                    color: 'white',
+                    borderColor: 'rgba(255, 255, 255, 0.4)',
+                    borderWidth: 2,
+                    px: 5,
+                    py: 2,
+                    fontSize: { xs: '1.05rem', md: '1.15rem' },
+                    fontWeight: 700,
+                    borderRadius: 2.5,
+                    textTransform: 'none',
+                    minWidth: { xs: '100%', sm: 220 },
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&:hover': {
+                      borderWidth: 2,
+                      borderColor: 'white',
+                      bgcolor: 'rgba(255, 255, 255, 0.15)',
+                      transform: 'translateY(-4px)',
+                    },
+                  }}
+                >
+                  Explore Quizzes
+                </Button>
+              </Stack>
+            </Box>
           </Box>
         </Box>
       </Container>
