@@ -484,9 +484,13 @@ function EditQuizScreen() {
                             borderBottomLeftRadius: 0,
                             borderBottomRightRadius: 0,
                           },
+                          '& .MuiAccordionSummary-content': {
+                            minWidth: 0,
+                            overflow: 'hidden',
+                          },
                         }}
                       >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, pr: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', minWidth: 0, overflow: 'hidden' }}>
                           <Chip
                             label={`Q${index + 1}`}
                             size="small"
@@ -495,9 +499,10 @@ function EditQuizScreen() {
                               color: '#FFFFFF',
                               fontWeight: 600,
                               minWidth: 45,
+                              flexShrink: 0,
                             }}
                           />
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                             <Typography
                               variant="body1"
                               sx={{
@@ -506,11 +511,14 @@ function EditQuizScreen() {
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
+                                display: 'block',
+                                width: '100%',
+                                maxWidth: '100%',
                               }}
                             >
                               {question.question_text}
                             </Typography>
-                            <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                            <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap', maxWidth: '100%' }}>
                               <Chip
                                 label={QUESTION_TYPE_LABELS[question.question_type]}
                                 size="small"
@@ -546,7 +554,7 @@ function EditQuizScreen() {
                             </Box>
                           </Box>
                           <Box
-                            sx={{ display: 'flex', gap: 0.5 }}
+                            sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <IconButton
