@@ -36,6 +36,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/auth/AuthContextProvider';
 import { ROUTES } from '../constants/RouteConstants';
 import CreateQuizModal from '../components/modals/CreateQuizModal';
+import NotificationBell from '../components/notifications/NotificationBell';
 
 // Logo image - will be loaded from public folder
 const logoImage = '/logo.png';
@@ -219,6 +220,7 @@ function Header() {
                     >
                       + Create Quiz
                     </Button>
+                    <NotificationBell />
                     <IconButton
                       onClick={handleUserMenuOpen}
                       sx={{

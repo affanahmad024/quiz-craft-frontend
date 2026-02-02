@@ -53,6 +53,19 @@ export const ROUTES = {
   AI_GENERATE: '/ai/generate',
   AI_JOBS: '/ai/jobs',
 
+  // Notification Routes
+  NOTIFICATIONS: '/notifications',
+
+  // Live Session Routes
+  LIVE_SESSIONS: '/live-sessions',
+  LIVE_SESSION_CREATE: '/live-sessions/create',
+  LIVE_SESSION_DETAIL: '/live-sessions/:id',
+  LIVE_SESSION_WAITING: '/live-sessions/:id/waiting',
+  LIVE_SESSION_LIVE: '/live-sessions/:id/live',
+  LIVE_SESSION_RESULTS: '/live-sessions/:id/results',
+  MY_SESSIONS: '/my-sessions',
+  SESSION_INVITATIONS: '/session-invitations',
+
   // Utility Routes
   NOT_FOUND: '/404',
 };

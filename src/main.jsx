@@ -13,6 +13,7 @@ import AttemptContextProvider from "./contexts/attempt/AttemptContextProvider";
 import DiscoveryContextProvider from "./contexts/discovery/DiscoveryContextProvider";
 import ProfileContextProvider from "./contexts/profile/ProfileContextProvider";
 import AdminContextProvider from "./contexts/admin/AdminContextProvider";
+import NotificationContextProvider from "./contexts/notifications/NotificationContextProvider";
 import "./styles/variables.css";
 import "./styles/global.css";
 import "./index.css";
@@ -22,13 +23,14 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <ThemeModeProvider>
         <AuthContextProvider>
-          <QuizContextProvider>
-            <AttemptContextProvider>
-              <DiscoveryContextProvider>
-                <ProfileContextProvider>
-                  <AdminContextProvider>
-                    <App />
-                    <Toaster
+          <NotificationContextProvider>
+            <QuizContextProvider>
+              <AttemptContextProvider>
+                <DiscoveryContextProvider>
+                  <ProfileContextProvider>
+                    <AdminContextProvider>
+                      <App />
+                      <Toaster
                       position="top-right"
                       toastOptions={{
                         duration: 4000,
@@ -52,11 +54,12 @@ createRoot(document.getElementById("root")).render(
                         },
                       }}
                     />
-                  </AdminContextProvider>
-                </ProfileContextProvider>
-              </DiscoveryContextProvider>
-            </AttemptContextProvider>
-          </QuizContextProvider>
+                    </AdminContextProvider>
+                  </ProfileContextProvider>
+                </DiscoveryContextProvider>
+              </AttemptContextProvider>
+            </QuizContextProvider>
+          </NotificationContextProvider>
         </AuthContextProvider>
       </ThemeModeProvider>
     </BrowserRouter>
