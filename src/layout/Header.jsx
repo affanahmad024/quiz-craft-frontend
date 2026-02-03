@@ -30,6 +30,7 @@ import {
   Explore as ExploreIcon,
   Logout as LogoutIcon,
   Settings as SettingsIcon,
+  PlayCircleOutline as LiveSessionIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -103,6 +104,7 @@ function Header() {
     { label: 'Dashboard', path: ROUTES.DASHBOARD, icon: <DashboardIcon /> },
     { label: 'My Quizzes', path: ROUTES.QUIZ_LIST, icon: <QuizIcon /> },
     { label: 'Discover', path: ROUTES.DISCOVER, icon: <ExploreIcon /> },
+    { label: 'Live Sessions', path: ROUTES.LIVE_SESSIONS, icon: <LiveSessionIcon /> },
   ];
 
   // Navigation items for guest users

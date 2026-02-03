@@ -14,6 +14,7 @@ import DiscoveryContextProvider from "./contexts/discovery/DiscoveryContextProvi
 import ProfileContextProvider from "./contexts/profile/ProfileContextProvider";
 import AdminContextProvider from "./contexts/admin/AdminContextProvider";
 import NotificationContextProvider from "./contexts/notifications/NotificationContextProvider";
+import LiveSessionContextProvider from "./contexts/liveSession/LiveSessionContextProvider";
 import "./styles/variables.css";
 import "./styles/global.css";
 import "./index.css";
@@ -24,12 +25,13 @@ createRoot(document.getElementById("root")).render(
       <ThemeModeProvider>
         <AuthContextProvider>
           <NotificationContextProvider>
-            <QuizContextProvider>
-              <AttemptContextProvider>
-                <DiscoveryContextProvider>
-                  <ProfileContextProvider>
-                    <AdminContextProvider>
-                      <App />
+            <LiveSessionContextProvider>
+              <QuizContextProvider>
+                <AttemptContextProvider>
+                  <DiscoveryContextProvider>
+                    <ProfileContextProvider>
+                      <AdminContextProvider>
+                        <App />
                       <Toaster
                       position="top-right"
                       toastOptions={{
@@ -54,11 +56,12 @@ createRoot(document.getElementById("root")).render(
                         },
                       }}
                     />
-                    </AdminContextProvider>
-                  </ProfileContextProvider>
-                </DiscoveryContextProvider>
-              </AttemptContextProvider>
-            </QuizContextProvider>
+                      </AdminContextProvider>
+                    </ProfileContextProvider>
+                  </DiscoveryContextProvider>
+                </AttemptContextProvider>
+              </QuizContextProvider>
+            </LiveSessionContextProvider>
           </NotificationContextProvider>
         </AuthContextProvider>
       </ThemeModeProvider>

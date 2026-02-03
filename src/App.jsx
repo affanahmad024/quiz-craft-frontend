@@ -14,6 +14,7 @@ import { discoveryRoutes } from "./routes/DiscoveryRoutes";
 import { profileRoutes } from "./routes/ProfileRoutes";
 import { adminRoutes } from "./routes/AdminRoutes";
 import { aiRoutes } from "./routes/AIRoutes";
+import { liveSessionRoutes } from "./routes/LiveSessionRoutes";
 import RequireAuth from "./guards/RequireAuth";
 import BasicLayout from "./layouts/BasicLayout";
 import DashboardScreen from "./screens/DashboardScreen";
@@ -47,6 +48,9 @@ function App() {
 
           {/* AI Routes */}
           {aiRoutes}
+
+          {/* Live Session Routes */}
+          {liveSessionRoutes}
 
           {/* Dashboard Route */}
           <Route
