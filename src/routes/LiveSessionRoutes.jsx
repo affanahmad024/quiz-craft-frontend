@@ -2,20 +2,17 @@
 // Live session related routes
 // Following Phoenix pattern
 
-import { Route } from 'react-router-dom';
-import { ROUTES } from '../constants/RouteConstants';
-import RequireAuth from '../guards/RequireAuth';
-import BasicLayout from '../layouts/BasicLayout';
-import LiveSessionsPage from '../pages/liveSession/LiveSessionsPage';
-
-// Placeholder components for routes not yet implemented
-// These can be replaced with actual implementations later
-const CreateSessionPage = () => <div>Create Session Page - Coming Soon</div>;
-const WaitingRoomPage = () => <div>Waiting Room - Coming Soon</div>;
-const LiveSessionPage = () => <div>Live Session - Coming Soon</div>;
-const ResultsPage = () => <div>Results - Coming Soon</div>;
-const MySessionsPage = () => <div>My Sessions - Coming Soon</div>;
-const InvitationsPage = () => <div>Invitations - Coming Soon</div>;
+import { Route } from "react-router-dom";
+import { ROUTES } from "../constants/RouteConstants";
+import RequireAuth from "../guards/RequireAuth";
+import BasicLayout from "../layouts/BasicLayout";
+import LiveSessionsPage from "../pages/liveSession/LiveSessionsPage";
+import CreateSessionPage from "../pages/liveSession/CreateSessionPage";
+import WaitingRoomPage from "../pages/liveSession/WaitingRoomPage";
+import LiveSessionPage from "../pages/liveSession/LiveSessionPage";
+import ResultsPage from "../pages/liveSession/ResultsPage";
+import MySessionsPage from "../pages/liveSession/MySessionsPage";
+import InvitationsPage from "../pages/liveSession/InvitationsPage";
 
 /**
  * Live Session routes configuration

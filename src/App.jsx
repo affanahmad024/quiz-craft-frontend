@@ -14,6 +14,7 @@ import { discoveryRoutes } from "./routes/DiscoveryRoutes";
 import { profileRoutes } from "./routes/ProfileRoutes";
 import { adminRoutes } from "./routes/AdminRoutes";
 import { aiRoutes } from "./routes/AIRoutes";
+import { educatorRoutes } from "./routes/EducatorRoutes";
 import { liveSessionRoutes } from "./routes/LiveSessionRoutes";
 import RequireAuth from "./guards/RequireAuth";
 import BasicLayout from "./layouts/BasicLayout";
@@ -51,6 +52,9 @@ function App() {
 
           {/* Live Session Routes */}
           {liveSessionRoutes}
+
+          {/* Educator Routes */}
+          {educatorRoutes}
 
           {/* Dashboard Route */}
           <Route

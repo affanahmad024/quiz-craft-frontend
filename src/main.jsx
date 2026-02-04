@@ -15,6 +15,7 @@ import ProfileContextProvider from "./contexts/profile/ProfileContextProvider";
 import AdminContextProvider from "./contexts/admin/AdminContextProvider";
 import NotificationContextProvider from "./contexts/notifications/NotificationContextProvider";
 import LiveSessionContextProvider from "./contexts/liveSession/LiveSessionContextProvider";
+import EducatorContextProvider from "./contexts/educator/EducatorContextProvider";
 import "./styles/variables.css";
 import "./styles/global.css";
 import "./index.css";
@@ -26,45 +27,47 @@ createRoot(document.getElementById("root")).render(
         <AuthContextProvider>
           <NotificationContextProvider>
             <LiveSessionContextProvider>
-              <QuizContextProvider>
-                <AttemptContextProvider>
-                  <DiscoveryContextProvider>
-                    <ProfileContextProvider>
-                      <AdminContextProvider>
-                        <App />
-                      <Toaster
-                      position="top-right"
-                      toastOptions={{
-                        duration: 4000,
-                        style: {
-                          background: "#FFFFFF",
-                          color: "#2D3436",
-                          borderRadius: "8px",
-                          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
-                        },
-                        success: {
-                          iconTheme: {
-                            primary: "#00B894",
-                            secondary: "#FFFFFF",
-                          },
-                        },
-                        error: {
-                          iconTheme: {
-                            primary: "#FF6B6B",
-                            secondary: "#FFFFFF",
-                          },
-                        },
-                      }}
-                    />
-                      </AdminContextProvider>
-                    </ProfileContextProvider>
-                  </DiscoveryContextProvider>
-                </AttemptContextProvider>
-              </QuizContextProvider>
+              <EducatorContextProvider>
+                <QuizContextProvider>
+                  <AttemptContextProvider>
+                    <DiscoveryContextProvider>
+                      <ProfileContextProvider>
+                        <AdminContextProvider>
+                          <App />
+                          <Toaster
+                            position="top-right"
+                            toastOptions={{
+                              duration: 4000,
+                              style: {
+                                background: "#FFFFFF",
+                                color: "#2D3436",
+                                borderRadius: "8px",
+                                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+                              },
+                              success: {
+                                iconTheme: {
+                                  primary: "#00B894",
+                                  secondary: "#FFFFFF",
+                                },
+                              },
+                              error: {
+                                iconTheme: {
+                                  primary: "#FF6B6B",
+                                  secondary: "#FFFFFF",
+                                },
+                              },
+                            }}
+                          />
+                        </AdminContextProvider>
+                      </ProfileContextProvider>
+                    </DiscoveryContextProvider>
+                  </AttemptContextProvider>
+                </QuizContextProvider>
+              </EducatorContextProvider>
             </LiveSessionContextProvider>
           </NotificationContextProvider>
         </AuthContextProvider>
       </ThemeModeProvider>
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );
