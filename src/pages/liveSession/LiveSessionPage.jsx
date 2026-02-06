@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Container, Typography, Button, Paper, Grid } from "@mui/material";
+import { Box, Container, Typography, Button, Paper, Grid, LinearProgress } from "@mui/material";
 import AnimatedPage from "../../components/animations/AnimatedPage";
 import { useLiveSession } from "../../contexts/liveSession/LiveSessionContextProvider";
 import { useParams } from "react-router-dom";
@@ -50,6 +50,37 @@ function LiveSessionPage() {
     getLeaderboard(id).catch(() => {});
   };
 
+  const formatTime = (seconds) => {
+    if (!seconds) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const getTimerDisplay = () => {
+    const timerMode = currentSession?.timer_mode;
+
+    if (timerMode === "whole_quiz") {
+      return (
+        <>
+          <Typography variant="subtitle1">Quiz Time Remaining</Typography>
+          <Typography variant="h4" sx={{ my: 1, color: timeRemaining < 60 ? "error.main" : "inherit" }}>
+            {formatTime(timeRemaining)}
+          </Typography>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Typography variant="subtitle1">Question Time</Typography>
+          <Typography variant="h4" sx={{ my: 1, color: timeRemaining < 10 ? "error.main" : "inherit" }}>
+            {timeRemaining}s
+          </Typography>
+        </>
+      );
+    }
+  };
+
   return (
     <AnimatedPage>
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -81,10 +112,18 @@ function LiveSessionPage() {
 
           <Grid item xs={12} md={4}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="subtitle1">Time Remaining</Typography>
-              <Typography variant="h4" sx={{ my: 1 }}>
-                {timeRemaining}s
-              </Typography>
+              {getTimerDisplay()}
+              {currentSession?.timer_mode === "whole_quiz" && (
+                <LinearProgress
+                  variant="determinate"
+                  value={
+                    ((currentSession?.whole_quiz_timer_seconds - timeRemaining) /
+                      currentSession?.whole_quiz_timer_seconds) *
+                    100
+                  }
+                  sx={{ mt: 1 }}
+                />
+              )}
 
               <Box sx={{ mt: 2 }}>
                 <Typography variant="subtitle2">Leaderboard</Typography>

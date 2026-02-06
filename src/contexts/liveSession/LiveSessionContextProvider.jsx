@@ -346,6 +346,10 @@ function LiveSessionContextProvider({ children }) {
           setTimeRemaining(data.seconds_remaining);
         },
 
+        onWholeQuizTimerUpdate: (data) => {
+          setTimeRemaining(data.seconds_remaining);
+        },
+
         onQuestionAdvance: (data) => {
           console.log("Auto-advancing to next question:", data);
           setCurrentQuestion(data.next_question);

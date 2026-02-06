@@ -28,6 +28,14 @@ export const PROGRESSION_MODES = {
 };
 
 /**
+ * Timer Modes
+ */
+export const TIMER_MODES = {
+  PER_QUESTION: 'per_question', // Each question has its own timer
+  WHOLE_QUIZ: 'whole_quiz',     // Total time for entire quiz
+};
+
+/**
  * Participant Status
  */
 export const PARTICIPANT_STATUS = {
@@ -43,6 +51,7 @@ export const SESSION_WS_MESSAGE_TYPES = {
   SESSION_STARTED: 'session_started',
   QUESTION_REVEALED: 'question_revealed',
   TIMER_UPDATE: 'timer_update',
+  WHOLE_QUIZ_TIMER_UPDATE: 'whole_quiz_timer_update',
   QUESTION_AUTO_ADVANCE: 'question_auto_advance',
   LEADERBOARD_UPDATE: 'leaderboard_update',
   SESSION_ENDED: 'session_ended',

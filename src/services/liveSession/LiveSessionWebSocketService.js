@@ -123,6 +123,10 @@ class LiveSessionWebSocketService {
           this.messageHandlers.onTimerUpdate?.(message.data);
           break;
 
+        case SESSION_WS_MESSAGE_TYPES.WHOLE_QUIZ_TIMER_UPDATE:
+          this.messageHandlers.onWholeQuizTimerUpdate?.(message.data);
+          break;
+
         case SESSION_WS_MESSAGE_TYPES.QUESTION_AUTO_ADVANCE:
           this.messageHandlers.onQuestionAdvance?.(message.data);
           break;
