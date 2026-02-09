@@ -29,7 +29,7 @@ import {
   Quiz as QuizIcon,
   Explore as ExploreIcon,
   Logout as LogoutIcon,
-  Settings as SettingsIcon,
+  Assessment as AssessmentIcon,
   PlayCircleOutline as LiveSessionIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -317,8 +317,8 @@ function Header() {
           Profile
         </MenuItem>
         <MenuItem onClick={() => handleNavigate(ROUTES.PROFILE_STATS)}>
-          <SettingsIcon sx={{ mr: 1.5, fontSize: 20 }} />
-          Settings
+          <AssessmentIcon sx={{ mr: 1.5, fontSize: 20 }} />
+          Statistics
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
@@ -396,8 +396,8 @@ function Header() {
                   onClick={() => handleNavigate(ROUTES.PROFILE_STATS)}
                   sx={{ borderRadius: 2, mb: 0.5 }}
                 >
-                  <SettingsIcon sx={{ mr: 2 }} />
-                  <ListItemText primary="Settings" />
+                  <AssessmentIcon sx={{ mr: 2 }} />
+                  <ListItemText primary="Statistics" />
                 </ListItem>
                 <ListItem
                   button

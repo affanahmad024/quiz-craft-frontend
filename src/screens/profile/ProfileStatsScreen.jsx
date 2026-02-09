@@ -70,7 +70,7 @@ function ProfileStatsScreen() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         }}
       >
         <CircularProgress sx={{ color: 'white' }} />
@@ -82,42 +82,52 @@ function ProfileStatsScreen() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%)',
-        py: 8,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        py: 6,
       }}
     >
       <Container maxWidth="lg">
-        {/* Back Button */}
-        <Box sx={{ mb: 2 }}>
-          <IconButton
-            onClick={handleBack}
+        {/* Header with Back Button */}
+        <Box sx={{ mb: 3 }}>
+          <Box
             sx={{
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              },
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-        </Box>
-
-        {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              color: 'white',
-              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
               mb: 1,
             }}
           >
-            Detailed Statistics
-          </Typography>
+            <IconButton
+              onClick={handleBack}
+              sx={{
+                color: 'white',
+                position: 'absolute',
+                left: 0,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography
+              variant="h3"
+              sx={{
+                color: 'white',
+                fontWeight: 700,
+                fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
+              }}
+            >
+              Detailed Statistics
+            </Typography>
+          </Box>
           <Typography
             variant="body1"
             sx={{
               color: 'rgba(255, 255, 255, 0.9)',
+              fontSize: { xs: '0.9rem', md: '1rem' },
+              textAlign: 'center',
             }}
           >
             Your comprehensive performance overview
@@ -125,28 +135,29 @@ function ProfileStatsScreen() {
         </Box>
 
         {/* Quiz Creation Stats Section */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 3 }}>
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              mb: 2,
+              mb: 1.5,
             }}
           >
-            <CreateIcon sx={{ color: 'white', mr: 1, fontSize: 28 }} />
+            <CreateIcon sx={{ color: 'white', mr: 1, fontSize: 24 }} />
             <Typography
               variant="h5"
               sx={{
                 color: 'white',
                 fontWeight: 700,
+                fontSize: { xs: '1.25rem', md: '1.5rem' },
               }}
             >
               Quiz Creation Statistics
             </Typography>
           </Box>
-          <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.3)', mb: 3 }} />
+          <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.3)', mb: 2.5 }} />
 
-          <Grid container spacing={3}>
+          <Grid container spacing={2.5}>
             <Grid item xs={12} sm={6} md={3}>
               <StatsCard
                 title="Quizzes Created"
@@ -190,28 +201,29 @@ function ProfileStatsScreen() {
         </Box>
 
         {/* Quiz Taking Stats Section */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 3 }}>
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              mb: 2,
+              mb: 1.5,
             }}
           >
-            <QuizIcon sx={{ color: 'white', mr: 1, fontSize: 28 }} />
+            <QuizIcon sx={{ color: 'white', mr: 1, fontSize: 24 }} />
             <Typography
               variant="h5"
               sx={{
                 color: 'white',
                 fontWeight: 700,
+                fontSize: { xs: '1.25rem', md: '1.5rem' },
               }}
             >
               Quiz Taking Statistics
             </Typography>
           </Box>
-          <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.3)', mb: 3 }} />
+          <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.3)', mb: 2.5 }} />
 
-          <Grid container spacing={3}>
+          <Grid container spacing={2.5}>
             <Grid item xs={12} sm={6} md={3}>
               <StatsCard
                 title="Quizzes Taken"
@@ -259,28 +271,29 @@ function ProfileStatsScreen() {
         </Box>
 
         {/* Performance Stats Section */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 3 }}>
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              mb: 2,
+              mb: 1.5,
             }}
           >
-            <TrendingUpIcon sx={{ color: 'white', mr: 1, fontSize: 28 }} />
+            <TrendingUpIcon sx={{ color: 'white', mr: 1, fontSize: 24 }} />
             <Typography
               variant="h5"
               sx={{
                 color: 'white',
                 fontWeight: 700,
+                fontSize: { xs: '1.25rem', md: '1.5rem' },
               }}
             >
               Performance Statistics
             </Typography>
           </Box>
-          <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.3)', mb: 3 }} />
+          <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.3)', mb: 2.5 }} />
 
-          <Grid container spacing={3}>
+          <Grid container spacing={2.5}>
             <Grid item xs={12} sm={6} md={3}>
               <StatsCard
                 title="Quizzes Passed"
@@ -325,24 +338,6 @@ function ProfileStatsScreen() {
               />
             </Grid>
           </Grid>
-        </Box>
-
-        {/* Back Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <QuizCraftButton
-            variant="contained"
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-            sx={{
-              bgcolor: 'white',
-              color: COLORS.PRIMARY,
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-              },
-            }}
-          >
-            Back to Profile
-          </QuizCraftButton>
         </Box>
       </Container>
     </Box>
