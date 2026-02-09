@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Container,
@@ -11,15 +11,22 @@ import {
   Radio,
   FormControl,
   FormLabel,
+  MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../../components/animations/AnimatedPage";
 import { useLiveSession } from "../../contexts/liveSession/LiveSessionContextProvider";
 import { ROUTES, buildRoute } from "../../constants/RouteConstants";
+import { listMyQuizzes } from "../../services/quiz/QuizServices";
+import useNetReq from "../../hooks/NetworkRequest";
+import toast from "react-hot-toast";
 
 function CreateSessionPage() {
   const navigate = useNavigate();
   const { createSession } = useLiveSession();
+  const { fetchData } = useNetReq();
+  const abortContRef = useRef(new AbortController());
 
   const [title, setTitle] = useState("");
   const [quizId, setQuizId] = useState("");
@@ -29,6 +36,39 @@ function CreateSessionPage() {
   const [maxParticipants, setMaxParticipants] = useState(100);
   const [discoverable, setDiscoverable] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+
+  // Quiz dropdown state
+  const [quizzes, setQuizzes] = useState([]);
+  const [isLoadingQuizzes, setIsLoadingQuizzes] = useState(true);
+
+  // Fetch user's quizzes on mount
+  useEffect(() => {
+    const loadQuizzes = async () => {
+      try {
+        const response = await listMyQuizzes(fetchData, abortContRef, {
+          page: 1,
+          limit: 100, // Get all published quizzes
+        });
+
+        if (response.success && response.data) {
+          // Filter only published quizzes
+          const publishedQuizzes = response.data.filter(
+            (quiz) => quiz.status === "published"
+          );
+          setQuizzes(publishedQuizzes);
+        } else {
+          toast.error("Failed to load quizzes");
+        }
+      } catch (error) {
+        console.error("Error loading quizzes:", error);
+        toast.error("Failed to load quizzes");
+      } finally {
+        setIsLoadingQuizzes(false);
+      }
+    };
+
+    loadQuizzes();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,12 +131,29 @@ function CreateSessionPage() {
           />
 
           <TextField
-            label="Quiz ID"
+            select
+            label="Select Quiz"
             value={quizId}
             onChange={(e) => setQuizId(e.target.value)}
-            helperText="Enter the quiz id from your published quizzes"
+            helperText="Choose a published quiz for this live session"
             required
-          />
+            disabled={isLoadingQuizzes}
+          >
+            {isLoadingQuizzes ? (
+              <MenuItem disabled>
+                <CircularProgress size={20} sx={{ mr: 1 }} />
+                Loading quizzes...
+              </MenuItem>
+            ) : quizzes.length === 0 ? (
+              <MenuItem disabled>No published quizzes available</MenuItem>
+            ) : (
+              quizzes.map((quiz) => (
+                <MenuItem key={quiz.id} value={quiz.id}>
+                  {quiz.title}
+                </MenuItem>
+              ))
+            )}
+          </TextField>
 
           <FormControl component="fieldset" sx={{ mt: 2 }}>
             <FormLabel component="legend">Timer Mode</FormLabel>
