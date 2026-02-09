@@ -3,7 +3,7 @@
 // Modern, high-conversion design
 
 import { useState, useEffect } from 'react';
-import { Box, Container, Typography, Button, Grid, Card, CardContent, Chip, Stack, Avatar } from '@mui/material';
+import { Box, Container, Typography, Button, Grid, Card, CardContent, Chip, Stack, Avatar, GlobalStyles, Divider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
   Quiz as QuizIcon,
@@ -16,6 +16,10 @@ import {
   School as SchoolIcon,
   CheckCircle as CheckIcon,
   Bolt as BoltIcon,
+  PlayCircleOutline as LiveSessionIcon,
+  People as PeopleIcon,
+  Timer as TimerIcon,
+  Leaderboard as LeaderboardIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { ROUTES } from '../constants/RouteConstants';
@@ -59,7 +63,7 @@ function LandingPage() {
   const handleGetStarted = () => navigate(user ? ROUTES.DASHBOARD : ROUTES.SIGNUP);
   const handleExplore = () => navigate(ROUTES.DISCOVER);
 
-  // Three Pillars - Feature categories for different user types
+  // Feature categories for different user types
   const features = [
     {
       icon: <QuizIcon sx={{ fontSize: 40 }} />,
@@ -85,6 +89,19 @@ function LandingPage() {
         '📊 Progress Tracking',
         '🎨 Beautiful Animations',
         '📈 Detailed Results'
+      ]
+    },
+    {
+      icon: <LiveSessionIcon sx={{ fontSize: 40 }} />,
+      title: 'Live Sessions',
+      description: 'Host real-time quiz competitions with automatic progression, timed questions, and live leaderboards. Perfect for classrooms, training, and competitive events.',
+      color: '#0D5C3F',
+      bg: 'rgba(13, 92, 63, 0.1)',
+      highlights: [
+        '🔴 Real-time Competition',
+        '⏱️ Timed Questions',
+        '🏆 Live Leaderboards',
+        '🎓 Perfect for Educators'
       ]
     },
     {
@@ -125,6 +142,20 @@ function LandingPage() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', overflowX: 'hidden' }}>
+      <GlobalStyles
+        styles={{
+          '@keyframes pulse': {
+            '0%, 100%': {
+              opacity: 1,
+              transform: 'scale(1)',
+            },
+            '50%': {
+              opacity: 0.6,
+              transform: 'scale(1.1)',
+            },
+          },
+        }}
+      />
       {/* Hero Section */}
       <Box
         sx={{
@@ -204,7 +235,7 @@ function LandingPage() {
                     textAlign: 'center'
                   }}
                 >
-                  Create, share, and play quizzes that adapt to your learning style. Join 10,000+ learners achieving their goals faster.
+                  Create AI-powered quizzes, host live sessions, and track your progress. Join 10,000+ learners and educators achieving their goals faster.
                 </Typography>
 
                 <Stack
@@ -521,8 +552,332 @@ function LandingPage() {
       {/* Interactive Demo Quiz */}
       <InteractiveDemoQuiz />
 
-      {/* Features Grid - Three Pillars */}
-      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+      {/* Live Sessions Highlight Section */}
+      <Box sx={{
+        py: { xs: 8, md: 12 },
+        background: isDarkMode
+          ? 'linear-gradient(135deg, rgba(13, 92, 63, 0.15) 0%, rgba(126, 217, 87, 0.05) 100%)'
+          : 'linear-gradient(135deg, rgba(13, 92, 63, 0.05) 0%, rgba(126, 217, 87, 0.02) 100%)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Background decoration */}
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 600,
+          height: 600,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(13, 92, 63, 0.1) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none'
+        }} />
+
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+          <Grid container spacing={6} alignItems="center" justifyContent="center">
+            {/* Left side - Content */}
+            <Grid item xs={12} md={6}>
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <Box sx={{ textAlign: 'center' }}>
+                <Chip
+                  icon={<LiveSessionIcon />}
+                  label="NEW FEATURE"
+                  sx={{
+                    mb: 3,
+                    bgcolor: 'rgba(13, 92, 63, 0.15)',
+                    color: '#0D5C3F',
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    px: 1.5,
+                    '& .MuiChip-icon': {
+                      color: '#0D5C3F'
+                    }
+                  }}
+                />
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 800,
+                    mb: 3,
+                    fontSize: { xs: '2rem', md: '2.75rem' },
+                    lineHeight: 1.2,
+                    background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  Host Live Quiz Sessions
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: 'text.secondary',
+                    mb: 4,
+                    lineHeight: 1.7,
+                    fontWeight: 400
+                  }}
+                >
+                  Transform your quizzes into engaging real-time competitions. Perfect for educators, trainers, and anyone who wants to create interactive learning experiences.
+                </Typography>
+
+                <Grid container spacing={2} sx={{ mb: 4, justifyContent: 'center' }}>
+                  {[
+                    { icon: <PeopleIcon />, title: 'Up to 100+ Participants', desc: 'Host large sessions with ease' },
+                    { icon: <TimerIcon />, title: 'Timed Challenges', desc: 'Per-question or whole-quiz timers' },
+                    { icon: <LeaderboardIcon />, title: 'Live Leaderboards', desc: 'Real-time scoring & rankings' },
+                    { icon: <LiveSessionIcon />, title: 'Instant Feedback', desc: 'See results as they happen' }
+                  ].map((item, idx) => (
+                    <Grid item xs={12} sm={6} key={idx} sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', maxWidth: 400 }}>
+                        <Box sx={{
+                          p: 1,
+                          bgcolor: 'rgba(13, 92, 63, 0.1)',
+                          borderRadius: 2,
+                          color: '#0D5C3F',
+                          display: 'flex',
+                          flexShrink: 0
+                        }}>
+                          {item.icon}
+                        </Box>
+                        <Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+                            {item.title}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                            {item.desc}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => navigate(user ? ROUTES.LIVE_SESSIONS : ROUTES.SIGNUP)}
+                    endIcon={<ArrowForwardIcon />}
+                    sx={{
+                      px: 4,
+                      py: 1.5,
+                      background: 'linear-gradient(135deg, #0D5C3F 0%, #7ED957 100%)',
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                      borderRadius: 2,
+                      boxShadow: '0 10px 30px -10px rgba(13, 92, 63, 0.5)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #0A4A32 0%, #6BC047 100%)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 15px 40px -10px rgba(13, 92, 63, 0.6)',
+                      },
+                      transition: 'all 0.3s'
+                    }}
+                  >
+                    {user ? 'Browse Live Sessions' : 'Get Started Free'}
+                  </Button>
+                </Box>
+                </Box>
+              </motion.div>
+            </Grid>
+
+            {/* Right side - Visual */}
+            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                style={{ width: '100%', maxWidth: 500 }}
+              >
+                <Box sx={{ position: 'relative' }}>
+                  {/* Main Card */}
+                  <Card
+                    elevation={0}
+                    sx={{
+                      p: { xs: 3, md: 4 },
+                      borderRadius: 4,
+                      background: isDarkMode ? '#1e1e1e' : '#fff',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      boxShadow: '0 20px 60px -15px rgba(0,0,0,0.2)',
+                      position: 'relative',
+                      zIndex: 2
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          bgcolor: '#ff5f57',
+                          animation: 'pulse 2s infinite'
+                        }}
+                      />
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        Live Session: React Fundamentals
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ mb: 3 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Question 3/10
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#0D5C3F' }}>
+                          ⏱️ 00:15
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          height: 6,
+                          bgcolor: 'action.hover',
+                          borderRadius: 1,
+                          overflow: 'hidden'
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            height: '100%',
+                            width: '30%',
+                            bgcolor: '#0D5C3F',
+                            borderRadius: 1,
+                            transition: 'width 0.3s'
+                          }}
+                        />
+                      </Box>
+                    </Box>
+
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                      Live Participants
+                    </Typography>
+                    <Stack direction="row" spacing={1.5} sx={{ mb: 3 }}>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Avatar
+                          key={i}
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            bgcolor: '#0D5C3F',
+                            fontSize: '0.875rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          {i}
+                        </Avatar>
+                      ))}
+                      <Avatar
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          bgcolor: 'action.hover',
+                          color: 'text.secondary',
+                          fontSize: '0.75rem'
+                        }}
+                      >
+                        +42
+                      </Avatar>
+                    </Stack>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700 }}>
+                      🏆 Top 3 Leaderboard
+                    </Typography>
+                    <Stack spacing={1}>
+                      {[
+                        { name: 'Alex M.', score: 850, color: '#FFD700' },
+                        { name: 'Sarah K.', score: 720, color: '#C0C0C0' },
+                        { name: 'Mike R.', score: 680, color: '#CD7F32' }
+                      ].map((player, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            p: 1.5,
+                            bgcolor: 'action.hover',
+                            borderRadius: 2
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: '50%',
+                                bgcolor: player.color,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#000',
+                                fontWeight: 800,
+                                fontSize: '0.75rem'
+                              }}
+                            >
+                              {idx + 1}
+                            </Box>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                              {player.name}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#0D5C3F' }}>
+                            {player.score}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+                  </Card>
+
+                  {/* Floating badge */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: -15,
+                      right: -15,
+                      bgcolor: '#0D5C3F',
+                      color: 'white',
+                      px: 2.5,
+                      py: 1,
+                      borderRadius: 3,
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      boxShadow: '0 10px 25px rgba(13, 92, 63, 0.4)',
+                      zIndex: 3,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        bgcolor: '#7ED957',
+                        animation: 'pulse 2s infinite'
+                      }}
+                    />
+                    47 Active
+                  </Box>
+                </Box>
+              </motion.div>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Features Grid */}
+      <Container maxWidth="xl" sx={{ py: { xs: 6, md: 10 } }}>
         <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
           <Typography variant="overline" color="primary" sx={{ fontWeight: 700, letterSpacing: 1.5, mb: 1 }}>
             BUILT FOR EVERYONE
@@ -531,7 +886,7 @@ function LandingPage() {
             Powerful Features for Every User
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto' }}>
-            Whether you're creating quizzes, learning new topics, or managing a platform - QuizCraft has you covered with AI-powered tools.
+            Whether you're creating quizzes, learning new topics, hosting live sessions, or managing a platform - QuizCraft has you covered with AI-powered tools.
           </Typography>
         </Box>
 
@@ -542,7 +897,7 @@ function LandingPage() {
           alignItems="stretch"
           sx={{
             flexWrap: 'nowrap',
-            '@media (max-width: 650px)': {
+            '@media (max-width: 875px)': {
               flexWrap: 'wrap'
             }
           }}
@@ -556,7 +911,7 @@ function LandingPage() {
                 display: 'flex',
                 flex: '1 1 0',
                 minWidth: 0,
-                '@media (max-width: 650px)': {
+                '@media (max-width: 875px)': {
                   flex: 'none',
                   width: '100%'
                 }
