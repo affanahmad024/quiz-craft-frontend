@@ -35,6 +35,7 @@ function CreateSessionPage() {
   const [wholeQuizTimerSec, setWholeQuizTimerSec] = useState(600);
   const [maxParticipants, setMaxParticipants] = useState(100);
   const [discoverable, setDiscoverable] = useState(true);
+  const [scheduledAt, setScheduledAt] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   // Quiz dropdown state
@@ -89,6 +90,11 @@ function CreateSessionPage() {
       sessionData.question_timer_seconds = questionTimerSec;
     } else {
       sessionData.whole_quiz_timer_seconds = wholeQuizTimerSec;
+    }
+
+    // Public sessions must be scheduled
+    if (discoverable && scheduledAt) {
+      sessionData.scheduled_at = new Date(scheduledAt).toISOString();
     }
 
     const res = await createSession(sessionData);
@@ -213,6 +219,23 @@ function CreateSessionPage() {
             }
             label="Discoverable (Public)"
           />
+
+          {discoverable && (
+            <TextField
+              label="Scheduled Start Time"
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+              required
+              InputLabelProps={{
+                shrink: true,
+              }}
+              helperText="Public sessions must be scheduled for a future time"
+              inputProps={{
+                min: new Date().toISOString().slice(0, 16),
+              }}
+            />
+          )}
 
           <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
             <Button
