@@ -50,9 +50,9 @@ function CreateSessionPage() {
           limit: 100, // Get all published quizzes
         });
 
-        if (response.success && response.data && response.data.quizzes) {
+        if (response.success && response.data && response.data.data && response.data.data.quizzes) {
           // Filter only published quizzes
-          const publishedQuizzes = response.data.quizzes.filter(
+          const publishedQuizzes = response.data.data.quizzes.filter(
             (quiz) => quiz.is_published === true
           );
           setQuizzes(publishedQuizzes);
