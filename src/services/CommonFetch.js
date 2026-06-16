@@ -27,10 +27,12 @@ export const fetchWithAbort = async ({
   authRequired = true,
 }) => {
   try {
+    const requestAbortRef = abortContRef || { current: null };
+
     // Don't abort previous request - let multiple requests complete naturally
     // This is important for React StrictMode which causes double-mounting
     // The abort controller is only used for manual cancellation by the caller
-    abortContRef.current = new AbortController();
+    requestAbortRef.current = new AbortController();
 
     // Build URL
     let url = endpoint.url;
@@ -52,7 +54,7 @@ export const fetchWithAbort = async ({
       method: endpoint.method,
       body: payload,
       authRequired,
-      signal: abortContRef.current.signal,
+      signal: requestAbortRef.current.signal,
     });
 
     // Handle success
@@ -115,11 +117,13 @@ export const downloadFileWithAbort = async ({
   defaultErrorMsg = 'Failed to download file',
 }) => {
   try {
+    const requestAbortRef = abortContRef || { current: null };
+
     // Abort previous request
-    if (abortContRef.current) {
-      abortContRef.current.abort();
+    if (requestAbortRef.current) {
+      requestAbortRef.current.abort();
     }
-    abortContRef.current = new AbortController();
+    requestAbortRef.current = new AbortController();
 
     // Build URL
     let url = endpoint.url;
@@ -133,7 +137,7 @@ export const downloadFileWithAbort = async ({
       method: endpoint.method,
       authRequired: true,
       responseType: 'blob',
-      signal: abortContRef.current.signal,
+      signal: requestAbortRef.current.signal,
     });
 
     if (response?.data) {

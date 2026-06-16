@@ -117,7 +117,7 @@ function AIQuizGenerationScreen() {
           const FeatureIcon = feature.icon;
 
           return (
-            <Grid item xs={12} md={4} key={feature.type}>
+            <Grid size={{ xs: 12, md: 4 }} key={feature.type}>
               <Card
                 sx={{
                   height: '100%',

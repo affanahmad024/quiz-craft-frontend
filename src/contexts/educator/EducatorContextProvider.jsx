@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import useNetReq from "../../hooks/NetworkRequest";
 import {
@@ -16,6 +16,7 @@ const EducatorCtx = createContext();
 
 function EducatorContextProvider({ children }) {
   const { fetchData } = useNetReq();
+  const abortContRef = useRef(null);
   const [educators, setEducators] = useState([]);
   const [isEducator, setIsEducator] = useState(false);
   const [profile, setProfile] = useState(null);
@@ -23,7 +24,7 @@ function EducatorContextProvider({ children }) {
 
   const fetchEducators = useCallback(
     async (params = {}) => {
-      const res = await getEducators(fetchData, null, params);
+      const res = await getEducators(fetchData, abortContRef, params);
       if (res && res.success) {
         const data = res.data?.data || res.data;
         setEducators(data.educators || []);
@@ -35,7 +36,7 @@ function EducatorContextProvider({ children }) {
 
   const fetchEducatorProfile = useCallback(
     async (id) => {
-      const res = await getEducatorProfile(fetchData, null, { id });
+      const res = await getEducatorProfile(fetchData, abortContRef, { id });
       if (res && res.success) {
         const data = res.data?.data || res.data;
         return data;
@@ -47,7 +48,7 @@ function EducatorContextProvider({ children }) {
 
   const promote = useCallback(
     async (profileData) => {
-      const res = await promoteToEducator(fetchData, null, { profileData });
+      const res = await promoteToEducator(fetchData, abortContRef, { profileData });
       if (res && res.success) setIsEducator(true);
       return res;
     },
@@ -56,7 +57,7 @@ function EducatorContextProvider({ children }) {
 
   const follow = useCallback(
     async (id) => {
-      const res = await followEducator(fetchData, null, { id });
+      const res = await followEducator(fetchData, abortContRef, { id });
       return res;
     },
     [fetchData],
@@ -64,14 +65,14 @@ function EducatorContextProvider({ children }) {
 
   const unfollow = useCallback(
     async (id) => {
-      const res = await unfollowEducator(fetchData, null, { id });
+      const res = await unfollowEducator(fetchData, abortContRef, { id });
       return res;
     },
     [fetchData],
   );
 
   const fetchMyProfile = useCallback(async () => {
-    const res = await getMyEducatorProfile(fetchData, null);
+    const res = await getMyEducatorProfile(fetchData, abortContRef);
     if (res && res.success) {
       const data = res.data?.data || res.data;
       setProfile(data || null);
@@ -82,7 +83,7 @@ function EducatorContextProvider({ children }) {
 
   const updateProfile = useCallback(
     async (payload) => {
-      const res = await updateEducatorProfile(fetchData, null, { payload });
+      const res = await updateEducatorProfile(fetchData, abortContRef, { payload });
       if (res && res.success) fetchMyProfile();
       return res;
     },
@@ -91,7 +92,7 @@ function EducatorContextProvider({ children }) {
 
   const fetchFollowers = useCallback(
     async (params = {}) => {
-      const res = await getFollowers(fetchData, null, params);
+      const res = await getFollowers(fetchData, abortContRef, params);
       if (res && res.success) {
         const data = res.data?.data || res.data;
         setFollowers(data.followers || []);
