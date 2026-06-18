@@ -31,7 +31,7 @@ function ResetPasswordScreen() {
   const { fetchData } = useNetReq();
   const abortContRef = useRef(new AbortController());
 
-  const userId = searchParams.get('userId');
+  const userId = searchParams.get('user_id') || searchParams.get('userId');
   const token = searchParams.get('token');
 
   const [password, setPassword] = useState('');

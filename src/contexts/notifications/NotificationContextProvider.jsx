@@ -78,7 +78,7 @@ function NotificationContextProvider({ children }) {
 
     if (response.success) {
       const data = response.data?.data || response.data;
-      setUnreadCount(data.count || 0);
+      setUnreadCount(data.unread_count ?? data.count ?? 0);
     }
 
     return response;
@@ -235,7 +235,9 @@ function NotificationContextProvider({ children }) {
    */
   useEffect(() => {
     if (isAuthenticated) {
-      fetchUnreadCount();
+      queueMicrotask(() => {
+        fetchUnreadCount();
+      });
       // Don't auto-fetch notifications - they'll be loaded when user opens the bell
     }
   }, [isAuthenticated, fetchUnreadCount]);
@@ -246,10 +248,14 @@ function NotificationContextProvider({ children }) {
   useEffect(() => {
     if (isAuthenticated) {
       // Connect to WebSocket when user is authenticated
-      connectWebSocket();
+      queueMicrotask(() => {
+        connectWebSocket();
+      });
     } else {
       // Disconnect when user logs out
-      disconnectWebSocket();
+      queueMicrotask(() => {
+        disconnectWebSocket();
+      });
     }
   }, [isAuthenticated, connectWebSocket, disconnectWebSocket]);
 
@@ -257,13 +263,15 @@ function NotificationContextProvider({ children }) {
    * Cleanup on unmount
    */
   useEffect(() => {
+    const abortController = abortContRef.current;
+
     return () => {
-      disconnectWebSocket();
-      if (abortContRef.current) {
-        abortContRef.current.abort();
+      notificationWebSocketService.disconnect();
+      if (abortController) {
+        abortController.abort();
       }
     };
-  }, [disconnectWebSocket]);
+  }, []);
 
   const value = {
     // State
@@ -296,6 +304,7 @@ NotificationContextProvider.propTypes = {
 /**
  * Hook to use Notification Context
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useNotifications = () => {
   const context = useContext(NotificationCtx);
   if (!context) {
