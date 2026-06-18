@@ -48,7 +48,7 @@ function ResultsPage() {
           {results && (
             <Box>
               <Typography variant="h6">Final Leaderboard</Typography>
-              {(results.leaderboard || []).map((row, idx) => (
+              {(results.final_leaderboard || results.leaderboard || []).map((row, idx) => (
                 <Box
                   key={row.user_id}
                   sx={{
@@ -60,19 +60,20 @@ function ResultsPage() {
                   <Typography>
                     {idx + 1}. {row.user_name}
                   </Typography>
-                  <Typography>{row.points}</Typography>
+                  <Typography>{row.current_score ?? row.points ?? 0}</Typography>
                 </Box>
               ))}
 
               <Box sx={{ mt: 3 }}>
                 <Typography variant="h6">Question Breakdown</Typography>
-                {(results.questions || []).map((q, i) => (
-                  <Paper key={q.id} sx={{ p: 1, my: 1 }}>
+                {(results.question_stats || results.questions || []).map((q, i) => (
+                  <Paper key={q.question_id || q.id} sx={{ p: 1, my: 1 }}>
                     <Typography variant="body2">
-                      {i + 1}. {q.text}
+                      {i + 1}. {q.question_text || q.text}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Correct: {q.correct_option_label}
+                      Correct: {q.correct_answers ?? q.correct_option_label ?? 0}
+                      {q.total_answers !== undefined && ` / ${q.total_answers}`}
                     </Typography>
                   </Paper>
                 ))}

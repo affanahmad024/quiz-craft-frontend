@@ -3,6 +3,7 @@
 // Following Phoenix pattern
 
 import { Box, Typography, Button, Chip, Avatar, AvatarGroup } from '@mui/material';
+import { useState } from 'react';
 import {
   People as PeopleIcon,
   Timer as TimerIcon,
@@ -20,6 +21,7 @@ import {
 } from '../../constants/LiveSessionConstants';
 import { ROUTES, buildRoute } from '../../constants/RouteConstants';
 import AnimatedCard from '../animations/AnimatedCard';
+import { useLiveSession } from '../../contexts/liveSession/LiveSessionContextProvider';
 
 /**
  * SessionCard Component
@@ -27,6 +29,8 @@ import AnimatedCard from '../animations/AnimatedCard';
  */
 function SessionCard({ session }) {
   const navigate = useNavigate();
+  const { joinSession } = useLiveSession();
+  const [isJoining, setIsJoining] = useState(false);
 
   const statusColor = SESSION_STATUS_COLORS[session.status];
   const statusLabel = SESSION_STATUS_LABELS[session.status];
@@ -34,13 +38,24 @@ function SessionCard({ session }) {
   const isWaiting = session.status === SESSION_STATUS.WAITING;
   const canJoin = isLive || isWaiting;
 
-  const handleJoinClick = () => {
+  const handleJoinClick = async () => {
+    if (!canJoin) {
+      navigate(buildRoute(ROUTES.LIVE_SESSION_RESULTS, { id: session.id }));
+      return;
+    }
+
+    setIsJoining(true);
+    const response = await joinSession(session.id).catch(() => ({ success: false }));
+    setIsJoining(false);
+
+    if (!response?.success) {
+      return;
+    }
+
     if (session.status === SESSION_STATUS.WAITING) {
       navigate(buildRoute(ROUTES.LIVE_SESSION_WAITING, { id: session.id }));
     } else if (session.status === SESSION_STATUS.LIVE) {
       navigate(buildRoute(ROUTES.LIVE_SESSION_LIVE, { id: session.id }));
-    } else {
-      navigate(buildRoute(ROUTES.LIVE_SESSION_RESULTS, { id: session.id }));
     }
   };
 
@@ -142,11 +157,13 @@ function SessionCard({ session }) {
           </Box>
 
           {/* Timer */}
-          {session.question_timer_seconds && (
+          {(session.question_timer_seconds || session.whole_quiz_timer_seconds) && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <TimerIcon sx={{ fontSize: 18, color: '#636E72' }} />
               <Typography variant="body2" color="text.secondary">
-                {session.question_timer_seconds}s per question
+                {session.question_timer_seconds
+                  ? `${session.question_timer_seconds}s per question`
+                  : `${Math.round(session.whole_quiz_timer_seconds / 60)} min quiz`}
               </Typography>
             </Box>
           )}
@@ -164,7 +181,7 @@ function SessionCard({ session }) {
           fullWidth
           variant="contained"
           onClick={handleJoinClick}
-          disabled={!canJoin}
+          disabled={!canJoin || isJoining}
           sx={{
             background: isLive
               ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
@@ -182,7 +199,7 @@ function SessionCard({ session }) {
             },
           }}
         >
-          {isLive ? '🔴 Join Now' : isWaiting ? 'Join Waiting Room' : 'View Results'}
+          {isJoining ? 'Joining...' : isLive ? 'Join Now' : isWaiting ? 'Join Waiting Room' : 'View Results'}
         </Button>
 
         {/* Access Code (for private sessions) */}
@@ -212,6 +229,7 @@ SessionCard.propTypes = {
     participant_count: PropTypes.number,
     max_participants: PropTypes.number,
     question_timer_seconds: PropTypes.number,
+    whole_quiz_timer_seconds: PropTypes.number,
     scheduled_at: PropTypes.string,
     access_code: PropTypes.string,
   }).isRequired,

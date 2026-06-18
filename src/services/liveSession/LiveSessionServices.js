@@ -48,6 +48,29 @@ export const getLiveSession = (fetchData, abortContRef, { sessionId }) => {
 };
 
 /**
+ * Get playable questions for a live session.
+ * @param {Function} fetchData - Network request function
+ * @param {Object} abortContRef - AbortController reference
+ * @param {Object} params - { sessionId }
+ * @returns {Promise} Session questions
+ */
+export const getLiveSessionQuestions = (fetchData, abortContRef, { sessionId }) => {
+  const endpoint = {
+    url: LIVE_SESSION_ENDPOINTS.GET_SESSION_QUESTIONS.url(sessionId),
+    method: LIVE_SESSION_ENDPOINTS.GET_SESSION_QUESTIONS.method,
+  };
+
+  return fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint,
+    authRequired: true,
+    defaultErrorMsg: "Couldn't fetch session questions.",
+    showErrorToast: false,
+  });
+};
+
+/**
  * Get my created sessions
  * @param {Function} fetchData - Network request function
  * @param {Object} abortContRef - AbortController reference

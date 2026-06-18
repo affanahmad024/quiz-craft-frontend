@@ -64,6 +64,21 @@ function LiveSessionContextProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
 
+  const clampTimerSeconds = (seconds, totalSeconds = seconds) => {
+    const secondsNumber = Number(seconds);
+    const totalNumber = Number(totalSeconds);
+
+    if (!Number.isFinite(secondsNumber)) {
+      return 0;
+    }
+
+    if (!Number.isFinite(totalNumber) || totalNumber <= 0) {
+      return Math.max(0, secondsNumber);
+    }
+
+    return Math.min(totalNumber, Math.max(0, secondsNumber));
+  };
+
   /**
    * Create a new session
    */
@@ -156,7 +171,7 @@ function LiveSessionContextProvider({ children }) {
 
     if (response.success) {
       const data = response.data?.data || response.data;
-      setInvitations(data.invitations || []);
+      setInvitations(data.invitations || data.sessions || []);
     }
 
     return response;
@@ -217,11 +232,6 @@ function LiveSessionContextProvider({ children }) {
    */
   const handleSubmitAnswer = useCallback(
     async (sessionId, questionId, answerId, timeTakenMs) => {
-      if (hasAnswered) {
-        toast.error("You already answered this question");
-        return { success: false, error: "Already answered" };
-      }
-
       const response = await submitAnswer(fetchData, abortContRef, {
         sessionId,
         answerData: {
@@ -234,8 +244,8 @@ function LiveSessionContextProvider({ children }) {
       if (response.success) {
         const data = response.data?.data || response.data;
         setHasAnswered(true);
-        setMyScore(data.total_score || 0);
-        setMyRank(data.current_rank);
+        setMyScore(data.current_score || data.total_score || 0);
+        setMyRank(data.rank || data.current_rank);
 
         // Show feedback
         if (data.is_correct) {
@@ -252,12 +262,15 @@ function LiveSessionContextProvider({ children }) {
 
         return { success: true, result: data };
       } else {
-        toast.error(response.error?.message || "Failed to submit answer");
+        const errorCode = response.error?.message || response.error?.error;
+        if (errorCode !== "already-answered") {
+          toast.error(response.error?.message || "Failed to submit answer");
+        }
       }
 
       return response;
     },
-    [fetchData, hasAnswered],
+    [fetchData],
   );
 
   /**
@@ -330,7 +343,21 @@ function LiveSessionContextProvider({ children }) {
         onSessionStarted: (data) => {
           console.log("Session started:", data);
           setCurrentQuestion(data.first_question);
-          setTimeRemaining(data.first_question?.timer_seconds || 30);
+          setTimeRemaining(
+            data.timer_mode === "whole_quiz"
+              ? clampTimerSeconds(
+                  data.whole_quiz_timer_seconds,
+                  data.whole_quiz_timer_seconds,
+                )
+              : clampTimerSeconds(
+                  data.first_question?.timer_seconds ||
+                    data.question_timer_seconds ||
+                    30,
+                  data.question_timer_seconds ||
+                    data.first_question?.timer_seconds ||
+                    30,
+                ),
+          );
           setHasAnswered(false);
           navigate(buildRoute(ROUTES.LIVE_SESSION_LIVE, { id: sessionId }));
         },
@@ -343,11 +370,15 @@ function LiveSessionContextProvider({ children }) {
         },
 
         onTimerUpdate: (data) => {
-          setTimeRemaining(data.seconds_remaining);
+          setTimeRemaining(
+            clampTimerSeconds(data.seconds_remaining, data.timer_seconds),
+          );
         },
 
         onWholeQuizTimerUpdate: (data) => {
-          setTimeRemaining(data.seconds_remaining);
+          setTimeRemaining(
+            clampTimerSeconds(data.seconds_remaining, data.total_seconds),
+          );
         },
 
         onQuestionAdvance: (data) => {

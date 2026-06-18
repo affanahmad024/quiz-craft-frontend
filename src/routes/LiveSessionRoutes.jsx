@@ -13,6 +13,7 @@ import LiveSessionPage from "../pages/liveSession/LiveSessionPage";
 import ResultsPage from "../pages/liveSession/ResultsPage";
 import MySessionsPage from "../pages/liveSession/MySessionsPage";
 import InvitationsPage from "../pages/liveSession/InvitationsPage";
+import LiveSessionEntryPage from "../pages/liveSession/LiveSessionEntryPage";
 
 /**
  * Live Session routes configuration
@@ -48,6 +49,6 @@ export const liveSessionRoutes = (
     <Route path={ROUTES.LIVE_SESSION_RESULTS} element={<ResultsPage />} />
 
     {/* Session Detail (fallback) */}
-    <Route path={ROUTES.LIVE_SESSION_DETAIL} element={<LiveSessionsPage />} />
+    <Route path={ROUTES.LIVE_SESSION_DETAIL} element={<LiveSessionEntryPage />} />
   </Route>
 );

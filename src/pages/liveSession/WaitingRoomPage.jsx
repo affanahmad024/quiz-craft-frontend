@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import AnimatedPage from "../../components/animations/AnimatedPage";
 import { useLiveSession } from "../../contexts/liveSession/LiveSessionContextProvider";
+import { useAuth } from "../../contexts/auth/AuthContextProvider";
 
 function WaitingRoomPage() {
   const { id } = useParams();
@@ -21,19 +22,25 @@ function WaitingRoomPage() {
     getLeaderboard,
     startSession,
     leaveSession,
+    connectToSession,
   } = useLiveSession();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const isCreator =
+    currentSession?.creator_id &&
+    (currentSession.creator_id === user?.id || currentSession.creator_id === user?.user_id);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       await getSession(id);
       await getLeaderboard(id).catch(() => {});
+      connectToSession(id);
       setLoading(false);
     };
 
     load();
-  }, [id]);
+  }, [id, getSession, getLeaderboard, connectToSession]);
 
   if (loading)
     return (
@@ -83,9 +90,11 @@ function WaitingRoomPage() {
             >
               Leave Session
             </Button>
-            <Button variant="contained" onClick={() => startSession(id)}>
-              Start Now
-            </Button>
+            {isCreator && (
+              <Button variant="contained" onClick={() => startSession(id)}>
+                Start Now
+              </Button>
+            )}
           </Box>
         </Paper>
       </Container>

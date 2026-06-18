@@ -15,6 +15,11 @@ export const LIVE_SESSION_ENDPOINTS = {
     method: API_METHODS.GET,
   },
 
+  GET_SESSION_QUESTIONS: {
+    url: (id) => `live-sessions/${id}/questions`,
+    method: API_METHODS.GET,
+  },
+
   GET_MY_SESSIONS: {
     url: 'live-sessions',
     method: API_METHODS.GET,

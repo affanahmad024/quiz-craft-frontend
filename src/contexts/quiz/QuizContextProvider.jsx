@@ -85,10 +85,10 @@ function QuizContextProvider({ children }) {
   /**
    * Fetch quiz by ID
    */
-  const handleGetQuiz = async (quizId, full = false) => {
+  const handleGetQuiz = async (quizId, full = false, options = {}) => {
     setIsLoading(true);
     const response = full
-      ? await getQuizFull(fetchData, getQuizAbortRef, { quizId })
+      ? await getQuizFull(fetchData, getQuizAbortRef, { quizId, ...options })
       : await getQuiz(fetchData, getQuizAbortRef, { quizId });
     setIsLoading(false);
 

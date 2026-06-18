@@ -46,12 +46,17 @@ export const getQuiz = (fetchData, abortContRef, { quizId }) =>
  * @param {Object} params - { quizId }
  * @returns {Promise} Full quiz with questions
  */
-export const getQuizFull = (fetchData, abortContRef, { quizId }) =>
+export const getQuizFull = (
+  fetchData,
+  abortContRef,
+  { quizId, hideCorrect = false },
+) =>
   fetchWithAbort({
     fetchData,
     abortContRef,
     endpoint: QUIZ_ENDPOINTS.GET_QUIZ_FULL,
     urlKeys: { id: quizId },
+    dynamicQparams: hideCorrect ? { hide_correct: true } : undefined,
     authRequired: true,
     defaultErrorMsg: "Couldn't fetch quiz with questions.",
   });
