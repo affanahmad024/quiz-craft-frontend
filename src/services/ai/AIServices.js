@@ -4,6 +4,12 @@
 import { AI_ENDPOINTS } from '../../api/ai/AIEndpoints';
 import { fetchWithAbort } from '../CommonFetch';
 
+const toOptionalNumber = (value) => {
+  if (value === undefined || value === null || value === '') return undefined;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
+
 /**
  * Generate quiz from text content
  * @param {Object} config - Configuration object with generation options and quiz metadata
@@ -32,8 +38,10 @@ export const generateQuizFromText = async (
   if (config.title) payload.metadata.title = config.title;
   if (config.description) payload.metadata.description = config.description;
   if (config.tags && config.tags.length > 0) payload.metadata.tags = config.tags;
-  if (config.time_limit_minutes) payload.metadata.time_limit_minutes = config.time_limit_minutes;
-  if (config.passing_score_percentage) payload.metadata.passing_score_percentage = config.passing_score_percentage;
+  const timeLimitMinutes = toOptionalNumber(config.time_limit_minutes);
+  const passingScorePercentage = toOptionalNumber(config.passing_score_percentage);
+  if (timeLimitMinutes !== undefined) payload.metadata.time_limit_minutes = timeLimitMinutes;
+  if (passingScorePercentage !== undefined) payload.metadata.passing_score_percentage = passingScorePercentage;
 
   return fetchWithAbort({
     fetchData,
