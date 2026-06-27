@@ -66,6 +66,7 @@ function DashboardScreen() {
 
   // Fetch dashboard data
   useEffect(() => {
+    fetch((import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') + '/api/v1/health').catch(() => {});
     fetchDashboardData();
   }, []);
 
@@ -695,3 +696,6 @@ function DashboardScreen() {
 }
 
 export default DashboardScreen;
+
+
+

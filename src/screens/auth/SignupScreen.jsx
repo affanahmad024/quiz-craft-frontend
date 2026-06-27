@@ -2,7 +2,7 @@
 // QuizCraft themed with green gradient and animations
 // Following ERPICA template design pattern
 
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -41,6 +41,10 @@ function SignupScreen() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
+
+  useEffect(() => {
+    fetch((import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') + '/api/v1/health').catch(() => {});
+  }, []);
 
   // Validation
   const validateForm = () => {
@@ -610,3 +614,6 @@ function SignupScreen() {
 }
 
 export default SignupScreen;
+
+
+

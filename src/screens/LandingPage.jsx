@@ -55,6 +55,7 @@ function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
+    fetch((import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') + '/api/v1/health').catch(() => {});
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
