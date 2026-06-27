@@ -1,18 +1,18 @@
 // Notification API Endpoints
 // Following Phoenix pattern for centralized endpoint definitions
 
-import { API_METHODS } from '../APIMethods';
+import { API_METHODS } from "../APIMethods";
 
 export const NOTIFICATION_ENDPOINTS = {
   // Get notifications list (paginated)
   GET_NOTIFICATIONS: {
-    url: 'notifications',
+    url: "api/v1/notifications",
     method: API_METHODS.GET,
   },
 
   // Get unread notification count
   GET_UNREAD_COUNT: {
-    url: 'notifications/unread-count',
+    url: "api/v1/notifications/unread-count",
     method: API_METHODS.GET,
   },
 
@@ -24,7 +24,7 @@ export const NOTIFICATION_ENDPOINTS = {
 
   // Mark all notifications as read
   MARK_ALL_AS_READ: {
-    url: 'notifications/read-all',
+    url: "api/v1/notifications/read-all",
     method: API_METHODS.PATCH,
   },
 
@@ -36,7 +36,7 @@ export const NOTIFICATION_ENDPOINTS = {
 
   // WebSocket endpoint (will be used for establishing WS connection)
   WS_NOTIFICATIONS: {
-    url: 'notifications/ws',
-    method: 'WS', // Custom method indicator for WebSocket
+    url: "api/v1/notifications/ws",
+    method: "WS", // Custom method indicator for WebSocket
   },
 };

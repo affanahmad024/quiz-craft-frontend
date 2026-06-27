@@ -1,60 +1,60 @@
 // Authentication API Endpoints
 // Following Phoenix pattern for centralized endpoint definitions
 
-import { API_METHODS } from '../APIMethods';
+import { API_METHODS } from "../APIMethods";
 
 export const AUTH_ENDPOINTS = {
   // Signup
   SIGNUP: {
-    url: 'auth/signup',
+    url: "api/v1/auth/signup",
     method: API_METHODS.POST,
   },
 
   // Verify Email
   VERIFY_EMAIL: {
-    url: 'auth/verify-email',
+    url: "api/v1/auth/verify-email",
     method: API_METHODS.POST,
   },
 
   // Resend Verification Email
   RESEND_VERIFICATION: {
-    url: 'auth/resend-verification',
+    url: "api/v1/auth/resend-verification",
     method: API_METHODS.POST,
   },
 
   // Login
   LOGIN: {
-    url: 'auth/login',
+    url: "api/v1/auth/login",
     method: API_METHODS.POST,
   },
 
   // Refresh Token
   REFRESH_TOKEN: {
-    url: 'auth/refresh',
+    url: "api/v1/auth/refresh",
     method: API_METHODS.POST,
   },
 
   // Forgot Password
   FORGOT_PASSWORD: {
-    url: 'auth/forgot-password',
+    url: "api/v1/auth/forgot-password",
     method: API_METHODS.POST,
   },
 
   // Reset Password
   RESET_PASSWORD: {
-    url: 'auth/reset-password',
+    url: "api/v1/auth/reset-password",
     method: API_METHODS.POST,
   },
 
   // Change Password (Authenticated)
   CHANGE_PASSWORD: {
-    url: 'auth/change-password',
+    url: "api/v1/auth/change-password",
     method: API_METHODS.POST,
   },
 
   // Logout
   LOGOUT: {
-    url: 'auth/logout',
+    url: "api/v1/auth/logout",
     method: API_METHODS.POST,
   },
 };

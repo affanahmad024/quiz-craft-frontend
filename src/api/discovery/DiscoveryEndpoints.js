@@ -1,7 +1,7 @@
 // Discovery & Search API Endpoints
 // Following Phoenix pattern
 
-import { API_METHODS } from '../APIMethods';
+import { API_METHODS } from "../APIMethods";
 
 /**
  * Discovery, Search, and Metadata API Endpoints
@@ -9,37 +9,37 @@ import { API_METHODS } from '../APIMethods';
 export const DISCOVERY_ENDPOINTS = {
   // Search quizzes
   SEARCH_QUIZZES: {
-    url: 'quizzes/search',
+    url: "api/v1/quizzes/search",
     method: API_METHODS.GET,
   },
 
   // Get categories
   GET_CATEGORIES: {
-    url: 'categories',
+    url: "api/v1/categories",
     method: API_METHODS.GET,
   },
 
   // Get popular tags
   GET_TAGS: {
-    url: 'tags',
+    url: "api/v1/tags",
     method: API_METHODS.GET,
   },
 
   // Get quiz by share code
   GET_QUIZ_BY_SHARE_CODE: {
-    url: 'share/:code',
+    url: "api/v1/share/:code",
     method: API_METHODS.GET,
   },
 
   // Get quiz statistics (basic)
   GET_QUIZ_STATS: {
-    url: 'quizzes/:id/stats',
+    url: "api/v1/quizzes/:id/stats",
     method: API_METHODS.GET,
   },
 
   // Get quiz statistics (detailed)
   GET_QUIZ_STATISTICS: {
-    url: 'quizzes/:id/statistics',
+    url: "api/v1/quizzes/:id/statistics",
     method: API_METHODS.GET,
   },
 };

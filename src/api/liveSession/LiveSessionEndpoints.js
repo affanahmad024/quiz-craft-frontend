@@ -1,12 +1,12 @@
 // Live Session API Endpoints
 // Following Phoenix pattern for centralized endpoint definitions
 
-import { API_METHODS } from '../APIMethods';
+import { API_METHODS } from "../APIMethods";
 
 export const LIVE_SESSION_ENDPOINTS = {
   // Session Management
   CREATE_SESSION: {
-    url: 'live-sessions',
+    url: "api/v1/live-sessions",
     method: API_METHODS.POST,
   },
 
@@ -21,12 +21,12 @@ export const LIVE_SESSION_ENDPOINTS = {
   },
 
   GET_MY_SESSIONS: {
-    url: 'live-sessions',
+    url: "api/v1/live-sessions",
     method: API_METHODS.GET,
   },
 
   GET_PUBLIC_SESSIONS: {
-    url: 'live-sessions/public',
+    url: "api/v1/live-sessions/public",
     method: API_METHODS.GET,
   },
 
@@ -79,13 +79,13 @@ export const LIVE_SESSION_ENDPOINTS = {
   },
 
   GET_INVITATIONS: {
-    url: 'live-sessions/invitations',
+    url: "api/v1/live-sessions/invitations",
     method: API_METHODS.GET,
   },
 
   // WebSocket
   WS_SESSION: {
     url: (id) => `live-sessions/${id}/ws`,
-    method: 'WS',
+    method: "WS",
   },
 };

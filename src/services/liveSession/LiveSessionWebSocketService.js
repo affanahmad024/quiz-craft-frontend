@@ -30,8 +30,9 @@ class LiveSessionWebSocketService {
    * Get WebSocket URL for session
    */
   getWebSocketUrl(sessionId) {
-    const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
-    const wsURL = baseURL.replace('http', 'ws');
+    const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+    const apiBaseURL = baseURL.endsWith('/api/v1') ? baseURL : baseURL + '/api/v1';
+    const wsURL = apiBaseURL.replace(/^http/, 'ws');
     const token = getFromLS(LS_CONSTS.LS_ACCESS_TOKEN);
 
     if (!token) {

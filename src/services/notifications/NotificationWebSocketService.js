@@ -29,8 +29,9 @@ class NotificationWebSocketService {
    * Get WebSocket URL
    */
   getWebSocketUrl() {
-    const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
-    const wsURL = baseURL.replace('http', 'ws'); // Convert http to ws
+    const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+    const apiBaseURL = baseURL.endsWith('/api/v1') ? baseURL : baseURL + '/api/v1';
+    const wsURL = apiBaseURL.replace(/^http/, 'ws'); // Convert http(s) to ws(s)
     const token = getFromLS(LS_CONSTS.LS_ACCESS_TOKEN);
 
     if (!token) {
