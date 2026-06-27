@@ -13,6 +13,7 @@ import {
   Grid,
   Chip,
   IconButton,
+  TextField,
   Radio,
   RadioGroup,
   FormControlLabel,
@@ -104,8 +105,8 @@ function TakeQuizScreen() {
       const answers = {};
       Object.keys(userAnswers).forEach((questionId) => {
         const answer = userAnswers[questionId];
-        if (answer.answerId) {
-          answers[questionId] = answer.answerId;
+        if (answer.answerId || answer.answerText) {
+          answers[questionId] = answer.answerId || answer.answerText;
         }
       });
       setSelectedAnswers(answers);
@@ -160,12 +161,12 @@ function TakeQuizScreen() {
   const currentQuestion = currentQuiz?.questions?.[currentQuestionIndex] || null;
 
   // Handle answer selection
-  const handleAnswerSelect = (answerId) => {
+  const handleAnswerSelect = (value) => {
     if (!currentQuestion) return;
 
     setSelectedAnswers((prev) => ({
       ...prev,
-      [currentQuestion.id]: answerId,
+      [currentQuestion.id]: value,
     }));
   };
 
@@ -173,14 +174,18 @@ function TakeQuizScreen() {
   const handleSaveAndNext = async () => {
     if (!currentQuestion) return;
 
-    const answerId = selectedAnswers[currentQuestion.id];
-    if (!answerId) {
-      toast.error('Please select an answer');
+    const answerValue = selectedAnswers[currentQuestion.id];
+    if (!answerValue || (typeof answerValue === 'string' && !answerValue.trim())) {
+      toast.error(currentQuestion.question_type === 'short_answer' ? 'Please enter your answer' : 'Please select an answer');
       return;
     }
 
-    // Save answer
-    const response = await submitAnswer(currentAttempt.id, currentQuestion.id, answerId, null);
+    const response = await submitAnswer(
+      currentAttempt.id,
+      currentQuestion.id,
+      currentQuestion.question_type === 'short_answer' ? null : answerValue,
+      currentQuestion.question_type === 'short_answer' ? answerValue.trim() : null
+    );
 
     if (response.success) {
       // Move to next question
@@ -207,14 +212,18 @@ function TakeQuizScreen() {
   const handleSaveAndMarkForReview = async () => {
     if (!currentQuestion) return;
 
-    const answerId = selectedAnswers[currentQuestion.id];
-    if (!answerId) {
-      toast.error('Please select an answer before marking for review');
+    const answerValue = selectedAnswers[currentQuestion.id];
+    if (!answerValue || (typeof answerValue === 'string' && !answerValue.trim())) {
+      toast.error(currentQuestion.question_type === 'short_answer' ? 'Please enter an answer before marking for review' : 'Please select an answer before marking for review');
       return;
     }
 
-    // Save answer
-    const response = await submitAnswer(currentAttempt.id, currentQuestion.id, answerId, null);
+    const response = await submitAnswer(
+      currentAttempt.id,
+      currentQuestion.id,
+      currentQuestion.question_type === 'short_answer' ? null : answerValue,
+      currentQuestion.question_type === 'short_answer' ? answerValue.trim() : null
+    );
 
     if (response.success) {
       // Mark for review
@@ -511,43 +520,56 @@ function TakeQuizScreen() {
                     {currentQuestion.question_text}
                   </Typography>
                 )}
-
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    mb: 2,
-                    color: '#757575',
-                  }}
-                >
-                  Options:
-                </Typography>
-
-                <RadioGroup
-                  value={selectedAnswers[currentQuestion.id] || ''}
-                  onChange={(e) => handleAnswerSelect(e.target.value)}
-                >
-                  {currentQuestion.answers?.map((answer, index) => (
-                    <FormControlLabel
-                      key={answer.id}
-                      value={answer.id}
-                      control={<Radio />}
-                      label={
-                        <Typography variant="body1">
-                          {index + 1}. {answer.answer_text}
-                        </Typography>
-                      }
+                {currentQuestion.question_type === 'short_answer' ? (
+                  <TextField
+                    fullWidth
+                    multiline
+                    minRows={5}
+                    value={selectedAnswers[currentQuestion.id] || ''}
+                    onChange={(e) => handleAnswerSelect(e.target.value)}
+                    placeholder="Type your answer here"
+                    sx={{ mt: 1 }}
+                  />
+                ) : (
+                  <>
+                    <Typography
+                      variant="subtitle2"
                       sx={{
-                        mb: 1,
-                        p: 1.5,
-                        borderRadius: 1,
-                        border: '1px solid #E0E0E0',
-                        '&:hover': {
-                          backgroundColor: '#F5F5F5',
-                        },
+                        mb: 2,
+                        color: '#757575',
                       }}
-                    />
-                  ))}
-                </RadioGroup>
+                    >
+                      Options:
+                    </Typography>
+
+                    <RadioGroup
+                      value={selectedAnswers[currentQuestion.id] || ''}
+                      onChange={(e) => handleAnswerSelect(e.target.value)}
+                    >
+                      {currentQuestion.answers?.map((answer, index) => (
+                        <FormControlLabel
+                          key={answer.id}
+                          value={answer.id}
+                          control={<Radio />}
+                          label={
+                            <Typography variant="body1">
+                              {index + 1}. {answer.answer_text}
+                            </Typography>
+                          }
+                          sx={{
+                            mb: 1,
+                            p: 1.5,
+                            borderRadius: 1,
+                            border: '1px solid #E0E0E0',
+                            '&:hover': {
+                              backgroundColor: '#F5F5F5',
+                            },
+                          }}
+                        />
+                      ))}
+                    </RadioGroup>
+                  </>
+                )}
               </Paper>
             )}
 
@@ -1129,3 +1151,6 @@ function TakeQuizScreen() {
 }
 
 export default TakeQuizScreen;
+
+
+

@@ -141,8 +141,9 @@ function QuizResultScreen() {
   const calculateStats = () => {
     const totalQuestions = currentResults.total_questions || 0;
     const answeredQuestions = currentResults.answered_count || 0;
-    const correctAnswers = answers.filter((a) => a.is_correct).length;
-    const incorrectAnswers = answeredQuestions - correctAnswers;
+    const correctAnswers = answers.filter((a) => a.is_correct === true).length;
+    const incorrectAnswers = answers.filter((a) => a.is_correct === false).length;
+    const pendingReview = answers.filter((a) => a.is_correct === null || typeof a.is_correct === 'undefined').length;
     const unansweredQuestions = totalQuestions - answeredQuestions;
 
     return {
@@ -150,11 +151,13 @@ function QuizResultScreen() {
       answeredQuestions,
       correctAnswers,
       incorrectAnswers,
+      pendingReview,
       unansweredQuestions,
     };
   };
 
   const stats = calculateStats();
+  const difficultyBreakdown = currentResults.difficulty_breakdown || [];
   const passed = attempt?.passed;
   const percentage = attempt?.percentage || 0;
 
@@ -455,6 +458,58 @@ function QuizResultScreen() {
           </Grid>
         </Grid>
 
+        {difficultyBreakdown.length > 0 && (
+          <Card
+            sx={{
+              mb: 3,
+              borderRadius: 3,
+              border: '1px solid #E8E8E8',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, color: '#2D3436', mb: 3 }}>
+                Difficulty Breakdown
+              </Typography>
+              <Grid container spacing={2}>
+                {difficultyBreakdown.map((item) => (
+                  <Grid item xs={12} md={4} key={item.difficulty}>
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        border: '1px solid #E8E8E8',
+                        backgroundColor: '#FAFBFC',
+                      }}
+                    >
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, textTransform: 'capitalize', mb: 1 }}>
+                        {item.difficulty}
+                      </Typography>
+                      <Grid container spacing={1}>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" color="text.secondary">Correct</Typography>
+                          <Typography variant="h6" sx={{ color: '#43e97b', fontWeight: 700 }}>{item.correct}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" color="text.secondary">Wrong</Typography>
+                          <Typography variant="h6" sx={{ color: '#f5576c', fontWeight: 700 }}>{item.wrong}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" color="text.secondary">Unanswered</Typography>
+                          <Typography variant="h6" sx={{ fontWeight: 700 }}>{item.unanswered}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" color="text.secondary">Review</Typography>
+                          <Typography variant="h6" sx={{ color: '#FF9800', fontWeight: 700 }}>{item.pending_review}</Typography>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </CardContent>
+          </Card>
+        )}
         {/* Attempt Details */}
         <Card
           sx={{
@@ -602,7 +657,8 @@ function QuizResultScreen() {
         {answers && answers.length > 0 ? (
           <Stack spacing={2}>
             {answers.map((answer, index) => {
-              const isCorrect = answer.is_correct;
+              const isCorrect = answer.is_correct === true;
+              const isPendingReview = answer.is_correct === null || typeof answer.is_correct === 'undefined';
               const isExpanded = expandedQuestions[answer.question_id];
 
               return (
@@ -638,14 +694,16 @@ function QuizResultScreen() {
                             }}
                           />
                           <Chip
-                            label={isCorrect ? 'Correct' : 'Incorrect'}
+                            label={isPendingReview ? 'Pending Review' : isCorrect ? 'Correct' : 'Incorrect'}
                             size="small"
-                            icon={isCorrect ? <CheckIcon /> : <CloseIcon />}
+                            icon={isPendingReview ? <AccessTimeIcon /> : isCorrect ? <CheckIcon /> : <CloseIcon />}
                             sx={{
-                              backgroundColor: isCorrect
-                                ? 'rgba(67, 233, 123, 0.1)'
-                                : 'rgba(245, 87, 108, 0.1)',
-                              color: isCorrect ? '#43e97b' : '#f5576c',
+                              backgroundColor: isPendingReview
+                                ? 'rgba(255, 152, 0, 0.1)'
+                                : isCorrect
+                                  ? 'rgba(67, 233, 123, 0.1)'
+                                  : 'rgba(245, 87, 108, 0.1)',
+                              color: isPendingReview ? '#FF9800' : isCorrect ? '#43e97b' : '#f5576c',
                               fontWeight: 600,
                             }}
                           />
@@ -705,10 +763,12 @@ function QuizResultScreen() {
                             p: 2,
                             borderRadius: 2,
                             border: '2px solid',
-                            borderColor: isCorrect ? '#43e97b' : '#f5576c',
-                            backgroundColor: isCorrect
-                              ? 'rgba(67, 233, 123, 0.05)'
-                              : 'rgba(245, 87, 108, 0.05)',
+                            borderColor: isPendingReview ? '#FF9800' : isCorrect ? '#43e97b' : '#f5576c',
+                            backgroundColor: isPendingReview
+                              ? 'rgba(255, 152, 0, 0.05)'
+                              : isCorrect
+                                ? 'rgba(67, 233, 123, 0.05)'
+                                : 'rgba(245, 87, 108, 0.05)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 2,
@@ -722,21 +782,21 @@ function QuizResultScreen() {
                               flex: 1,
                             }}
                           >
-                            {answer.selected_answer_text}
+                            {answer.selected_answer_text || answer.answer_text || 'Pending review'}
                           </Typography>
                           <Chip
-                            label={isCorrect ? 'Correct' : 'Incorrect'}
+                            label={isPendingReview ? 'Pending Review' : isCorrect ? 'Correct' : 'Incorrect'}
                             size="small"
-                            icon={isCorrect ? <CheckIcon /> : <CloseIcon />}
+                            icon={isPendingReview ? <AccessTimeIcon /> : isCorrect ? <CheckIcon /> : <CloseIcon />}
                             sx={{
-                              backgroundColor: isCorrect ? '#43e97b' : '#f5576c',
+                              backgroundColor: isPendingReview ? '#FF9800' : isCorrect ? '#43e97b' : '#f5576c',
                               color: '#FFFFFF',
                               fontWeight: 600,
                             }}
                           />
                         </Box>
 
-                        {!isCorrect && answer.correct_answer_text && (
+                        {!isCorrect && !isPendingReview && answer.correct_answer_text && (
                           <>
                             <Typography
                               variant="subtitle2"
@@ -812,3 +872,7 @@ function QuizResultScreen() {
 }
 
 export default QuizResultScreen;
+
+
+
+

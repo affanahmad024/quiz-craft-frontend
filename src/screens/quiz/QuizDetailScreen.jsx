@@ -146,7 +146,7 @@ function QuizDetailScreen() {
       toast.success(
         currentQuiz.is_published
           ? 'Quiz unpublished successfully'
-          : 'Quiz published successfully'
+          : 'Your quiz will be published after AI enrichment. You will be notified.'
       );
       setPublishDialogOpen(false);
 
@@ -236,7 +236,7 @@ function QuizDetailScreen() {
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                   <Chip
-                    label={currentQuiz.is_published ? 'Published' : 'Draft'}
+                    label={currentQuiz.is_published ? 'Published' : currentQuiz.publish_status === 'enrichment_pending' || currentQuiz.publish_status === 'enrichment_processing' ? 'Publishing' : currentQuiz.publish_status === 'enrichment_failed' ? 'Publish Failed' : 'Draft'}
                     sx={{
                       bgcolor: currentQuiz.is_published
                         ? COLORS.PUBLISHED
@@ -595,7 +595,7 @@ function QuizDetailScreen() {
           <DialogContentText>
             {currentQuiz?.is_published
               ? 'Are you sure you want to unpublish this quiz? It will no longer be accessible to users.'
-              : 'Are you sure you want to publish this quiz? It will be accessible to users.'}
+              : 'AI will enrich missing metadata first. Your quiz will auto-publish after processing, and you will be notified.'}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
@@ -807,3 +807,4 @@ function QuizDetailScreen() {
 }
 
 export default QuizDetailScreen;
+

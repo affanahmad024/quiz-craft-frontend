@@ -188,11 +188,20 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      // Handle nested data structure: response.data.data contains the actual quiz
-      const quiz = response.data?.data || response.data;
-      setCurrentQuiz(quiz);
+      const responseData = response.data?.data || response.data;
+      const fallbackUpdate = {
+        is_published: false,
+        publish_status: responseData?.status || 'enrichment_pending',
+      };
+      const hasQuizPayload = responseData?.id === quizId;
+
+      setCurrentQuiz((prev) => {
+        if (hasQuizPayload) return responseData;
+        if (prev?.id === quizId) return { ...prev, ...fallbackUpdate };
+        return prev;
+      });
       setQuizzes((prev) =>
-        prev.map((q) => (q.id === quizId ? quiz : q))
+        prev.map((q) => (q.id === quizId ? (hasQuizPayload ? responseData : { ...q, ...fallbackUpdate }) : q))
       );
     }
 
@@ -208,11 +217,20 @@ function QuizContextProvider({ children }) {
     setIsLoading(false);
 
     if (response.success) {
-      // Handle nested data structure: response.data.data contains the actual quiz
-      const quiz = response.data?.data || response.data;
-      setCurrentQuiz(quiz);
+      const responseData = response.data?.data || response.data;
+      const fallbackUpdate = {
+        is_published: false,
+        publish_status: 'unpublished',
+      };
+      const hasQuizPayload = responseData?.id === quizId;
+
+      setCurrentQuiz((prev) => {
+        if (hasQuizPayload) return responseData;
+        if (prev?.id === quizId) return { ...prev, ...fallbackUpdate };
+        return prev;
+      });
       setQuizzes((prev) =>
-        prev.map((q) => (q.id === quizId ? quiz : q))
+        prev.map((q) => (q.id === quizId ? (hasQuizPayload ? responseData : { ...q, ...fallbackUpdate }) : q))
       );
     }
 
@@ -465,3 +483,6 @@ export const useQuiz = () => {
 };
 
 export default QuizContextProvider;
+
+
+
