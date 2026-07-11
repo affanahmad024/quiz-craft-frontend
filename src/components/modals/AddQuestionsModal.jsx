@@ -395,6 +395,11 @@ AddQuestionsModal.propTypes = {
   onUpdateQuestion: PropTypes.func,
   editingQuestion: PropTypes.object,
   quizId: PropTypes.string.isRequired,
+  sections: PropTypes.array,
+  defaultSectionId: PropTypes.string,
+  initialSectionId: PropTypes.string,
+  onCreateSection: PropTypes.func,
 };
 
 export default AddQuestionsModal;
+

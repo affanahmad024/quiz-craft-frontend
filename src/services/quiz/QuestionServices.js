@@ -227,3 +227,78 @@ export const deleteAnswer = (fetchData, abortContRef, { answerId }) =>
     authRequired: true,
     defaultErrorMsg: "Couldn't delete answer.",
   });
+
+export const listSections = (fetchData, abortContRef, { quizId }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.LIST_SECTIONS,
+    urlKeys: { id: quizId },
+    authRequired: true,
+    defaultErrorMsg: "Couldn't fetch sections.",
+  });
+
+export const createSection = (fetchData, abortContRef, { quizId, sectionData }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.CREATE_SECTION,
+    urlKeys: { id: quizId },
+    payload: sectionData,
+    authRequired: true,
+    defaultErrorMsg: "Couldn't create section.",
+  });
+
+export const updateSection = (fetchData, abortContRef, { quizId, sectionId, updates }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.UPDATE_SECTION,
+    urlKeys: { id: quizId, sid: sectionId },
+    payload: updates,
+    authRequired: true,
+    defaultErrorMsg: "Couldn't update section.",
+  });
+
+export const deleteSection = (fetchData, abortContRef, { quizId, sectionId }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.DELETE_SECTION,
+    urlKeys: { id: quizId, sid: sectionId },
+    authRequired: true,
+    defaultErrorMsg: "Couldn't delete section.",
+  });
+
+export const reorderSections = (fetchData, abortContRef, { quizId, sections }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.REORDER_SECTIONS,
+    urlKeys: { id: quizId },
+    payload: { sections },
+    authRequired: true,
+    defaultErrorMsg: "Couldn't reorder sections.",
+  });
+
+export const reorderQuestions = (fetchData, abortContRef, { quizId, questions }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.REORDER_QUESTIONS,
+    urlKeys: { id: quizId },
+    payload: { questions },
+    authRequired: true,
+    defaultErrorMsg: "Couldn't reorder questions.",
+  });
+
+export const moveQuestionToSection = (fetchData, abortContRef, { questionId, sectionId }) =>
+  fetchWithAbort({
+    fetchData,
+    abortContRef,
+    endpoint: QUESTION_ENDPOINTS.MOVE_QUESTION_TO_SECTION,
+    urlKeys: { qid: questionId },
+    payload: { section_id: sectionId },
+    authRequired: true,
+    defaultErrorMsg: "Couldn't move question.",
+  });

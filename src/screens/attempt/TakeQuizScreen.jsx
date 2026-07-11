@@ -189,7 +189,7 @@ function TakeQuizScreen() {
 
     if (response.success) {
       // Move to next question
-      if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
+      if (currentQuestionIndex < (quizQuestions.length) - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
       }
     } else {
@@ -233,7 +233,7 @@ function TakeQuizScreen() {
       }));
 
       // Move to next question
-      if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
+      if (currentQuestionIndex < (quizQuestions.length) - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
       }
     } else {
@@ -252,7 +252,7 @@ function TakeQuizScreen() {
     }));
 
     // Move to next question
-    if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
+    if (currentQuestionIndex < (quizQuestions.length) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
@@ -265,7 +265,7 @@ function TakeQuizScreen() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < (currentQuiz.questions?.length || 0) - 1) {
+    if (currentQuestionIndex < (quizQuestions.length) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
@@ -373,10 +373,10 @@ function TakeQuizScreen() {
 
   // Calculate stats
   const totalQuestions = currentQuiz?.questions?.length || 0;
-  const notVisited = currentQuiz?.questions?.filter(
+  const notVisited = quizQuestions.filter(
     (q) => !visitedQuestions[q.id]
   ).length || 0;
-  const notAnswered = currentQuiz?.questions?.filter(
+  const notAnswered = quizQuestions.filter(
     (q) => visitedQuestions[q.id] && !selectedAnswers[q.id] && !markedForReview[q.id]
   ).length || 0;
   const answered = Object.keys(selectedAnswers).filter(
@@ -826,7 +826,39 @@ function TakeQuizScreen() {
                 </Box>
               </Box>
 
-              {/* Question Grid */}
+              <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {sectionedQuestions.map((section) => {
+                  const firstQuestion = section.questions?.[0];
+                  const firstIndex = firstQuestion ? quizQuestions.findIndex((question) => question.id === firstQuestion.id) : -1;
+                  return (
+                    <Chip
+                      key={section.id}
+                      label={`${section.title} (${section.questions?.length || 0})`}
+                      clickable={firstIndex >= 0}
+                      onClick={() => firstIndex >= 0 && handleQuestionClick(firstIndex)}
+                      variant="outlined"
+                      sx={{ fontWeight: 600 }}
+                    />
+                  );
+                })}
+              </Box>
+              <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {sectionedQuestions.map((section) => {
+              const firstQuestion = section.questions?.[0];
+              const firstIndex = firstQuestion ? quizQuestions.findIndex((question) => question.id === firstQuestion.id) : -1;
+              return (
+                <Chip
+                  key={section.id}
+                  label={`${section.title} (${section.questions?.length || 0})`}
+                  clickable={firstIndex >= 0}
+                  onClick={() => firstIndex >= 0 && handleQuestionClick(firstIndex)}
+                  variant="outlined"
+                  sx={{ fontWeight: 600 }}
+                />
+              );
+            })}
+          </Box>
+          {/* Question Grid */}
               <Box
                 sx={{
                   display: 'grid',
@@ -834,7 +866,7 @@ function TakeQuizScreen() {
                   gap: 1,
                 }}
               >
-                {currentQuiz.questions?.map((question, index) => {
+                {quizQuestions.map((question, index) => {
                   const status = getQuestionStatus(question);
                   const isCurrent = index === currentQuestionIndex;
 
@@ -1057,6 +1089,22 @@ function TakeQuizScreen() {
             </Box>
           </Box>
 
+          <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {sectionedQuestions.map((section) => {
+              const firstQuestion = section.questions?.[0];
+              const firstIndex = firstQuestion ? quizQuestions.findIndex((question) => question.id === firstQuestion.id) : -1;
+              return (
+                <Chip
+                  key={section.id}
+                  label={`${section.title} (${section.questions?.length || 0})`}
+                  clickable={firstIndex >= 0}
+                  onClick={() => firstIndex >= 0 && handleQuestionClick(firstIndex)}
+                  variant="outlined"
+                  sx={{ fontWeight: 600 }}
+                />
+              );
+            })}
+          </Box>
           {/* Question Grid */}
           <Box
             sx={{
@@ -1065,7 +1113,7 @@ function TakeQuizScreen() {
               gap: 1,
             }}
           >
-            {currentQuiz.questions?.map((question, index) => {
+            {quizQuestions.map((question, index) => {
               const status = getQuestionStatus(question);
               const isCurrent = index === currentQuestionIndex;
 
@@ -1151,6 +1199,9 @@ function TakeQuizScreen() {
 }
 
 export default TakeQuizScreen;
+
+
+
 
 
 

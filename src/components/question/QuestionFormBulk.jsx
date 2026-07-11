@@ -41,7 +41,7 @@ import {
  * @param {number} count - Number of question slots (default 10)
  * @param {boolean} isLoading - Loading state
  */
-function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoading }) {
+function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoading, defaultSectionId }) {
   // Initialize default answers based on question type
   const getDefaultAnswers = (type) => {
     if (type === 'true_false') {
@@ -145,6 +145,7 @@ function QuestionFormBulk({ open, onClose, onSubmit, questionType, count, isLoad
 
     // Prepare questions data
     const questionsData = validQuestions.map((q) => ({
+      section_id: defaultSectionId || undefined,
       question_text: q.question_text.trim(),
       question_type: questionType,
       points: parseInt(q.points),
@@ -409,11 +410,14 @@ QuestionFormBulk.propTypes = {
   questionType: PropTypes.oneOf(['multiple_choice', 'true_false', 'short_answer']).isRequired,
   count: PropTypes.number,
   isLoading: PropTypes.bool,
+  defaultSectionId: PropTypes.string,
 };
 
 QuestionFormBulk.defaultProps = {
   count: 10,
   isLoading: false,
+  defaultSectionId: '',
 };
 
 export default QuestionFormBulk;
+

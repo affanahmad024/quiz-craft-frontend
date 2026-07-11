@@ -27,6 +27,12 @@ import {
   addAnswer,
   updateAnswer,
   deleteAnswer,
+  createSection,
+  updateSection,
+  deleteSection,
+  reorderSections,
+  reorderQuestions,
+  moveQuestionToSection,
 } from '../../services/quiz/QuestionServices';
 
 const QuizCtx = createContext();
@@ -57,6 +63,7 @@ function QuizContextProvider({ children }) {
   const addAnswerAbortRef = useRef(null);
   const updateAnswerAbortRef = useRef(null);
   const deleteAnswerAbortRef = useRef(null);
+  const sectionAbortRef = useRef(null);
 
   const [currentQuiz, setCurrentQuiz] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
@@ -434,6 +441,49 @@ function QuizContextProvider({ children }) {
   /**
    * Clear current quiz
    */
+  const refreshCurrentQuiz = async (quizId) => {
+    const response = await getQuizFull(fetchData, getQuizAbortRef, { quizId });
+    if (response.success) {
+      setCurrentQuiz(response.data?.data || response.data);
+    }
+    return response;
+  };
+
+  const handleCreateSection = async (quizId, sectionData) => {
+    const response = await createSection(fetchData, sectionAbortRef, { quizId, sectionData });
+    if (response.success) await refreshCurrentQuiz(quizId);
+    return response;
+  };
+
+  const handleUpdateSection = async (quizId, sectionId, updates) => {
+    const response = await updateSection(fetchData, sectionAbortRef, { quizId, sectionId, updates });
+    if (response.success) await refreshCurrentQuiz(quizId);
+    return response;
+  };
+
+  const handleDeleteSection = async (quizId, sectionId) => {
+    const response = await deleteSection(fetchData, sectionAbortRef, { quizId, sectionId });
+    if (response.success) await refreshCurrentQuiz(quizId);
+    return response;
+  };
+
+  const handleReorderSections = async (quizId, sections) => {
+    const response = await reorderSections(fetchData, sectionAbortRef, { quizId, sections });
+    if (response.success) await refreshCurrentQuiz(quizId);
+    return response;
+  };
+
+  const handleReorderQuestions = async (quizId, questions) => {
+    const response = await reorderQuestions(fetchData, sectionAbortRef, { quizId, questions });
+    if (response.success) await refreshCurrentQuiz(quizId);
+    return response;
+  };
+
+  const handleMoveQuestionToSection = async (questionId, sectionId) => {
+    const response = await moveQuestionToSection(fetchData, sectionAbortRef, { questionId, sectionId });
+    if (response.success && currentQuiz?.id) await refreshCurrentQuiz(currentQuiz.id);
+    return response;
+  };
   const clearCurrentQuiz = () => {
     setCurrentQuiz(null);
   };
@@ -461,6 +511,12 @@ function QuizContextProvider({ children }) {
     addAnswer: handleAddAnswer,
     updateAnswer: handleUpdateAnswer,
     deleteAnswer: handleDeleteAnswer,
+    createSection: handleCreateSection,
+    updateSection: handleUpdateSection,
+    deleteSection: handleDeleteSection,
+    reorderSections: handleReorderSections,
+    reorderQuestions: handleReorderQuestions,
+    moveQuestionToSection: handleMoveQuestionToSection,
     clearCurrentQuiz,
   };
 
@@ -483,6 +539,9 @@ export const useQuiz = () => {
 };
 
 export default QuizContextProvider;
+
+
+
 
 
 
