@@ -2,8 +2,8 @@
 // Full-screen modal for managing questions organized by type
 // Following Phoenix pattern
 
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import {
   Dialog,
   AppBar,
@@ -16,18 +16,18 @@ import {
   CardContent,
   Divider,
   alpha,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Close as CloseIcon,
   CheckBox as CheckBoxIcon,
   CheckCircle as CheckCircleIcon,
   Edit as EditIcon,
-} from '@mui/icons-material';
-import QuizCraftButton from '../buttons/QuizCraftButton';
-import QuestionFormSingle from '../question/QuestionFormSingle';
-import QuestionFormBulk from '../question/QuestionFormBulk';
-import { QUESTION_TYPE_LABELS } from '../../constants/QuizConstants';
-import { toast } from 'react-hot-toast';
+} from "@mui/icons-material";
+import QuizCraftButton from "../buttons/QuizCraftButton";
+import QuestionFormSingle from "../question/QuestionFormSingle";
+import QuestionFormBulk from "../question/QuestionFormBulk";
+import { QUESTION_TYPE_LABELS } from "../../constants/QuizConstants";
+import { toast } from "react-hot-toast";
 
 /**
  * AddQuestionsModal Component
@@ -50,6 +50,9 @@ function AddQuestionsModal({
   onUpdateQuestion,
   editingQuestion,
   quizId,
+  sections,
+  defaultSectionId,
+  onCreateSection,
 }) {
   const [singleFormOpen, setSingleFormOpen] = useState(false);
   const [bulkFormOpen, setBulkFormOpen] = useState(false);
@@ -66,9 +69,11 @@ function AddQuestionsModal({
 
   // Group questions by type
   const questionsByType = {
-    multiple_choice: questions.filter((q) => q.question_type === 'multiple_choice'),
-    true_false: questions.filter((q) => q.question_type === 'true_false'),
-    short_answer: questions.filter((q) => q.question_type === 'short_answer'),
+    multiple_choice: questions.filter(
+      (q) => q.question_type === "multiple_choice",
+    ),
+    true_false: questions.filter((q) => q.question_type === "true_false"),
+    short_answer: questions.filter((q) => q.question_type === "short_answer"),
   };
 
   // Handle opening single form
@@ -99,7 +104,11 @@ function AddQuestionsModal({
     setIsLoading(false);
 
     if (response.success) {
-      toast.success(editingQuestion ? 'Question updated successfully' : 'Question added successfully');
+      toast.success(
+        editingQuestion
+          ? "Question updated successfully"
+          : "Question added successfully",
+      );
       setSingleFormOpen(false);
       onClose(); // Close the modal after saving
     }
@@ -141,11 +150,11 @@ function AddQuestionsModal({
   // Get color for question type
   const getTypeColor = (type) => {
     const colors = {
-      multiple_choice: '#667eea',
-      true_false: '#43e97b',
-      short_answer: '#fa8231',
+      multiple_choice: "#667eea",
+      true_false: "#43e97b",
+      short_answer: "#fa8231",
     };
-    return colors[type] || '#667eea';
+    return colors[type] || "#667eea";
   };
 
   // Render question type section
@@ -159,40 +168,44 @@ function AddQuestionsModal({
         key={type}
         sx={{
           borderRadius: 3,
-          border: '1px solid #E8E8E8',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          overflow: 'hidden',
+          border: "1px solid #E8E8E8",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+          overflow: "hidden",
         }}
       >
         <Box
           sx={{
             p: 2.5,
             background: `linear-gradient(135deg, ${alpha(typeColor, 0.1)} 0%, ${alpha(typeColor, 0.05)} 100%)`,
-            borderBottom: '1px solid #E8E8E8',
+            borderBottom: "1px solid #E8E8E8",
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
             <Box
               sx={{
                 width: 48,
                 height: 48,
                 borderRadius: 2,
                 backgroundColor: typeColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 boxShadow: `0 4px 12px ${alpha(typeColor, 0.3)}`,
               }}
             >
-              <TypeIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />
+              <TypeIcon sx={{ fontSize: 28, color: "#FFFFFF" }} />
             </Box>
 
             <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#2D3436', mb: 0.5 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, color: "#2D3436", mb: 0.5 }}
+              >
                 {QUESTION_TYPE_LABELS[type]}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {typeQuestions.length} question{typeQuestions.length !== 1 ? 's' : ''} added
+                {typeQuestions.length} question
+                {typeQuestions.length !== 1 ? "s" : ""} added
               </Typography>
             </Box>
           </Box>
@@ -204,12 +217,12 @@ function AddQuestionsModal({
               onClick={() => handleOpenSingleForm(type)}
               sx={{
                 backgroundColor: typeColor,
-                color: '#FFFFFF',
+                color: "#FFFFFF",
                 fontWeight: 600,
                 flex: 1,
-                '&:hover': {
+                "&:hover": {
                   backgroundColor: typeColor,
-                  filter: 'brightness(0.9)',
+                  filter: "brightness(0.9)",
                 },
               }}
             >
@@ -225,7 +238,7 @@ function AddQuestionsModal({
                 color: typeColor,
                 fontWeight: 600,
                 flex: 1,
-                '&:hover': {
+                "&:hover": {
                   borderColor: typeColor,
                   backgroundColor: alpha(typeColor, 0.05),
                 },
@@ -238,7 +251,7 @@ function AddQuestionsModal({
 
         {typeQuestions.length > 0 && (
           <CardContent sx={{ p: 0 }}>
-            <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
+            <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
               {typeQuestions.map((question, index) => (
                 <Box
                   key={question.id}
@@ -246,9 +259,11 @@ function AddQuestionsModal({
                     px: 2.5,
                     py: 1.5,
                     borderBottom:
-                      index < typeQuestions.length - 1 ? '1px solid #F0F0F0' : 'none',
-                    '&:hover': {
-                      backgroundColor: '#F8F9FA',
+                      index < typeQuestions.length - 1
+                        ? "1px solid #F0F0F0"
+                        : "none",
+                    "&:hover": {
+                      backgroundColor: "#F8F9FA",
                     },
                   }}
                 >
@@ -256,11 +271,11 @@ function AddQuestionsModal({
                     variant="body2"
                     sx={{
                       fontWeight: 500,
-                      color: '#2D3436',
-                      display: '-webkit-box',
+                      color: "#2D3436",
+                      display: "-webkit-box",
                       WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
                     }}
                   >
                     {index + 1}. {question.question_text}
@@ -278,85 +293,91 @@ function AddQuestionsModal({
     <>
       {/* Hide type selection dialog when editing */}
       {!singleFormOpen && !bulkFormOpen && (
-      <Dialog fullScreen open={open} onClose={onClose}>
-        <AppBar
-          position="sticky"
-          sx={{
-            backgroundColor: '#FFFFFF',
-            color: '#2D3436',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          }}
-        >
-          <Toolbar>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Add Questions Manually
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Organize questions by type and add them individually or in bulk
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  px: 2,
-                  py: 1,
-                  backgroundColor: alpha('#667eea', 0.1),
-                  borderRadius: 2,
-                }}
-              >
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#667eea' }}>
-                  Total Questions: {questions.length}
+        <Dialog fullScreen open={open} onClose={onClose}>
+          <AppBar
+            position="sticky"
+            sx={{
+              backgroundColor: "#FFFFFF",
+              color: "#2D3436",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            }}
+          >
+            <Toolbar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Add Questions Manually
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Organize questions by type and add them individually or in
+                  bulk
                 </Typography>
               </Box>
 
-              <QuizCraftButton
-                variant="contained"
-                onClick={onClose}
-                sx={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  fontWeight: 600,
-                  px: 3,
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #63408e 100%)',
-                  },
-                }}
-              >
-                Done Adding Questions
-              </QuizCraftButton>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    px: 2,
+                    py: 1,
+                    backgroundColor: alpha("#667eea", 0.1),
+                    borderRadius: 2,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 600, color: "#667eea" }}
+                  >
+                    Total Questions: {questions.length}
+                  </Typography>
+                </Box>
 
-              <IconButton edge="end" color="inherit" onClick={onClose}>
-                <CloseIcon />
-              </IconButton>
+                <QuizCraftButton
+                  variant="contained"
+                  onClick={onClose}
+                  sx={{
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    color: "white",
+                    fontWeight: 600,
+                    px: 3,
+                    "&:hover": {
+                      background:
+                        "linear-gradient(135deg, #5568d3 0%, #63408e 100%)",
+                    },
+                  }}
+                >
+                  Done Adding Questions
+                </QuizCraftButton>
+
+                <IconButton edge="end" color="inherit" onClick={onClose}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            </Toolbar>
+          </AppBar>
+
+          <Box
+            sx={{
+              p: 4,
+              backgroundColor: "#F8F9FA",
+              minHeight: "calc(100vh - 64px)",
+            }}
+          >
+            <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+              <Stack spacing={3}>
+                {/* Multiple Choice Section */}
+                {renderTypeSection("multiple_choice")}
+
+                {/* True/False Section */}
+                {renderTypeSection("true_false")}
+
+                {/* Short Answer Section */}
+                {renderTypeSection("short_answer")}
+              </Stack>
             </Box>
-          </Toolbar>
-        </AppBar>
-
-        <Box
-          sx={{
-            p: 4,
-            backgroundColor: '#F8F9FA',
-            minHeight: 'calc(100vh - 64px)',
-          }}
-        >
-          <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-            <Stack spacing={3}>
-              {/* Multiple Choice Section */}
-              {renderTypeSection('multiple_choice')}
-
-              {/* True/False Section */}
-              {renderTypeSection('true_false')}
-
-              {/* Short Answer Section */}
-              {renderTypeSection('short_answer')}
-            </Stack>
           </Box>
-        </Box>
-      </Dialog>
+        </Dialog>
       )}
 
       {/* Single Question Form */}
@@ -368,6 +389,9 @@ function AddQuestionsModal({
           questionType={selectedType}
           initialData={editingQuestion}
           isLoading={isLoading}
+          sections={sections}
+          defaultSectionId={defaultSectionId}
+          onCreateSection={onCreateSection}
         />
       )}
 
@@ -402,4 +426,3 @@ AddQuestionsModal.propTypes = {
 };
 
 export default AddQuestionsModal;
-

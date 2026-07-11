@@ -2,8 +2,8 @@
 // Edit quiz details and manage questions
 // Following Phoenix pattern
 
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Container,
@@ -33,7 +33,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Close as CloseIcon,
@@ -44,26 +44,26 @@ import {
   Upload as UploadIcon,
   CheckCircle as CheckCircleIcon,
   ExpandMore as ExpandMoreIcon,
-} from '@mui/icons-material';
-import { useQuiz } from '../../contexts/quiz/QuizContextProvider';
-import { ROUTES, buildRoute } from '../../constants/RouteConstants';
-import QuizCraftTextInput from '../../components/inputs/QuizCraftTextInput';
-import QuizCraftButton from '../../components/buttons/QuizCraftButton';
-import QuestionCard from '../../components/quiz/QuestionCard';
-import LoadingScreen from '../../components/screens/LoadingScreen';
-import EditQuizDetailsModal from '../../components/modals/EditQuizDetailsModal';
-import AddQuestionsModal from '../../components/modals/AddQuestionsModal';
-import AddAIQuestionsModal from '../../components/modals/AddAIQuestionsModal';
-import QuestionFormSingle from '../../components/question/QuestionFormSingle';
-import { COLORS } from '../../constants/ColorConstants';
+} from "@mui/icons-material";
+import { useQuiz } from "../../contexts/quiz/QuizContextProvider";
+import { ROUTES, buildRoute } from "../../constants/RouteConstants";
+import QuizCraftTextInput from "../../components/inputs/QuizCraftTextInput";
+import QuizCraftButton from "../../components/buttons/QuizCraftButton";
+import QuestionCard from "../../components/quiz/QuestionCard";
+import LoadingScreen from "../../components/screens/LoadingScreen";
+import EditQuizDetailsModal from "../../components/modals/EditQuizDetailsModal";
+import AddQuestionsModal from "../../components/modals/AddQuestionsModal";
+import AddAIQuestionsModal from "../../components/modals/AddAIQuestionsModal";
+import QuestionFormSingle from "../../components/question/QuestionFormSingle";
+import { COLORS } from "../../constants/ColorConstants";
 import {
   DIFFICULTY_LABELS,
   QUIZ_VALIDATION,
   QUESTION_TYPE_LABELS,
   MIN_ANSWERS_REQUIRED,
   MAX_ANSWERS_ALLOWED,
-} from '../../constants/QuizConstants';
-import { toast } from 'react-hot-toast';
+} from "../../constants/QuizConstants";
+import { toast } from "react-hot-toast";
 
 function EditQuizScreen() {
   const { id } = useParams();
@@ -77,6 +77,7 @@ function EditQuizScreen() {
     bulkAddQuestions,
     updateQuestion,
     deleteQuestion,
+    createSection,
   } = useQuiz();
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false);
@@ -87,7 +88,7 @@ function EditQuizScreen() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState(null);
   const [expandedQuestions, setExpandedQuestions] = useState({});
-  const [initialSectionId, setInitialSectionId] = useState('');
+  const [initialSectionId, setInitialSectionId] = useState("");
   const [draggedQuestionId, setDraggedQuestionId] = useState(null);
 
   // Fetch quiz on mount
@@ -95,7 +96,7 @@ function EditQuizScreen() {
     const fetchQuiz = async () => {
       const response = await getQuiz(id, true);
       if (!response.success) {
-        toast.error(response.error || 'Failed to load quiz');
+        toast.error(response.error || "Failed to load quiz");
         navigate(ROUTES.QUIZ_LIST);
       }
     };
@@ -108,21 +109,21 @@ function EditQuizScreen() {
     const response = await updateQuiz(id, updates);
 
     if (response.success) {
-      toast.success('Quiz details updated successfully');
+      toast.success("Quiz details updated successfully");
       setEditDetailsModalOpen(false);
     } else {
-      toast.error(response.error || 'Failed to update quiz');
+      toast.error(response.error || "Failed to update quiz");
     }
   };
 
   // Get difficulty color
   const getDifficultyColor = (difficulty) => {
     const colors = {
-      easy: '#43e97b',
-      medium: '#fa8231',
-      hard: '#f5576c',
+      easy: "#43e97b",
+      medium: "#fa8231",
+      hard: "#f5576c",
     };
-    return colors[difficulty] || '#667eea';
+    return colors[difficulty] || "#667eea";
   };
 
   // === MANUAL QUESTION FUNCTIONS ===
@@ -166,7 +167,7 @@ function EditQuizScreen() {
     const response = await updateQuestion(editingQuestion.id, questionData);
 
     if (response.success) {
-      toast.success('Question updated successfully');
+      toast.success("Question updated successfully");
       setEditQuestionModalOpen(false);
       setEditingQuestion(null);
       // Refresh quiz data to show updated question
@@ -196,18 +197,26 @@ function EditQuizScreen() {
     const response = await deleteQuestion(questionToDelete.id);
 
     if (response.success) {
-      toast.success('Question deleted successfully');
+      toast.success("Question deleted successfully");
       setDeleteDialogOpen(false);
       setQuestionToDelete(null);
     } else {
-      toast.error(response.error || 'Failed to delete question');
+      toast.error(response.error || "Failed to delete question");
     }
   };
 
   const sections = currentQuiz?.sections?.length
     ? currentQuiz.sections
-    : [{ id: '', title: 'General', is_default: true, questions: currentQuiz?.questions || [] }];
-  const defaultSectionId = sections.find((section) => section.is_default)?.id || sections[0]?.id || '';
+    : [
+        {
+          id: "",
+          title: "General",
+          is_default: true,
+          questions: currentQuiz?.questions || [],
+        },
+      ];
+  const defaultSectionId =
+    sections.find((section) => section.is_default)?.id || sections[0]?.id || "";
 
   const getFlatQuestionsFromSections = (nextSections = sections) =>
     nextSections.flatMap((section) => section.questions || []);
@@ -216,46 +225,67 @@ function EditQuizScreen() {
     if (!draggedQuestionId || !targetSectionId) return;
     const nextSections = sections.map((section) => ({
       ...section,
-      questions: [...(section.questions || [])].filter((question) => question.id !== draggedQuestionId),
+      questions: [...(section.questions || [])].filter(
+        (question) => question.id !== draggedQuestionId,
+      ),
     }));
-    const draggedQuestion = currentQuiz.questions?.find((question) => question.id === draggedQuestionId);
-    const targetSection = nextSections.find((section) => section.id === targetSectionId);
+    const draggedQuestion = currentQuiz.questions?.find(
+      (question) => question.id === draggedQuestionId,
+    );
+    const targetSection = nextSections.find(
+      (section) => section.id === targetSectionId,
+    );
     if (!draggedQuestion || !targetSection) return;
-    targetSection.questions.push({ ...draggedQuestion, section_id: targetSectionId });
-
-    const questionPayload = getFlatQuestionsFromSections(nextSections).map((question, index) => {
-      const section = nextSections.find((item) => item.id === question.section_id) || targetSection;
-      return {
-        question_id: question.id,
-        section_id: section.id,
-        section_order_index: section.questions.findIndex((item) => item.id === question.id),
-        order_index: index,
-      };
+    targetSection.questions.push({
+      ...draggedQuestion,
+      section_id: targetSectionId,
     });
 
+    const questionPayload = getFlatQuestionsFromSections(nextSections).map(
+      (question, index) => {
+        const section =
+          nextSections.find((item) => item.id === question.section_id) ||
+          targetSection;
+        return {
+          question_id: question.id,
+          section_id: section.id,
+          section_order_index: section.questions.findIndex(
+            (item) => item.id === question.id,
+          ),
+          order_index: index,
+        };
+      },
+    );
+
     const response = await reorderQuestions(id, questionPayload);
-    if (!response.success) toast.error(response.error || 'Failed to move question');
+    if (!response.success)
+      toast.error(response.error || "Failed to move question");
     setDraggedQuestionId(null);
   };
 
   const handleRenameSection = async (section) => {
-    const title = window.prompt('Section name', section.title);
+    const title = window.prompt("Section name", section.title);
     if (!title || title.trim() === section.title) return;
-    const response = await updateSection(id, section.id, { title: title.trim() });
-    if (!response.success) toast.error(response.error || 'Failed to rename section');
+    const response = await updateSection(id, section.id, {
+      title: title.trim(),
+    });
+    if (!response.success)
+      toast.error(response.error || "Failed to rename section");
   };
 
   const handleDeleteSection = async (section) => {
     if (section.is_default) return;
-    if (!window.confirm('Delete this section? Questions will move to General.')) return;
+    if (!window.confirm("Delete this section? Questions will move to General."))
+      return;
     const response = await deleteSection(id, section.id);
-    if (!response.success) toast.error(response.error || 'Failed to delete section');
+    if (!response.success)
+      toast.error(response.error || "Failed to delete section");
   };
 
   const handleCreateSection = async (title) => {
     const response = await createSection(id, { title });
     if (!response.success) {
-      toast.error(response.error || 'Failed to create section');
+      toast.error(response.error || "Failed to create section");
     }
     return response;
   };
@@ -266,8 +296,8 @@ function EditQuizScreen() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        backgroundColor: '#F8F9FA',
+        minHeight: "100vh",
+        backgroundColor: "#F8F9FA",
         py: 4,
       }}
     >
@@ -277,19 +307,27 @@ function EditQuizScreen() {
           sx={{
             mb: 4,
             borderRadius: 3,
-            border: '1px solid #E8E8E8',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            border: "1px solid #E8E8E8",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
         >
           <CardContent sx={{ p: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
               <Box sx={{ flex: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
                   <Typography
                     variant="h4"
                     sx={{
                       fontWeight: 700,
-                      color: '#2D3436',
+                      color: "#2D3436",
                     }}
                   >
                     {currentQuiz.title}
@@ -297,10 +335,10 @@ function EditQuizScreen() {
                   <IconButton
                     onClick={() => setEditDetailsModalOpen(true)}
                     sx={{
-                      color: '#667eea',
-                      backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                      color: "#667eea",
+                      backgroundColor: "rgba(102, 126, 234, 0.1)",
+                      "&:hover": {
+                        backgroundColor: "rgba(102, 126, 234, 0.2)",
                       },
                     }}
                   >
@@ -312,21 +350,21 @@ function EditQuizScreen() {
                   <Typography
                     variant="body1"
                     sx={{
-                      color: '#636E72',
+                      color: "#636E72",
                       mb: 3,
-                      whiteSpace: 'pre-line',
+                      whiteSpace: "pre-line",
                     }}
                   >
                     {currentQuiz.description}
                   </Typography>
                 )}
 
-                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
                   <Chip
                     label={currentQuiz.category}
                     sx={{
-                      backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                      color: '#667eea',
+                      backgroundColor: "rgba(102, 126, 234, 0.1)",
+                      color: "#667eea",
                       fontWeight: 600,
                     }}
                   />
@@ -369,8 +407,8 @@ function EditQuizScreen() {
                 variant="outlined"
                 onClick={() => navigate(buildRoute(ROUTES.QUIZ_DETAIL, { id }))}
                 sx={{
-                  borderColor: '#DFE6E9',
-                  color: '#636E72',
+                  borderColor: "#DFE6E9",
+                  color: "#636E72",
                 }}
               >
                 Preview Quiz
@@ -383,57 +421,60 @@ function EditQuizScreen() {
         <Card
           sx={{
             borderRadius: 3,
-            border: '1px solid #E8E8E8',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            border: "1px solid #E8E8E8",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
         >
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, color: '#2D3436' }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 700, mb: 1, color: "#2D3436" }}
+            >
               Quiz Questions
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
               Add questions manually or generate them using AI
             </Typography>
-
             {/* Add Question Options */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
               {/* Manual Entry Card */}
               <Grid item xs={12} md={6}>
                 <Card
                   sx={{
-                    height: '100%',
-                    cursor: 'pointer',
-                    border: '2px solid #E8E8E8',
-                    transition: 'all 0.3s',
-                    '&:hover': {
-                      borderColor: '#667eea',
-                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.15)',
-                      transform: 'translateY(-2px)',
+                    height: "100%",
+                    cursor: "pointer",
+                    border: "2px solid #E8E8E8",
+                    transition: "all 0.3s",
+                    "&:hover": {
+                      borderColor: "#667eea",
+                      boxShadow: "0 4px 12px rgba(102, 126, 234, 0.15)",
+                      transform: "translateY(-2px)",
                     },
                   }}
                   onClick={handleStartManualAdd}
                 >
-                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                  <CardContent sx={{ p: 3, textAlign: "center" }}>
                     <Box
                       sx={{
                         width: 64,
                         height: 64,
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mx: 'auto',
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(102, 126, 234, 0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mx: "auto",
                         mb: 2,
                       }}
                     >
-                      <ManualIcon sx={{ fontSize: 32, color: '#667eea' }} />
+                      <ManualIcon sx={{ fontSize: 32, color: "#667eea" }} />
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                       Add Questions Manually
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Create questions one by one with full control over content and answers
+                      Create questions one by one with full control over content
+                      and answers
                     </Typography>
                   </CardContent>
                 </Card>
@@ -443,62 +484,79 @@ function EditQuizScreen() {
               <Grid item xs={12} md={6}>
                 <Card
                   sx={{
-                    height: '100%',
-                    cursor: 'pointer',
-                    border: '2px solid #E8E8E8',
-                    transition: 'all 0.3s',
-                    '&:hover': {
-                      borderColor: '#764ba2',
-                      boxShadow: '0 4px 12px rgba(118, 75, 162, 0.15)',
-                      transform: 'translateY(-2px)',
+                    height: "100%",
+                    cursor: "pointer",
+                    border: "2px solid #E8E8E8",
+                    transition: "all 0.3s",
+                    "&:hover": {
+                      borderColor: "#764ba2",
+                      boxShadow: "0 4px 12px rgba(118, 75, 162, 0.15)",
+                      transform: "translateY(-2px)",
                     },
                   }}
                   onClick={handleStartAIGeneration}
                 >
-                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                  <CardContent sx={{ p: 3, textAlign: "center" }}>
                     <Box
                       sx={{
                         width: 64,
                         height: 64,
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mx: 'auto',
+                        borderRadius: "50%",
+                        background:
+                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mx: "auto",
                         mb: 2,
                       }}
                     >
-                      <AIIcon sx={{ fontSize: 32, color: 'white' }} />
+                      <AIIcon sx={{ fontSize: 32, color: "white" }} />
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                       Generate with AI
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Automatically create questions from text, documents, or images using AI
+                      Automatically create questions from text, documents, or
+                      images using AI
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
             </Grid>
-
             {/* Sectioned Questions List */}
             {currentQuiz.questions && currentQuiz.questions.length > 0 && (
               <Box>
                 <Divider sx={{ my: 4 }} />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Typography variant="h6">Sections ({sections.length})</Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 3,
+                  }}
+                >
+                  <Typography variant="h6">
+                    Sections ({sections.length})
+                  </Typography>
                   <Button
                     size="small"
                     onClick={() => {
-                      const allExpanded = sections.every((section) => expandedQuestions[section.id]);
+                      const allExpanded = sections.every(
+                        (section) => expandedQuestions[section.id],
+                      );
                       const newExpanded = {};
-                      if (!allExpanded) sections.forEach((section) => { newExpanded[section.id] = true; });
+                      if (!allExpanded)
+                        sections.forEach((section) => {
+                          newExpanded[section.id] = true;
+                        });
                       setExpandedQuestions(newExpanded);
                     }}
-                    sx={{ textTransform: 'none', color: COLORS.PRIMARY }}
+                    sx={{ textTransform: "none", color: COLORS.PRIMARY }}
                   >
-                    {sections.every((section) => expandedQuestions[section.id]) ? 'Collapse All' : 'Expand All'}
+                    {sections.every((section) => expandedQuestions[section.id])
+                      ? "Collapse All"
+                      : "Expand All"}
                   </Button>
                 </Box>
                 <Stack spacing={2}>
@@ -506,55 +564,222 @@ function EditQuizScreen() {
                     <Accordion
                       key={section.id}
                       expanded={expandedQuestions[section.id] ?? true}
-                      onChange={() => setExpandedQuestions((prev) => ({ ...prev, [section.id]: !(prev[section.id] ?? true) }))}
+                      onChange={() =>
+                        setExpandedQuestions((prev) => ({
+                          ...prev,
+                          [section.id]: !(prev[section.id] ?? true),
+                        }))
+                      }
                       onDragOver={(event) => event.preventDefault()}
                       onDrop={() => handleQuestionDrop(section.id)}
-                      sx={{ borderRadius: '12px !important', border: '1px solid #E8E8E8', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', '&:before': { display: 'none' } }}
+                      sx={{
+                        borderRadius: "12px !important",
+                        border: "1px solid #E8E8E8",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                        "&:before": { display: "none" },
+                      }}
                     >
-                      <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 3, py: 1.5, backgroundColor: '#FAFBFC' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 700, flex: 1 }}>{section.title}</Typography>
-                          <Chip label={`${section.questions?.length || 0} questions`} size="small" variant="outlined" />
-                          <Button size="small" onClick={(event) => { event.stopPropagation(); handleStartManualAdd(section.id); }} sx={{ textTransform: 'none' }}>Add</Button>
-                          <Button size="small" onClick={(event) => { event.stopPropagation(); handleRenameSection(section); }} sx={{ textTransform: 'none' }} disabled={section.is_default}>Rename</Button>
-                          <Button size="small" color="error" onClick={(event) => { event.stopPropagation(); handleDeleteSection(section); }} sx={{ textTransform: 'none' }} disabled={section.is_default}>Delete</Button>
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        sx={{ px: 3, py: 1.5, backgroundColor: "#FAFBFC" }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.5,
+                            width: "100%",
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 700, flex: 1 }}
+                          >
+                            {section.title}
+                          </Typography>
+                          <Chip
+                            label={`${section.questions?.length || 0} questions`}
+                            size="small"
+                            variant="outlined"
+                          />
+                          <Button
+                            size="small"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleStartManualAdd(section.id);
+                            }}
+                            sx={{ textTransform: "none" }}
+                          >
+                            Add
+                          </Button>
+                          <Button
+                            size="small"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleRenameSection(section);
+                            }}
+                            sx={{ textTransform: "none" }}
+                            disabled={section.is_default}
+                          >
+                            Rename
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDeleteSection(section);
+                            }}
+                            sx={{ textTransform: "none" }}
+                            disabled={section.is_default}
+                          >
+                            Delete
+                          </Button>
                         </Box>
                       </AccordionSummary>
-                      <AccordionDetails sx={{ p: 2, backgroundColor: '#FFFFFF' }}>
+                      <AccordionDetails
+                        sx={{ p: 2, backgroundColor: "#FFFFFF" }}
+                      >
                         {(section.questions || []).length === 0 ? (
-                          <Alert severity="info">No questions in this section yet.</Alert>
+                          <Alert severity="info">
+                            No questions in this section yet.
+                          </Alert>
                         ) : (
                           <Stack spacing={1.5}>
-                            {(section.questions || []).map((question, index) => (
-                              <Accordion
-                                key={question.id}
-                                draggable
-                                onDragStart={() => setDraggedQuestionId(question.id)}
-                                expanded={expandedQuestions[question.id] || false}
-                                onChange={() => setExpandedQuestions((prev) => ({ ...prev, [question.id]: !prev[question.id] }))}
-                                sx={{ borderRadius: '10px !important', border: '1px solid #EEF0F2', boxShadow: 'none', '&:before': { display: 'none' } }}
-                              >
-                                <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 2, py: 1 }}>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%', minWidth: 0 }}>
-                                    <Chip label={`Q${index + 1}`} size="small" sx={{ backgroundColor: COLORS.PRIMARY, color: '#FFFFFF', fontWeight: 600, flexShrink: 0 }} />
-                                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                                      <Typography variant="body1" sx={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{question.question_text}</Typography>
-                                      <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-                                        <Chip label={QUESTION_TYPE_LABELS[question.question_type]} size="small" sx={{ height: 20, fontSize: '0.7rem', backgroundColor: 'rgba(102, 126, 234, 0.1)', color: COLORS.PRIMARY }} />
-                                        <Chip label={`${question.points || 1} pts`} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+                            {(section.questions || []).map(
+                              (question, index) => (
+                                <Accordion
+                                  key={question.id}
+                                  draggable
+                                  onDragStart={() =>
+                                    setDraggedQuestionId(question.id)
+                                  }
+                                  expanded={
+                                    expandedQuestions[question.id] || false
+                                  }
+                                  onChange={() =>
+                                    setExpandedQuestions((prev) => ({
+                                      ...prev,
+                                      [question.id]: !prev[question.id],
+                                    }))
+                                  }
+                                  sx={{
+                                    borderRadius: "10px !important",
+                                    border: "1px solid #EEF0F2",
+                                    boxShadow: "none",
+                                    "&:before": { display: "none" },
+                                  }}
+                                >
+                                  <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    sx={{ px: 2, py: 1 }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1.5,
+                                        width: "100%",
+                                        minWidth: 0,
+                                      }}
+                                    >
+                                      <Chip
+                                        label={`Q${index + 1}`}
+                                        size="small"
+                                        sx={{
+                                          backgroundColor: COLORS.PRIMARY,
+                                          color: "#FFFFFF",
+                                          fontWeight: 600,
+                                          flexShrink: 0,
+                                        }}
+                                      />
+                                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                                        <Typography
+                                          variant="body1"
+                                          sx={{
+                                            fontWeight: 600,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                          }}
+                                        >
+                                          {question.question_text}
+                                        </Typography>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            gap: 1,
+                                            mt: 0.5,
+                                            flexWrap: "wrap",
+                                          }}
+                                        >
+                                          <Chip
+                                            label={
+                                              QUESTION_TYPE_LABELS[
+                                                question.question_type
+                                              ]
+                                            }
+                                            size="small"
+                                            sx={{
+                                              height: 20,
+                                              fontSize: "0.7rem",
+                                              backgroundColor:
+                                                "rgba(102, 126, 234, 0.1)",
+                                              color: COLORS.PRIMARY,
+                                            }}
+                                          />
+                                          <Chip
+                                            label={`${question.points || 1} pts`}
+                                            size="small"
+                                            sx={{
+                                              height: 20,
+                                              fontSize: "0.7rem",
+                                            }}
+                                          />
+                                        </Box>
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          gap: 0.5,
+                                          flexShrink: 0,
+                                        }}
+                                        onClick={(event) =>
+                                          event.stopPropagation()
+                                        }
+                                      >
+                                        <IconButton
+                                          size="small"
+                                          onClick={() =>
+                                            handleEditQuestion(question)
+                                          }
+                                          sx={{ color: COLORS.INFO }}
+                                        >
+                                          <EditIcon fontSize="small" />
+                                        </IconButton>
+                                        <IconButton
+                                          size="small"
+                                          onClick={() =>
+                                            handleDeleteQuestion(question)
+                                          }
+                                          sx={{ color: COLORS.ERROR }}
+                                        >
+                                          <DeleteIcon fontSize="small" />
+                                        </IconButton>
                                       </Box>
                                     </Box>
-                                    <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }} onClick={(event) => event.stopPropagation()}>
-                                      <IconButton size="small" onClick={() => handleEditQuestion(question)} sx={{ color: COLORS.INFO }}><EditIcon fontSize="small" /></IconButton>
-                                      <IconButton size="small" onClick={() => handleDeleteQuestion(question)} sx={{ color: COLORS.ERROR }}><DeleteIcon fontSize="small" /></IconButton>
-                                    </Box>
-                                  </Box>
-                                </AccordionSummary>
-                                <AccordionDetails sx={{ p: 2 }}>
-                                  <QuestionCard question={question} editable={false} onEdit={handleEditQuestion} onDelete={handleDeleteQuestion} />
-                                </AccordionDetails>
-                              </Accordion>
-                            ))}
+                                  </AccordionSummary>
+                                  <AccordionDetails sx={{ p: 2 }}>
+                                    <QuestionCard
+                                      question={question}
+                                      editable={false}
+                                      onEdit={handleEditQuestion}
+                                      onDelete={handleDeleteQuestion}
+                                    />
+                                  </AccordionDetails>
+                                </Accordion>
+                              ),
+                            )}
                           </Stack>
                         )}
                       </AccordionDetails>
@@ -562,7 +787,8 @@ function EditQuizScreen() {
                   ))}
                 </Stack>
               </Box>
-            )}          </CardContent>
+            )}{" "}
+          </CardContent>
         </Card>
       </Container>
 
@@ -576,7 +802,8 @@ function EditQuizScreen() {
         <DialogTitle>Delete Question?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this question? This action cannot be undone.
+            Are you sure you want to delete this question? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
@@ -611,9 +838,12 @@ function EditQuizScreen() {
         open={addQuestionsModalOpen}
         onClose={() => {
           setAddQuestionsModalOpen(false);
-          setInitialSectionId('');
+          setInitialSectionId("");
         }}
         questions={currentQuiz?.questions || []}
+        sections={currentQuiz?.sections || []}
+        defaultSectionId={defaultSectionId}
+        onCreateSection={handleCreateSection}
         onAddQuestion={handleAddQuestion}
         onBulkAddQuestions={handleBulkAddQuestions}
         quizId={id}
@@ -624,7 +854,7 @@ function EditQuizScreen() {
         open={addAIQuestionsModalOpen}
         onClose={() => setAddAIQuestionsModalOpen(false)}
         quizId={id}
-        quizTitle={currentQuiz?.title || 'Loading...'}
+        quizTitle={currentQuiz?.title || "Loading..."}
       />
 
       {/* Edit Question Modal - Direct form without type selection */}
@@ -639,6 +869,9 @@ function EditQuizScreen() {
           questionType={editingQuestion.question_type}
           initialData={editingQuestion}
           isLoading={isLoading}
+          sections={currentQuiz?.sections || []}
+          defaultSectionId={defaultSectionId}
+          onCreateSection={handleCreateSection}
         />
       )}
     </Box>
@@ -646,7 +879,3 @@ function EditQuizScreen() {
 }
 
 export default EditQuizScreen;
-
-
-
-
